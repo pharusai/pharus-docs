@@ -1,0 +1,255 @@
+<!doctype html><html lang=en dir=ltr class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-business-logic/sales-orders" data-has-hydrated=false><head><meta charset=UTF-8><meta name=generator content="Docusaurus v3.10.0"><title data-rh=true>Sales Orders | Pharus Docs</title><meta data-rh=true name=viewport content="width=device-width, initial-scale=1.0"/><meta data-rh=true name=twitter:card content=summary_large_image /><meta data-rh=true property=og:image content=https://docs.pharus.ai/img/pharus-social-card.jpg /><meta data-rh=true name=twitter:image content=https://docs.pharus.ai/img/pharus-social-card.jpg /><meta data-rh=true property=og:url content=https://docs.pharus.ai/business-logic/sales-orders /><meta data-rh=true property=og:locale content=en /><meta data-rh=true name=docusaurus_locale content=en /><meta data-rh=true name=docsearch:language content=en /><meta data-rh=true name=docusaurus_version content=current /><meta data-rh=true name=docusaurus_tag content=docs-default-current /><meta data-rh=true name=docsearch:version content=current /><meta data-rh=true name=docsearch:docusaurus_tag content=docs-default-current /><meta data-rh=true property=og:title content="Sales Orders | Pharus Docs"/><meta data-rh=true name=description content="Workflows for sales orders, their line items, timeline notes, attached documents, and the three SO-side master-data tables (order channels, order status types, fulfillment status types). SOs are the demand side of finished goods — every line is a SKU the org has promised to deliver. On creation and through the fulfillment lifecycle, SO workflows write DEMAND / ALLOCATE / CONSUME entries to the FG ledger, mirroring how PO and WO workflows feed it."/><meta data-rh=true property=og:description content="Workflows for sales orders, their line items, timeline notes, attached documents, and the three SO-side master-data tables (order channels, order status types, fulfillment status types). SOs are the demand side of finished goods — every line is a SKU the org has promised to deliver. On creation and through the fulfillment lifecycle, SO workflows write DEMAND / ALLOCATE / CONSUME entries to the FG ledger, mirroring how PO and WO workflows feed it."/><link data-rh=true rel=icon href=/img/favicon.png /><link data-rh=true rel=canonical href=https://docs.pharus.ai/business-logic/sales-orders /><link data-rh=true rel=alternate href=https://docs.pharus.ai/business-logic/sales-orders hreflang=en /><link data-rh=true rel=alternate href=https://docs.pharus.ai/business-logic/sales-orders hreflang=x-default /><script data-rh=true type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://docs.pharus.ai/business-logic/sales-orders","name":"Sales Orders","position":1}]}</script><link rel=stylesheet href=/assets/css/styles.9f89b5bd.css /><script src=/assets/js/runtime~main.69479b1d.js defer></script><script src=/assets/js/main.567b1695.js defer></script></head><body><svg style="display: none;"><defs>
+<symbol id=theme-svg-external-link viewBox="0 0 24 24"><path fill=currentColor d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme-7c0")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light")),document.documentElement.setAttribute("data-theme-choice",t||"system")}(),function(){try{for(var[t,e]of new URLSearchParams(window.location.search).entries())if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id=__docusaurus><link rel=preload as=image href=/img/pharus-logo.png /><link rel=preload as=image href=/img/pharus-logo-dark.png /><div role=region aria-label="Skip to main content"><a class=skipToContent_pwwS href=#__docusaurus_skipToContent_fallback>Skip to main content</a></div><nav aria-label=Main class="theme-layout-navbar navbar navbar--fixed-top"><div class=navbar__inner><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded=false class="navbar__toggle clean-btn" type=button><svg width=30 height=30 viewBox="0 0 30 30" aria-hidden=true><path stroke=currentColor stroke-linecap=round stroke-miterlimit=10 stroke-width=2 d="M4 7h22M4 15h22M4 23h22"/></svg></button><a class=navbar__brand href=/><div class=navbar__logo><img src=/img/pharus-logo.png alt="Pharus Logo" class="themedComponent_xeud themedComponent--light_E364"/><img src=/img/pharus-logo-dark.png alt="Pharus Logo" class="themedComponent_xeud themedComponent--dark_NdJ7"/></div><b class="navbar__title text--truncate">Pharus Docs</b></a><a class="navbar__item navbar__link" href=/>Overview</a><a class="navbar__item navbar__link" href=/data>Data (L1)</a><a class="navbar__item navbar__link" href=/components>Domain Components (L2)</a><a aria-current=page class="navbar__item navbar__link navbar__link--active" href=/business-logic>Business Logic (L3)</a><a class="navbar__item navbar__link" href=/api>API (L4)</a><a class="navbar__item navbar__link" href=/clients>Clients (L5)</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbar__item dropdown dropdown--hoverable dropdown--right"><a aria-current=page class="navbar__link active" aria-haspopup=true aria-expanded=false role=button href=/business-logic/sales-orders>Stage A</a><ul class=dropdown__menu><li><a aria-current=page class="dropdown__link dropdown__link--active" href=/business-logic/sales-orders>Stage A</a><li><a class=dropdown__link href=/full-scale/overview>Full Scale</a></ul></div><div class="toggle_JGCH colorModeToggle_yPzQ"><button class="clean-btn toggleButton_keXA toggleButtonDisabled_DJuf" type=button disabled title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width=24 height=24 aria-hidden=true class="toggleIcon__9n5 lightToggleIcon_BqqW"><path fill=currentColor d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"/></svg><svg viewBox="0 0 24 24" width=24 height=24 aria-hidden=true class="toggleIcon__9n5 darkToggleIcon_RJ6h"><path fill=currentColor d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"/></svg><svg viewBox="0 0 24 24" width=24 height=24 aria-hidden=true class="toggleIcon__9n5 systemToggleIcon_oDGb"><path fill=currentColor d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"/></svg></button></div><div class=navbarSearchContainer_xp3X></div></div></div><div role=presentation class=navbar-sidebar__backdrop></div></nav><div id=__docusaurus_skipToContent_fallback class="theme-layout-main main-wrapper mainWrapper_rg0_"><div class=docsWrapper_RREs><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_NTJ5" type=button></button><div class=docRoot_Exir><aside class="theme-doc-sidebar-container docSidebarContainer_JVeR"><div class=sidebarViewport_J2CR><div class=sidebar_jCUE><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_G57_"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class=menu__link href=/business-logic><span title=Overview class=linkLabel_d8Rm>Overview</span></a><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class=menu__list-item-collapsible><a class="categoryLink_Yt49 menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role=button aria-expanded=true href=/business-logic/platform><span title=Workflows class=categoryLinkLabel_KdnU>Workflows</span></a></div><ul class=menu__list><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class=menu__link tabindex=0 href=/business-logic/platform><span title=Platform class=linkLabel_d8Rm>Platform</span></a><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class=menu__link tabindex=0 href=/business-logic/purchase-orders><span title="Purchase Orders" class=linkLabel_d8Rm>Purchase Orders</span></a><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class=menu__link tabindex=0 href=/business-logic/work-orders><span title="Work Orders" class=linkLabel_d8Rm>Work Orders</span></a><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current=page tabindex=0 href=/business-logic/sales-orders><span title="Sales Orders" class=linkLabel_d8Rm>Sales Orders</span></a><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class=menu__link tabindex=0 href=/business-logic/materials-inventory><span title="Materials Inventory" class=linkLabel_d8Rm>Materials Inventory</span></a><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class=menu__link tabindex=0 href=/business-logic/finished-goods-inventory><span title="Finished Goods Inventory" class=linkLabel_d8Rm>Finished Goods Inventory</span></a><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class=menu__link tabindex=0 href=/business-logic/customers><span title=Customers class=linkLabel_d8Rm>Customers</span></a><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class=menu__link tabindex=0 href=/business-logic/products><span title=Products class=linkLabel_d8Rm>Products</span></a><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class=menu__link tabindex=0 href=/business-logic/bom><span title="Bill of Materials" class=linkLabel_d8Rm>Bill of Materials</span></a><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class=menu__link tabindex=0 href=/business-logic/vendors><span title=Vendors class=linkLabel_d8Rm>Vendors</span></a><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class=menu__link tabindex=0 href=/business-logic/materials><span title=Materials class=linkLabel_d8Rm>Materials</span></a><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class=menu__link tabindex=0 href=/business-logic/locations><span title=Locations class=linkLabel_d8Rm>Locations</span></a><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class=menu__link tabindex=0 href=/business-logic/contacts><span title=Contacts class=linkLabel_d8Rm>Contacts</span></a></ul></ul></nav></div></div></aside><main class=docMainContainer_JE3l><div class="container padding-top--md padding-bottom--lg"><div class=row><div class="col docItemCol_Maxz"><div class=docItemContainer_vkwR><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Ngl5" aria-label=Breadcrumbs><ul class=breadcrumbs><li class=breadcrumbs__item><a aria-label="Home page" class=breadcrumbs__link href=/><svg viewBox="0 0 24 24" class=breadcrumbHomeIcon_mqHv><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill=currentColor /></svg></a><li class=breadcrumbs__item><span class=breadcrumbs__link>Workflows</span><li class="breadcrumbs__item breadcrumbs__item--active"><span class=breadcrumbs__link>Sales Orders</span></ul></nav><span class="theme-doc-version-badge badge badge--secondary">Version: Stage A</span><div class="tocCollapsible_AZnR theme-doc-toc-mobile tocMobile_JLrn"><button type=button class="clean-btn tocCollapsibleButton_o4FI">On this page</button></div><div class="theme-doc-markdown markdown"><header><h1>Sales Orders</h1></header>
+<p>Workflows for sales orders, their line items, timeline notes, attached documents, and the three SO-side master-data tables (order channels, order status types, fulfillment status types). SOs are the demand side of finished goods — every line is a SKU the org has promised to deliver. On creation and through the fulfillment lifecycle, SO workflows write DEMAND / ALLOCATE / CONSUME entries to the FG ledger, mirroring how PO and WO workflows feed it.</p>
+<p>Composes: <a class="" href=/components/sales-orders><code>SalesOrders</code></a>, <a class="" href=/components/finished-goods-inventory><code>FinishedGoodsInventory</code></a>, <a class="" href=/components/customers><code>Customers</code></a>, <a class="" href=/components/products><code>Products</code></a>, <a class="" href=/components/locations><code>Locations</code></a>, <a class="" href=/components/documents><code>Documents</code></a>.</p>
+<p>Status enums (seeded from <code>order_status_types</code>): <code>Received → Entered → Shipped → Invoiced → Paid</code> plus terminal branches (<code>Rejected</code>, <code>In-Dispute</code>, <code>Completed</code>). Fulfillment status (seeded from <code>fulfillment_status_types</code>): <code>Pending → Partial → Fulfilled</code>, derived but also editable.</p>
+<h2 class="anchor anchorTargetStickyNavbar_LqMH" id=writes>Writes<a href=#writes class=hash-link aria-label="Direct link to Writes" title="Direct link to Writes" translate=no>​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=1-create-sales-order>1. Create sales order<a href=#1-create-sales-order class=hash-link aria-label="Direct link to 1. Create sales order" title="Direct link to 1. Create sales order" translate=no>​</a></h3>
+<p>Triggered from the Sales Orders page → "New SO". Records demand against finished-goods inventory.</p>
+<p>Composes: <code>SalesOrders</code>, <code>Customers</code>, <code>Locations</code>, <code>Products</code>, <code>FinishedGoodsInventory</code>.</p>
+<p>Steps:</p>
+<ol>
+<li class="">Generate the next SO number (<code>SO-001</code>, …).</li>
+<li class="">Verify the customer, fulfillment location, channel, and order/fulfillment statuses exist and are active.</li>
+<li class=""><code>SalesOrders.createSo</code> with header fields and initial statuses (default <code>Received</code> / <code>Pending</code>).</li>
+<li class="">For each line item: verify the SKU exists, then <code>SalesOrders.addItem</code>.</li>
+<li class="">For each line, write a DEMAND entry to the FG ledger via <code>FinishedGoodsInventory.recordDemand</code> — quantity, <code>locationId = fulfillmentLocationId</code>, <code>ref = soNumber</code>, <code>unitCost</code> left null (DEMAND is a quantity-only signal).</li>
+</ol>
+<p>Returns: the new SO with hydrated items.</p>
+<p>Business rules:</p>
+<ul>
+<li class="">DEMAND entries appear at SO creation, before any inventory is allocated or shipped.</li>
+<li class="">Brokers, MABD, and QBO id are optional metadata; they don't influence the ledger.</li>
+</ul>
+<p>Errors:</p>
+<ul>
+<li class=""><code>NotFoundError</code> — customer, location, channel, status, or SKU not found.</li>
+<li class=""><code>ValidationError</code> — referenced status types not configured for this org.</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=2-update-sales-order>2. Update sales order<a href=#2-update-sales-order class=hash-link aria-label="Direct link to 2. Update sales order" title="Direct link to 2. Update sales order" translate=no>​</a></h3>
+<p>Triggered from Sales Order Detail.</p>
+<p>Composes: <code>SalesOrders</code>, <code>FinishedGoodsInventory</code>.</p>
+<p>Steps:</p>
+<ol>
+<li class=""><code>SalesOrders.getSoById</code> — load current state.</li>
+<li class="">If <code>status</code> changed, validate the transition (manual map enforced; see seeded transitions above).</li>
+<li class="">On status transitions that move inventory:<!-- -->
+<ul>
+<li class=""><code>Entered</code>: write ALLOCATE entries for each line via <code>recordAllocation</code> (one per line, <code>ref = soNumber</code>). DEMAND entries are kept — they remain as the SO's promise marker.</li>
+<li class=""><code>Shipped</code>: write CONSUME entries via <code>recordConsumption</code>. Delete the ALLOCATE entries (their job is done). Stamp the CONSUME <code>unitCost</code> with the weighted-average FG unit cost at consume time.</li>
+<li class=""><code>Rejected</code> / <code>Cancelled</code>-flavoured terminals: delete DEMAND and ALLOCATE entries for this SO. CONSUME entries — if any (partial ship before cancel) — stay.</li>
+</ul>
+</li>
+<li class=""><code>SalesOrders.updateSo</code>.</li>
+<li class="">If line quantities haven't changed but the user has manually edited <code>fulfillmentStatus</code>, write it through directly; otherwise the workflow derives it from the FG ledger CONSUME totals (see §13).</li>
+</ol>
+<p>Returns: the updated SO.</p>
+<p>Business rules:</p>
+<ul>
+<li class=""><code>customerId</code> is immutable after creation.</li>
+<li class=""><code>fulfillmentLocationId</code> is editable only while in <code>Received</code> / <code>Entered</code> and propagates to any ALLOCATE entries that already exist (delete + re-insert at the new location).</li>
+<li class="">CONSUME entries are at-cost-of-shipment; they are not re-priced if conversion costs change later. (Trailing-cost adjustments out of scope for v1.)</li>
+</ul>
+<p>Errors:</p>
+<ul>
+<li class=""><code>NotFoundError</code>, <code>InvalidTransitionError</code>, <code>ValidationError</code>.</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=3-delete-sales-order>3. Delete sales order<a href=#3-delete-sales-order class=hash-link aria-label="Direct link to 3. Delete sales order" title="Direct link to 3. Delete sales order" translate=no>​</a></h3>
+<p>Triggered from Sales Order Detail.</p>
+<p>Composes: <code>SalesOrders</code>, <code>FinishedGoodsInventory</code>, <code>Documents</code>.</p>
+<p>Steps:</p>
+<ol>
+<li class=""><code>SalesOrders.getSoById</code> — confirm.</li>
+<li class=""><code>Documents.listByEntity('sales_order', soId)</code> and <code>Documents.delete</code> for each — detaches files from the SO and removes them from GCS.</li>
+<li class="">Delete every FG ledger entry tied to this SO: <code>listEntries({ refLike: soNumber })</code>, then <code>deleteEntry</code> for each. This includes DEMAND, ALLOCATE, and CONSUME entries.</li>
+<li class=""><code>SalesOrders.deleteSo</code> — cascades to items and timeline notes.</li>
+</ol>
+<p>Business rules:</p>
+<ul>
+<li class="">Deleting an SO that has been shipped removes its CONSUME entries; the FG inventory goes "back up" by the consumed quantity. This is intentional — deleting an SO is a corrective action, not an end-of-life one. Users should mark the SO <code>Completed</code> rather than deleting once shipment has happened.</li>
+</ul>
+<p>Errors:</p>
+<ul>
+<li class=""><code>NotFoundError</code>.</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=4-bulk-import-sales-orders>4. Bulk-import sales orders<a href=#4-bulk-import-sales-orders class=hash-link aria-label="Direct link to 4. Bulk-import sales orders" title="Direct link to 4. Bulk-import sales orders" translate=no>​</a></h3>
+<p>Triggered from the Data page → SO import.</p>
+<p>Composes: same as Create SO.</p>
+<p>Steps:</p>
+<ol>
+<li class="">Parse the upload into <code>{ header, items[] }</code> rows. Collect parse errors.</li>
+<li class="">Abort on any parse failure.</li>
+<li class="">Inside one <code>withTransaction</code>, run Create SO's steps 1–5 for each row.</li>
+</ol>
+<p>Errors: <code>ValidationError</code>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=5-add-item-to-sales-order>5. Add item to sales order<a href=#5-add-item-to-sales-order class=hash-link aria-label="Direct link to 5. Add item to sales order" title="Direct link to 5. Add item to sales order" translate=no>​</a></h3>
+<p>Triggered from Sales Order Detail items section.</p>
+<p>Composes: <code>SalesOrders</code>, <code>Products</code>, <code>FinishedGoodsInventory</code>.</p>
+<p>Steps:</p>
+<ol>
+<li class=""><code>SalesOrders.getSoById</code> — confirm and read current status.</li>
+<li class="">Verify the SKU exists and is active.</li>
+<li class=""><code>SalesOrders.addItem</code> with quantity and unit price.</li>
+<li class="">Write a DEMAND entry for the new line. If the SO is past <code>Entered</code>, also write an ALLOCATE entry. If past <code>Shipped</code> — refuse the add; line items can't be added to shipped orders.</li>
+</ol>
+<p>Errors:</p>
+<ul>
+<li class=""><code>NotFoundError</code>, <code>InvalidTransitionError</code>.</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=6-update-sales-order-item>6. Update sales order item<a href=#6-update-sales-order-item class=hash-link aria-label="Direct link to 6. Update sales order item" title="Direct link to 6. Update sales order item" translate=no>​</a></h3>
+<p>Triggered from Sales Order Detail items section.</p>
+<p>Composes: <code>SalesOrders</code>, <code>FinishedGoodsInventory</code>.</p>
+<p>Steps:</p>
+<ol>
+<li class=""><code>SalesOrders.getItemById</code> — confirm and read parent SO.</li>
+<li class="">If the SO is <code>Shipped</code> or beyond, refuse — shipped items are immutable.</li>
+<li class=""><code>SalesOrders.updateItem</code> with patch.</li>
+<li class="">If quantity changed, delete and re-insert the DEMAND entry (and ALLOCATE, if past <code>Entered</code>) for this line to keep the ledger in sync.</li>
+<li class="">If SKU changed, treat as remove + add: delete all open ledger entries for the old line, write new DEMAND (+ ALLOCATE) for the new SKU.</li>
+</ol>
+<p>Errors:</p>
+<ul>
+<li class=""><code>NotFoundError</code>, <code>InvalidTransitionError</code>.</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=7-remove-item-from-sales-order>7. Remove item from sales order<a href=#7-remove-item-from-sales-order class=hash-link aria-label="Direct link to 7. Remove item from sales order" title="Direct link to 7. Remove item from sales order" translate=no>​</a></h3>
+<p>Triggered from Sales Order Detail items section.</p>
+<p>Composes: <code>SalesOrders</code>, <code>FinishedGoodsInventory</code>.</p>
+<p>Steps:</p>
+<ol>
+<li class=""><code>SalesOrders.getItemById</code> — confirm.</li>
+<li class="">If the parent SO is <code>Shipped</code> or beyond, refuse.</li>
+<li class="">Delete any FG ledger entries (DEMAND / ALLOCATE) tied to this line.</li>
+<li class=""><code>SalesOrders.removeItem</code>.</li>
+</ol>
+<p>Errors:</p>
+<ul>
+<li class=""><code>NotFoundError</code>, <code>InvalidTransitionError</code>.</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=8-add-timeline-note>8. Add timeline note<a href=#8-add-timeline-note class=hash-link aria-label="Direct link to 8. Add timeline note" title="Direct link to 8. Add timeline note" translate=no>​</a></h3>
+<p>Triggered from Sales Order Detail timeline section.</p>
+<p>Composes: <code>SalesOrders</code>.</p>
+<p>Steps:</p>
+<ol>
+<li class=""><code>SalesOrders.getSoById</code> — read current status (used as <code>statusAtTime</code> if the caller didn't supply one).</li>
+<li class=""><code>SalesOrders.addTimelineNote</code>.</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=9-delete-timeline-note>9. Delete timeline note<a href=#9-delete-timeline-note class=hash-link aria-label="Direct link to 9. Delete timeline note" title="Direct link to 9. Delete timeline note" translate=no>​</a></h3>
+<p>Triggered from Sales Order Detail timeline section.</p>
+<p>Composes: <code>SalesOrders</code>.</p>
+<p>Steps:</p>
+<ol>
+<li class=""><code>SalesOrders.deleteTimelineNote</code>.</li>
+</ol>
+<p>Notes:</p>
+<ul>
+<li class="">Notes are append-only by convention; the workflow exists for accidental adds. No status-tracking on the note itself.</li>
+</ul>
+<p>Errors:</p>
+<ul>
+<li class=""><code>NotFoundError</code>.</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=10-upload-document-to-sales-order>10. Upload document to sales order<a href=#10-upload-document-to-sales-order class=hash-link aria-label="Direct link to 10. Upload document to sales order" title="Direct link to 10. Upload document to sales order" translate=no>​</a></h3>
+<p>Triggered from Sales Order Detail documents section.</p>
+<p>Composes: <code>SalesOrders</code>, <code>Documents</code>.</p>
+<p>Steps:</p>
+<ol>
+<li class=""><code>SalesOrders.getSoById</code> — confirm.</li>
+<li class=""><code>Documents.create({ entityType: 'sales_order', entityId: soId, name, mimeType }, bytes)</code> — uploads to GCS and inserts the row inside the transaction.</li>
+</ol>
+<p>Returns: the new document.</p>
+<p>Errors:</p>
+<ul>
+<li class=""><code>NotFoundError</code>.</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=11-delete-document-from-sales-order>11. Delete document from sales order<a href=#11-delete-document-from-sales-order class=hash-link aria-label="Direct link to 11. Delete document from sales order" title="Direct link to 11. Delete document from sales order" translate=no>​</a></h3>
+<p>Triggered from Sales Order Detail documents section.</p>
+<p>Composes: <code>SalesOrders</code>, <code>Documents</code>.</p>
+<p>Steps:</p>
+<ol>
+<li class=""><code>Documents.getById</code> — confirm and verify it's attached to this SO.</li>
+<li class=""><code>Documents.delete</code>.</li>
+</ol>
+<p>Errors:</p>
+<ul>
+<li class=""><code>NotFoundError</code>, <code>ValidationError</code> — document not attached to this SO.</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=12-create-order-channel>12. Create order channel<a href=#12-create-order-channel class=hash-link aria-label="Direct link to 12. Create order channel" title="Direct link to 12. Create order channel" translate=no>​</a></h3>
+<p>Triggered from Settings → Order channels.</p>
+<p>Composes: <code>SalesOrders</code>.</p>
+<p>Steps: verify name uniqueness in this org, <code>SalesOrders.createChannel</code>.</p>
+<p>Errors: <code>ValidationError</code>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=13-update-order-channel>13. Update order channel<a href=#13-update-order-channel class=hash-link aria-label="Direct link to 13. Update order channel" title="Direct link to 13. Update order channel" translate=no>​</a></h3>
+<p>Composes: <code>SalesOrders</code>.</p>
+<p>Steps: load, check name uniqueness if changed, <code>updateChannel</code>.</p>
+<p>Errors: <code>NotFoundError</code>, <code>ValidationError</code>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=14-delete-order-channel>14. Delete order channel<a href=#14-delete-order-channel class=hash-link aria-label="Direct link to 14. Delete order channel" title="Direct link to 14. Delete order channel" translate=no>​</a></h3>
+<p>Composes: <code>SalesOrders</code>.</p>
+<p>Steps:</p>
+<ol>
+<li class=""><code>SalesOrders.isChannelInUse</code> — refuse if any SO uses it.</li>
+<li class=""><code>SalesOrders.deleteChannel</code>.</li>
+</ol>
+<p>Errors: <code>InUseError</code>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=15-create-order-status-type>15. Create order status type<a href=#15-create-order-status-type class=hash-link aria-label="Direct link to 15. Create order status type" title="Direct link to 15. Create order status type" translate=no>​</a></h3>
+<p>Same shape as PO §11.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=16-update-order-status-type>16. Update order status type<a href=#16-update-order-status-type class=hash-link aria-label="Direct link to 16. Update order status type" title="Direct link to 16. Update order status type" translate=no>​</a></h3>
+<p>Same shape as PO §12.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=17-delete-order-status-type>17. Delete order status type<a href=#17-delete-order-status-type class=hash-link aria-label="Direct link to 17. Delete order status type" title="Direct link to 17. Delete order status type" translate=no>​</a></h3>
+<p>Same shape as PO §13 — refuse if any SO is in this status.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=18-create-fulfillment-status-type>18. Create fulfillment status type<a href=#18-create-fulfillment-status-type class=hash-link aria-label="Direct link to 18. Create fulfillment status type" title="Direct link to 18. Create fulfillment status type" translate=no>​</a></h3>
+<p>Same shape as PO §11.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=19-update-fulfillment-status-type>19. Update fulfillment status type<a href=#19-update-fulfillment-status-type class=hash-link aria-label="Direct link to 19. Update fulfillment status type" title="Direct link to 19. Update fulfillment status type" translate=no>​</a></h3>
+<p>Same shape as PO §12.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=20-delete-fulfillment-status-type>20. Delete fulfillment status type<a href=#20-delete-fulfillment-status-type class=hash-link aria-label="Direct link to 20. Delete fulfillment status type" title="Direct link to 20. Delete fulfillment status type" translate=no>​</a></h3>
+<p>Same shape as PO §13 — refuse if any SO is in this fulfillment status.</p>
+<h2 class="anchor anchorTargetStickyNavbar_LqMH" id=reads>Reads<a href=#reads class=hash-link aria-label="Direct link to Reads" title="Direct link to Reads" translate=no>​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=21-list-sales-orders>21. List sales orders<a href=#21-list-sales-orders class=hash-link aria-label="Direct link to 21. List sales orders" title="Direct link to 21. List sales orders" translate=no>​</a></h3>
+<p>Triggered from the Sales Orders page.</p>
+<p>Composes: <code>SalesOrders</code>, <code>Customers</code>, <code>SalesOrders</code> (channels).</p>
+<p>Steps:</p>
+<ol>
+<li class=""><code>SalesOrders.listSos(filters)</code>.</li>
+<li class="">Batch-hydrate customers and channels onto each row.</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=22-get-sales-order-detail>22. Get sales order detail<a href=#22-get-sales-order-detail class=hash-link aria-label="Direct link to 22. Get sales order detail" title="Direct link to 22. Get sales order detail" translate=no>​</a></h3>
+<p>Triggered by clicking an SO. Returns the SO with a computed fulfillment status derived from the FG ledger.</p>
+<p>Composes: <code>SalesOrders</code>, <code>Customers</code>, <code>Locations</code>, <code>Products</code>, <code>FinishedGoodsInventory</code>, <code>Documents</code>.</p>
+<p>Steps:</p>
+<ol>
+<li class=""><code>SalesOrders.getSoById</code>.</li>
+<li class="">Load items, hydrate SKUs.</li>
+<li class="">For each line, sum CONSUME quantities from the FG ledger (<code>listEntries({ refLike: soNumber, eventType: 'CONSUME' })</code>); compare to expected to derive a computed fulfillment status (<code>Pending</code> / <code>Partial</code> / <code>Fulfilled</code>).</li>
+<li class="">If the computed status differs from the stored fulfillment status, both values are returned — the UI surfaces the computed one and keeps the stored value as the "user-set override" indicator.</li>
+<li class="">Load timeline notes and documents (<code>Documents.listByEntity</code>).</li>
+</ol>
+<p>Returns: the merged hydrated view.</p>
+<p>Notes:</p>
+<ul>
+<li class="">The dual computed / stored fulfillment status is a deliberate v1 choice: the ledger is the source of truth, but allowing a manual override gives sales ops a release valve when reality diverges from the data. A future iteration may collapse the two into a derived-only field.</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=23-list-items-for-a-sales-order>23. List items for a sales order<a href=#23-list-items-for-a-sales-order class=hash-link aria-label="Direct link to 23. List items for a sales order" title="Direct link to 23. List items for a sales order" translate=no>​</a></h3>
+<p>Composes: <code>SalesOrders</code>.</p>
+<p>Steps: <code>SalesOrders.listItemsBySo</code>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=24-list-timeline-notes-for-a-sales-order>24. List timeline notes for a sales order<a href=#24-list-timeline-notes-for-a-sales-order class=hash-link aria-label="Direct link to 24. List timeline notes for a sales order" title="Direct link to 24. List timeline notes for a sales order" translate=no>​</a></h3>
+<p>Composes: <code>SalesOrders</code>.</p>
+<p>Steps: <code>SalesOrders.listTimelineNotesBySo</code>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=25-list-documents-for-a-sales-order>25. List documents for a sales order<a href=#25-list-documents-for-a-sales-order class=hash-link aria-label="Direct link to 25. List documents for a sales order" title="Direct link to 25. List documents for a sales order" translate=no>​</a></h3>
+<p>Composes: <code>Documents</code>.</p>
+<p>Steps: <code>Documents.listByEntity('sales_order', soId)</code>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=26-list-order-channels>26. List order channels<a href=#26-list-order-channels class=hash-link aria-label="Direct link to 26. List order channels" title="Direct link to 26. List order channels" translate=no>​</a></h3>
+<p>Composes: <code>SalesOrders</code>.</p>
+<p>Steps: <code>SalesOrders.listChannels</code>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=27-check-if-order-channel-is-in-use>27. Check if order channel is in use<a href=#27-check-if-order-channel-is-in-use class=hash-link aria-label="Direct link to 27. Check if order channel is in use" title="Direct link to 27. Check if order channel is in use" translate=no>​</a></h3>
+<p>Composes: <code>SalesOrders</code>.</p>
+<p>Steps: <code>SalesOrders.isChannelInUse</code>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=28-list-order-status-types>28. List order status types<a href=#28-list-order-status-types class=hash-link aria-label="Direct link to 28. List order status types" title="Direct link to 28. List order status types" translate=no>​</a></h3>
+<p>Composes: <code>SalesOrders</code> (or wherever the lookup lives; status types follow the same shape as PO).</p>
+<p>Steps: load active status types in <code>sortOrder</code>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=29-check-if-order-status-type-is-in-use>29. Check if order status type is in use<a href=#29-check-if-order-status-type-is-in-use class=hash-link aria-label="Direct link to 29. Check if order status type is in use" title="Direct link to 29. Check if order status type is in use" translate=no>​</a></h3>
+<p>Steps: count SOs in the status; return <code>{ inUse, count }</code>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=30-list-fulfillment-status-types>30. List fulfillment status types<a href=#30-list-fulfillment-status-types class=hash-link aria-label="Direct link to 30. List fulfillment status types" title="Direct link to 30. List fulfillment status types" translate=no>​</a></h3>
+<p>Same shape as §28.</p>
+<h3 class="anchor anchorTargetStickyNavbar_LqMH" id=31-check-if-fulfillment-status-type-is-in-use>31. Check if fulfillment status type is in use<a href=#31-check-if-fulfillment-status-type-is-in-use class=hash-link aria-label="Direct link to 31. Check if fulfillment status type is in use" title="Direct link to 31. Check if fulfillment status type is in use" translate=no>​</a></h3>
+<p>Same shape as §29 — counts SOs with the given <code>fulfillmentStatus</code>.</div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href=/business-logic/work-orders><div class=pagination-nav__sublabel>Previous</div><div class=pagination-nav__label>Work Orders</div></a><a class="pagination-nav__link pagination-nav__link--next" href=/business-logic/materials-inventory><div class=pagination-nav__sublabel>Next</div><div class=pagination-nav__label>Materials Inventory</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_wUNv thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href=#writes class="table-of-contents__link toc-highlight">Writes</a><ul><li><a href=#1-create-sales-order class="table-of-contents__link toc-highlight">1. Create sales order</a><li><a href=#2-update-sales-order class="table-of-contents__link toc-highlight">2. Update sales order</a><li><a href=#3-delete-sales-order class="table-of-contents__link toc-highlight">3. Delete sales order</a><li><a href=#4-bulk-import-sales-orders class="table-of-contents__link toc-highlight">4. Bulk-import sales orders</a><li><a href=#5-add-item-to-sales-order class="table-of-contents__link toc-highlight">5. Add item to sales order</a><li><a href=#6-update-sales-order-item class="table-of-contents__link toc-highlight">6. Update sales order item</a><li><a href=#7-remove-item-from-sales-order class="table-of-contents__link toc-highlight">7. Remove item from sales order</a><li><a href=#8-add-timeline-note class="table-of-contents__link toc-highlight">8. Add timeline note</a><li><a href=#9-delete-timeline-note class="table-of-contents__link toc-highlight">9. Delete timeline note</a><li><a href=#10-upload-document-to-sales-order class="table-of-contents__link toc-highlight">10. Upload document to sales order</a><li><a href=#11-delete-document-from-sales-order class="table-of-contents__link toc-highlight">11. Delete document from sales order</a><li><a href=#12-create-order-channel class="table-of-contents__link toc-highlight">12. Create order channel</a><li><a href=#13-update-order-channel class="table-of-contents__link toc-highlight">13. Update order channel</a><li><a href=#14-delete-order-channel class="table-of-contents__link toc-highlight">14. Delete order channel</a><li><a href=#15-create-order-status-type class="table-of-contents__link toc-highlight">15. Create order status type</a><li><a href=#16-update-order-status-type class="table-of-contents__link toc-highlight">16. Update order status type</a><li><a href=#17-delete-order-status-type class="table-of-contents__link toc-highlight">17. Delete order status type</a><li><a href=#18-create-fulfillment-status-type class="table-of-contents__link toc-highlight">18. Create fulfillment status type</a><li><a href=#19-update-fulfillment-status-type class="table-of-contents__link toc-highlight">19. Update fulfillment status type</a><li><a href=#20-delete-fulfillment-status-type class="table-of-contents__link toc-highlight">20. Delete fulfillment status type</a></ul><li><a href=#reads class="table-of-contents__link toc-highlight">Reads</a><ul><li><a href=#21-list-sales-orders class="table-of-contents__link toc-highlight">21. List sales orders</a><li><a href=#22-get-sales-order-detail class="table-of-contents__link toc-highlight">22. Get sales order detail</a><li><a href=#23-list-items-for-a-sales-order class="table-of-contents__link toc-highlight">23. List items for a sales order</a><li><a href=#24-list-timeline-notes-for-a-sales-order class="table-of-contents__link toc-highlight">24. List timeline notes for a sales order</a><li><a href=#25-list-documents-for-a-sales-order class="table-of-contents__link toc-highlight">25. List documents for a sales order</a><li><a href=#26-list-order-channels class="table-of-contents__link toc-highlight">26. List order channels</a><li><a href=#27-check-if-order-channel-is-in-use class="table-of-contents__link toc-highlight">27. Check if order channel is in use</a><li><a href=#28-list-order-status-types class="table-of-contents__link toc-highlight">28. List order status types</a><li><a href=#29-check-if-order-status-type-is-in-use class="table-of-contents__link toc-highlight">29. Check if order status type is in use</a><li><a href=#30-list-fulfillment-status-types class="table-of-contents__link toc-highlight">30. List fulfillment status types</a><li><a href=#31-check-if-fulfillment-status-type-is-in-use class="table-of-contents__link toc-highlight">31. Check if fulfillment status type is in use</a></ul></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class=footer__copyright>Copyright © 2026 Pharus AI.</div></div></div></footer></div></body>
