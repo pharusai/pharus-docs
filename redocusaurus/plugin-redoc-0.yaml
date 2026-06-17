@@ -7282,6 +7282,10 @@ paths:
                         type: string
                       placedAt:
                         type: string
+                      receivedAt:
+                        type:
+                          - string
+                          - 'null'
                       enteredAt:
                         type:
                           - string
@@ -7299,6 +7303,14 @@ paths:
                           - string
                           - 'null'
                       rejectedAt:
+                        type:
+                          - string
+                          - 'null'
+                      inDisputeAt:
+                        type:
+                          - string
+                          - 'null'
+                      completedAt:
                         type:
                           - string
                           - 'null'
@@ -7338,11 +7350,14 @@ paths:
                       - otherCosts
                       - mabd
                       - placedAt
+                      - receivedAt
                       - enteredAt
                       - shippedAt
                       - invoicedAt
                       - paidAt
                       - rejectedAt
+                      - inDisputeAt
+                      - completedAt
                       - notes
                       - qboId
                       - createdAt
@@ -7479,6 +7494,10 @@ paths:
                           type: string
                         placedAt:
                           type: string
+                        receivedAt:
+                          type:
+                            - string
+                            - 'null'
                         enteredAt:
                           type:
                             - string
@@ -7496,6 +7515,14 @@ paths:
                             - string
                             - 'null'
                         rejectedAt:
+                          type:
+                            - string
+                            - 'null'
+                        inDisputeAt:
+                          type:
+                            - string
+                            - 'null'
+                        completedAt:
                           type:
                             - string
                             - 'null'
@@ -7535,11 +7562,14 @@ paths:
                         - otherCosts
                         - mabd
                         - placedAt
+                        - receivedAt
                         - enteredAt
                         - shippedAt
                         - invoicedAt
                         - paidAt
                         - rejectedAt
+                        - inDisputeAt
+                        - completedAt
                         - notes
                         - qboId
                         - createdAt
@@ -7631,6 +7661,40 @@ paths:
                   type:
                     - string
                     - 'null'
+                placedAt:
+                  type: string
+                receivedAt:
+                  type:
+                    - string
+                    - 'null'
+                enteredAt:
+                  type:
+                    - string
+                    - 'null'
+                shippedAt:
+                  type:
+                    - string
+                    - 'null'
+                invoicedAt:
+                  type:
+                    - string
+                    - 'null'
+                paidAt:
+                  type:
+                    - string
+                    - 'null'
+                rejectedAt:
+                  type:
+                    - string
+                    - 'null'
+                inDisputeAt:
+                  type:
+                    - string
+                    - 'null'
+                completedAt:
+                  type:
+                    - string
+                    - 'null'
       responses:
         '200':
           description: OK
@@ -7717,6 +7781,10 @@ paths:
                     type: string
                   placedAt:
                     type: string
+                  receivedAt:
+                    type:
+                      - string
+                      - 'null'
                   enteredAt:
                     type:
                       - string
@@ -7734,6 +7802,14 @@ paths:
                       - string
                       - 'null'
                   rejectedAt:
+                    type:
+                      - string
+                      - 'null'
+                  inDisputeAt:
+                    type:
+                      - string
+                      - 'null'
+                  completedAt:
                     type:
                       - string
                       - 'null'
@@ -7773,11 +7849,14 @@ paths:
                   - otherCosts
                   - mabd
                   - placedAt
+                  - receivedAt
                   - enteredAt
                   - shippedAt
                   - invoicedAt
                   - paidAt
                   - rejectedAt
+                  - inDisputeAt
+                  - completedAt
                   - notes
                   - qboId
                   - createdAt
@@ -7909,6 +7988,10 @@ paths:
                         type: string
                       placedAt:
                         type: string
+                      receivedAt:
+                        type:
+                          - string
+                          - 'null'
                       enteredAt:
                         type:
                           - string
@@ -7926,6 +8009,14 @@ paths:
                           - string
                           - 'null'
                       rejectedAt:
+                        type:
+                          - string
+                          - 'null'
+                      inDisputeAt:
+                        type:
+                          - string
+                          - 'null'
+                      completedAt:
                         type:
                           - string
                           - 'null'
@@ -7965,11 +8056,14 @@ paths:
                       - otherCosts
                       - mabd
                       - placedAt
+                      - receivedAt
                       - enteredAt
                       - shippedAt
                       - invoicedAt
                       - paidAt
                       - rejectedAt
+                      - inDisputeAt
+                      - completedAt
                       - notes
                       - qboId
                       - createdAt
@@ -8984,9 +9078,21 @@ paths:
                           - 'null'
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      planningAt:
+                        type:
+                          - string
+                          - 'null'
                       placedAt:
                         type: string
                       shipDate:
+                        type:
+                          - string
+                          - 'null'
+                      inTransitAt:
+                        type:
+                          - string
+                          - 'null'
+                      partialAt:
                         type:
                           - string
                           - 'null'
@@ -9040,8 +9146,11 @@ paths:
                       - targetType
                       - status
                       - shipToLocationId
+                      - planningAt
                       - placedAt
                       - shipDate
+                      - inTransitAt
+                      - partialAt
                       - expectedDeliveryDate
                       - receivedAt
                       - paidAt
@@ -9152,9 +9261,21 @@ paths:
                             - 'null'
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        planningAt:
+                          type:
+                            - string
+                            - 'null'
                         placedAt:
                           type: string
                         shipDate:
+                          type:
+                            - string
+                            - 'null'
+                        inTransitAt:
+                          type:
+                            - string
+                            - 'null'
+                        partialAt:
                           type:
                             - string
                             - 'null'
@@ -9208,8 +9329,11 @@ paths:
                         - targetType
                         - status
                         - shipToLocationId
+                        - planningAt
                         - placedAt
                         - shipDate
+                        - inTransitAt
+                        - partialAt
                         - expectedDeliveryDate
                         - receivedAt
                         - paidAt
@@ -9289,6 +9413,30 @@ paths:
                   type:
                     - string
                     - 'null'
+                planningAt:
+                  type:
+                    - string
+                    - 'null'
+                inTransitAt:
+                  type:
+                    - string
+                    - 'null'
+                partialAt:
+                  type:
+                    - string
+                    - 'null'
+                receivedAt:
+                  type:
+                    - string
+                    - 'null'
+                paidAt:
+                  type:
+                    - string
+                    - 'null'
+                cancelledAt:
+                  type:
+                    - string
+                    - 'null'
       responses:
         '200':
           description: OK
@@ -9332,9 +9480,21 @@ paths:
                       - 'null'
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  planningAt:
+                    type:
+                      - string
+                      - 'null'
                   placedAt:
                     type: string
                   shipDate:
+                    type:
+                      - string
+                      - 'null'
+                  inTransitAt:
+                    type:
+                      - string
+                      - 'null'
+                  partialAt:
                     type:
                       - string
                       - 'null'
@@ -9388,8 +9548,11 @@ paths:
                   - targetType
                   - status
                   - shipToLocationId
+                  - planningAt
                   - placedAt
                   - shipDate
+                  - inTransitAt
+                  - partialAt
                   - expectedDeliveryDate
                   - receivedAt
                   - paidAt
@@ -9484,9 +9647,21 @@ paths:
                           - 'null'
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      planningAt:
+                        type:
+                          - string
+                          - 'null'
                       placedAt:
                         type: string
                       shipDate:
+                        type:
+                          - string
+                          - 'null'
+                      inTransitAt:
+                        type:
+                          - string
+                          - 'null'
+                      partialAt:
                         type:
                           - string
                           - 'null'
@@ -9540,8 +9715,11 @@ paths:
                       - targetType
                       - status
                       - shipToLocationId
+                      - planningAt
                       - placedAt
                       - shipDate
+                      - inTransitAt
+                      - partialAt
                       - expectedDeliveryDate
                       - receivedAt
                       - paidAt
@@ -10075,9 +10253,21 @@ paths:
                           - 'null'
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      planningAt:
+                        type:
+                          - string
+                          - 'null'
                       placedAt:
                         type: string
                       shipDate:
+                        type:
+                          - string
+                          - 'null'
+                      inTransitAt:
+                        type:
+                          - string
+                          - 'null'
+                      partialAt:
                         type:
                           - string
                           - 'null'
@@ -10131,8 +10321,11 @@ paths:
                       - targetType
                       - status
                       - shipToLocationId
+                      - planningAt
                       - placedAt
                       - shipDate
+                      - inTransitAt
+                      - partialAt
                       - expectedDeliveryDate
                       - receivedAt
                       - paidAt
@@ -10709,6 +10902,14 @@ paths:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      draftAt:
+                        type:
+                          - string
+                          - 'null'
+                      enteredAt:
+                        type:
+                          - string
+                          - 'null'
                       placedAt:
                         type:
                           - string
@@ -10721,7 +10922,19 @@ paths:
                         type:
                           - string
                           - 'null'
+                      inTransitAt:
+                        type:
+                          - string
+                          - 'null'
+                      partialAt:
+                        type:
+                          - string
+                          - 'null'
                       receivedAt:
+                        type:
+                          - string
+                          - 'null'
+                      completedAt:
                         type:
                           - string
                           - 'null'
@@ -10749,10 +10962,15 @@ paths:
                       - woNumber
                       - status
                       - workSiteId
+                      - draftAt
+                      - enteredAt
                       - placedAt
                       - expectedDeliveryDate
                       - productionStartedAt
+                      - inTransitAt
+                      - partialAt
                       - receivedAt
+                      - completedAt
                       - cancelledAt
                       - notes
                       - createdAt
@@ -10895,6 +11113,14 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        draftAt:
+                          type:
+                            - string
+                            - 'null'
+                        enteredAt:
+                          type:
+                            - string
+                            - 'null'
                         placedAt:
                           type:
                             - string
@@ -10907,7 +11133,19 @@ paths:
                           type:
                             - string
                             - 'null'
+                        inTransitAt:
+                          type:
+                            - string
+                            - 'null'
+                        partialAt:
+                          type:
+                            - string
+                            - 'null'
                         receivedAt:
+                          type:
+                            - string
+                            - 'null'
+                        completedAt:
                           type:
                             - string
                             - 'null'
@@ -10935,10 +11173,15 @@ paths:
                         - woNumber
                         - status
                         - workSiteId
+                        - draftAt
+                        - enteredAt
                         - placedAt
                         - expectedDeliveryDate
                         - productionStartedAt
+                        - inTransitAt
+                        - partialAt
                         - receivedAt
+                        - completedAt
                         - cancelledAt
                         - notes
                         - createdAt
@@ -10990,6 +11233,40 @@ paths:
                   type:
                     - string
                     - 'null'
+                placedAt:
+                  type: string
+                draftAt:
+                  type:
+                    - string
+                    - 'null'
+                enteredAt:
+                  type:
+                    - string
+                    - 'null'
+                productionStartedAt:
+                  type:
+                    - string
+                    - 'null'
+                inTransitAt:
+                  type:
+                    - string
+                    - 'null'
+                partialAt:
+                  type:
+                    - string
+                    - 'null'
+                receivedAt:
+                  type:
+                    - string
+                    - 'null'
+                completedAt:
+                  type:
+                    - string
+                    - 'null'
+                cancelledAt:
+                  type:
+                    - string
+                    - 'null'
       responses:
         '200':
           description: OK
@@ -11024,6 +11301,14 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  draftAt:
+                    type:
+                      - string
+                      - 'null'
+                  enteredAt:
+                    type:
+                      - string
+                      - 'null'
                   placedAt:
                     type:
                       - string
@@ -11036,7 +11321,19 @@ paths:
                     type:
                       - string
                       - 'null'
+                  inTransitAt:
+                    type:
+                      - string
+                      - 'null'
+                  partialAt:
+                    type:
+                      - string
+                      - 'null'
                   receivedAt:
+                    type:
+                      - string
+                      - 'null'
+                  completedAt:
                     type:
                       - string
                       - 'null'
@@ -11064,10 +11361,15 @@ paths:
                   - woNumber
                   - status
                   - workSiteId
+                  - draftAt
+                  - enteredAt
                   - placedAt
                   - expectedDeliveryDate
                   - productionStartedAt
+                  - inTransitAt
+                  - partialAt
                   - receivedAt
+                  - completedAt
                   - cancelledAt
                   - notes
                   - createdAt
@@ -11147,6 +11449,14 @@ paths:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      draftAt:
+                        type:
+                          - string
+                          - 'null'
+                      enteredAt:
+                        type:
+                          - string
+                          - 'null'
                       placedAt:
                         type:
                           - string
@@ -11159,7 +11469,19 @@ paths:
                         type:
                           - string
                           - 'null'
+                      inTransitAt:
+                        type:
+                          - string
+                          - 'null'
+                      partialAt:
+                        type:
+                          - string
+                          - 'null'
                       receivedAt:
+                        type:
+                          - string
+                          - 'null'
+                      completedAt:
                         type:
                           - string
                           - 'null'
@@ -11187,10 +11509,15 @@ paths:
                       - woNumber
                       - status
                       - workSiteId
+                      - draftAt
+                      - enteredAt
                       - placedAt
                       - expectedDeliveryDate
                       - productionStartedAt
+                      - inTransitAt
+                      - partialAt
                       - receivedAt
+                      - completedAt
                       - cancelledAt
                       - notes
                       - createdAt
@@ -11824,6 +12151,14 @@ paths:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      draftAt:
+                        type:
+                          - string
+                          - 'null'
+                      enteredAt:
+                        type:
+                          - string
+                          - 'null'
                       placedAt:
                         type:
                           - string
@@ -11836,7 +12171,19 @@ paths:
                         type:
                           - string
                           - 'null'
+                      inTransitAt:
+                        type:
+                          - string
+                          - 'null'
+                      partialAt:
+                        type:
+                          - string
+                          - 'null'
                       receivedAt:
+                        type:
+                          - string
+                          - 'null'
+                      completedAt:
                         type:
                           - string
                           - 'null'
@@ -11864,10 +12211,15 @@ paths:
                       - woNumber
                       - status
                       - workSiteId
+                      - draftAt
+                      - enteredAt
                       - placedAt
                       - expectedDeliveryDate
                       - productionStartedAt
+                      - inTransitAt
+                      - partialAt
                       - receivedAt
+                      - completedAt
                       - cancelledAt
                       - notes
                       - createdAt
@@ -12321,11 +12673,31 @@ paths:
                         type:
                           - string
                           - 'null'
+                      draftAt:
+                        type:
+                          - string
+                          - 'null'
+                      enteredAt:
+                        type:
+                          - string
+                          - 'null'
                       productionStartedAt:
                         type:
                           - string
                           - 'null'
+                      inTransitAt:
+                        type:
+                          - string
+                          - 'null'
+                      partialAt:
+                        type:
+                          - string
+                          - 'null'
                       receivedAt:
+                        type:
+                          - string
+                          - 'null'
+                      completedAt:
                         type:
                           - string
                           - 'null'
@@ -12355,8 +12727,13 @@ paths:
                       - locationId
                       - placedAt
                       - expectedDeliveryDate
+                      - draftAt
+                      - enteredAt
                       - productionStartedAt
+                      - inTransitAt
+                      - partialAt
                       - receivedAt
+                      - completedAt
                       - cancelledAt
                       - notes
                       - createdAt
@@ -12499,11 +12876,31 @@ paths:
                           type:
                             - string
                             - 'null'
+                        draftAt:
+                          type:
+                            - string
+                            - 'null'
+                        enteredAt:
+                          type:
+                            - string
+                            - 'null'
                         productionStartedAt:
                           type:
                             - string
                             - 'null'
+                        inTransitAt:
+                          type:
+                            - string
+                            - 'null'
+                        partialAt:
+                          type:
+                            - string
+                            - 'null'
                         receivedAt:
+                          type:
+                            - string
+                            - 'null'
+                        completedAt:
                           type:
                             - string
                             - 'null'
@@ -12533,8 +12930,13 @@ paths:
                         - locationId
                         - placedAt
                         - expectedDeliveryDate
+                        - draftAt
+                        - enteredAt
                         - productionStartedAt
+                        - inTransitAt
+                        - partialAt
                         - receivedAt
+                        - completedAt
                         - cancelledAt
                         - notes
                         - createdAt
@@ -12586,6 +12988,40 @@ paths:
                   type:
                     - string
                     - 'null'
+                placedAt:
+                  type: string
+                draftAt:
+                  type:
+                    - string
+                    - 'null'
+                enteredAt:
+                  type:
+                    - string
+                    - 'null'
+                productionStartedAt:
+                  type:
+                    - string
+                    - 'null'
+                inTransitAt:
+                  type:
+                    - string
+                    - 'null'
+                partialAt:
+                  type:
+                    - string
+                    - 'null'
+                receivedAt:
+                  type:
+                    - string
+                    - 'null'
+                completedAt:
+                  type:
+                    - string
+                    - 'null'
+                cancelledAt:
+                  type:
+                    - string
+                    - 'null'
       responses:
         '200':
           description: OK
@@ -12628,11 +13064,31 @@ paths:
                     type:
                       - string
                       - 'null'
+                  draftAt:
+                    type:
+                      - string
+                      - 'null'
+                  enteredAt:
+                    type:
+                      - string
+                      - 'null'
                   productionStartedAt:
                     type:
                       - string
                       - 'null'
+                  inTransitAt:
+                    type:
+                      - string
+                      - 'null'
+                  partialAt:
+                    type:
+                      - string
+                      - 'null'
                   receivedAt:
+                    type:
+                      - string
+                      - 'null'
+                  completedAt:
                     type:
                       - string
                       - 'null'
@@ -12662,8 +13118,13 @@ paths:
                   - locationId
                   - placedAt
                   - expectedDeliveryDate
+                  - draftAt
+                  - enteredAt
                   - productionStartedAt
+                  - inTransitAt
+                  - partialAt
                   - receivedAt
+                  - completedAt
                   - cancelledAt
                   - notes
                   - createdAt
@@ -12751,11 +13212,31 @@ paths:
                         type:
                           - string
                           - 'null'
+                      draftAt:
+                        type:
+                          - string
+                          - 'null'
+                      enteredAt:
+                        type:
+                          - string
+                          - 'null'
                       productionStartedAt:
                         type:
                           - string
                           - 'null'
+                      inTransitAt:
+                        type:
+                          - string
+                          - 'null'
+                      partialAt:
+                        type:
+                          - string
+                          - 'null'
                       receivedAt:
+                        type:
+                          - string
+                          - 'null'
+                      completedAt:
                         type:
                           - string
                           - 'null'
@@ -12785,8 +13266,13 @@ paths:
                       - locationId
                       - placedAt
                       - expectedDeliveryDate
+                      - draftAt
+                      - enteredAt
                       - productionStartedAt
+                      - inTransitAt
+                      - partialAt
                       - receivedAt
+                      - completedAt
                       - cancelledAt
                       - notes
                       - createdAt
@@ -13407,11 +13893,31 @@ paths:
                         type:
                           - string
                           - 'null'
+                      draftAt:
+                        type:
+                          - string
+                          - 'null'
+                      enteredAt:
+                        type:
+                          - string
+                          - 'null'
                       productionStartedAt:
                         type:
                           - string
                           - 'null'
+                      inTransitAt:
+                        type:
+                          - string
+                          - 'null'
+                      partialAt:
+                        type:
+                          - string
+                          - 'null'
                       receivedAt:
+                        type:
+                          - string
+                          - 'null'
+                      completedAt:
                         type:
                           - string
                           - 'null'
@@ -13441,8 +13947,13 @@ paths:
                       - locationId
                       - placedAt
                       - expectedDeliveryDate
+                      - draftAt
+                      - enteredAt
                       - productionStartedAt
+                      - inTransitAt
+                      - partialAt
                       - receivedAt
+                      - completedAt
                       - cancelledAt
                       - notes
                       - createdAt
