@@ -7168,6 +7168,9 @@ paths:
                   type:
                     - string
                     - 'null'
+                soNumber:
+                  type: string
+                  minLength: 1
                 items:
                   type: array
                   items:
@@ -7576,6 +7579,23 @@ paths:
                         - updatedAt
                 required:
                   - data
+  /sales-orders/next-number:
+    get:
+      tags:
+        - SalesOrders
+      summary: Preview next SO number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  number:
+                    type: string
+                required:
+                  - number
   /sales-orders/{id}:
     patch:
       tags:
@@ -9007,6 +9027,9 @@ paths:
                   type:
                     - string
                     - 'null'
+                poNumber:
+                  type: string
+                  minLength: 1
                 items:
                   type: array
                   items:
@@ -9351,6 +9374,23 @@ paths:
                         - updatedAt
                 required:
                   - data
+  /purchase-orders/next-number:
+    get:
+      tags:
+        - PurchaseOrders
+      summary: Preview next PO number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  number:
+                    type: string
+                required:
+                  - number
   /purchase-orders/{id}:
     patch:
       tags:
@@ -10851,6 +10891,9 @@ paths:
                   type:
                     - string
                     - 'null'
+                woNumber:
+                  type: string
+                  minLength: 1
                 items:
                   type: array
                   items:
@@ -11196,6 +11239,23 @@ paths:
                         - updatedAt
                 required:
                   - data
+  /work-orders/next-number:
+    get:
+      tags:
+        - WorkOrders
+      summary: Preview next WO number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  number:
+                    type: string
+                required:
+                  - number
   /work-orders/{id}:
     patch:
       tags:
@@ -12615,6 +12675,9 @@ paths:
                   type:
                     - string
                     - 'null'
+                prodNumber:
+                  type: string
+                  minLength: 1
                 items:
                   type: array
                   items:
@@ -12954,6 +13017,23 @@ paths:
                         - updatedAt
                 required:
                   - data
+  /production-orders/next-number:
+    get:
+      tags:
+        - ProductionOrders
+      summary: Preview next production order number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  number:
+                    type: string
+                required:
+                  - number
   /production-orders/{id}:
     patch:
       tags:
