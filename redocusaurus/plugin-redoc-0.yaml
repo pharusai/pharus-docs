@@ -7695,6 +7695,11 @@ paths:
                   type:
                     - string
                     - 'null'
+                soNumber:
+                  type:
+                    - string
+                    - 'null'
+                  minLength: 1
       responses:
         '200':
           description: OK
@@ -9437,6 +9442,9 @@ paths:
                   type:
                     - string
                     - 'null'
+                poNumber:
+                  type: string
+                  minLength: 1
       responses:
         '200':
           description: OK
@@ -11267,6 +11275,9 @@ paths:
                   type:
                     - string
                     - 'null'
+                woNumber:
+                  type: string
+                  minLength: 1
       responses:
         '200':
           description: OK
@@ -13022,6 +13033,9 @@ paths:
                   type:
                     - string
                     - 'null'
+                prodNumber:
+                  type: string
+                  minLength: 1
       responses:
         '200':
           description: OK
