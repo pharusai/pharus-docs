@@ -86,6 +86,18 @@ paths:
                   type:
                     - string
                     - 'null'
+                customFields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                      - key
+                      - value
               required:
                 - name
       responses:
@@ -134,6 +146,18 @@ paths:
                       - 'null'
                   isActive:
                     type: boolean
+                  customFields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - key
+                        - value
                   createdAt:
                     anyOf:
                       - type: string
@@ -158,6 +182,7 @@ paths:
                   - zipCode
                   - notes
                   - isActive
+                  - customFields
                   - createdAt
                   - updatedAt
         '422':
@@ -193,6 +218,17 @@ paths:
       tags:
         - Locations
       summary: List locations (bounded; no pagination)
+      parameters:
+        - schema:
+            type: string
+          required: false
+          name: customFieldKey
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: customFieldValue
+          in: query
       responses:
         '200':
           description: OK
@@ -244,6 +280,18 @@ paths:
                             - 'null'
                         isActive:
                           type: boolean
+                        customFields:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              key:
+                                type: string
+                              value:
+                                type: string
+                            required:
+                              - key
+                              - value
                         createdAt:
                           anyOf:
                             - type: string
@@ -268,6 +316,7 @@ paths:
                         - zipCode
                         - notes
                         - isActive
+                        - customFields
                         - createdAt
                         - updatedAt
                 required:
@@ -324,6 +373,18 @@ paths:
                   type:
                     - string
                     - 'null'
+                customFields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                      - key
+                      - value
                 sortOrder:
                   type: integer
                   minimum: 0
@@ -375,6 +436,18 @@ paths:
                       - 'null'
                   isActive:
                     type: boolean
+                  customFields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - key
+                        - value
                   createdAt:
                     anyOf:
                       - type: string
@@ -399,6 +472,7 @@ paths:
                   - zipCode
                   - notes
                   - isActive
+                  - customFields
                   - createdAt
                   - updatedAt
         '404':
@@ -663,6 +737,18 @@ paths:
                   type:
                     - string
                     - 'null'
+                customFields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                      - key
+                      - value
               required:
                 - name
       responses:
@@ -717,6 +803,18 @@ paths:
                       - 'null'
                   isActive:
                     type: boolean
+                  customFields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - key
+                        - value
                   createdAt:
                     anyOf:
                       - type: string
@@ -740,6 +838,7 @@ paths:
                   - qboId
                   - notes
                   - isActive
+                  - customFields
                   - createdAt
                   - updatedAt
         '422':
@@ -783,6 +882,16 @@ paths:
               - 'false'
           required: false
           name: isActive
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: customFieldKey
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: customFieldValue
           in: query
       responses:
         '200':
@@ -841,6 +950,18 @@ paths:
                             - 'null'
                         isActive:
                           type: boolean
+                        customFields:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              key:
+                                type: string
+                              value:
+                                type: string
+                            required:
+                              - key
+                              - value
                         createdAt:
                           anyOf:
                             - type: string
@@ -864,6 +985,7 @@ paths:
                         - qboId
                         - notes
                         - isActive
+                        - customFields
                         - createdAt
                         - updatedAt
                 required:
@@ -925,6 +1047,18 @@ paths:
                   type:
                     - string
                     - 'null'
+                customFields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                      - key
+                      - value
                 isActive:
                   type: boolean
       responses:
@@ -979,6 +1113,18 @@ paths:
                       - 'null'
                   isActive:
                     type: boolean
+                  customFields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - key
+                        - value
                   createdAt:
                     anyOf:
                       - type: string
@@ -1002,6 +1148,7 @@ paths:
                   - qboId
                   - notes
                   - isActive
+                  - customFields
                   - createdAt
                   - updatedAt
         '404':
@@ -1152,6 +1299,18 @@ paths:
                       - 'null'
                   isActive:
                     type: boolean
+                  customFields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - key
+                        - value
                   createdAt:
                     anyOf:
                       - type: string
@@ -1175,6 +1334,7 @@ paths:
                   - qboId
                   - notes
                   - isActive
+                  - customFields
                   - createdAt
                   - updatedAt
         '404':
@@ -1260,6 +1420,18 @@ paths:
                         type:
                           - string
                           - 'null'
+                      customFields:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            key:
+                              type: string
+                            value:
+                              type: string
+                          required:
+                            - key
+                            - value
                     required:
                       - name
               required:
@@ -1307,6 +1479,18 @@ paths:
                   type:
                     - string
                     - 'null'
+                customFields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                      - key
+                      - value
               required:
                 - code
                 - name
@@ -1341,6 +1525,18 @@ paths:
                       - 'null'
                   isActive:
                     type: boolean
+                  customFields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - key
+                        - value
                   createdAt:
                     anyOf:
                       - type: string
@@ -1359,6 +1555,7 @@ paths:
                   - materialTypeId
                   - notes
                   - isActive
+                  - customFields
                   - createdAt
                   - updatedAt
     get:
@@ -1383,6 +1580,16 @@ paths:
             type: string
           required: false
           name: q
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: customFieldKey
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: customFieldValue
           in: query
       responses:
         '200':
@@ -1419,6 +1626,18 @@ paths:
                             - 'null'
                         isActive:
                           type: boolean
+                        customFields:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              key:
+                                type: string
+                              value:
+                                type: string
+                            required:
+                              - key
+                              - value
                         createdAt:
                           anyOf:
                             - type: string
@@ -1437,6 +1656,7 @@ paths:
                         - materialTypeId
                         - notes
                         - isActive
+                        - customFields
                         - createdAt
                         - updatedAt
                 required:
@@ -1476,6 +1696,18 @@ paths:
                   type:
                     - string
                     - 'null'
+                customFields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                      - key
+                      - value
                 isActive:
                   type: boolean
       responses:
@@ -1508,6 +1740,18 @@ paths:
                       - 'null'
                   isActive:
                     type: boolean
+                  customFields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - key
+                        - value
                   createdAt:
                     anyOf:
                       - type: string
@@ -1526,6 +1770,7 @@ paths:
                   - materialTypeId
                   - notes
                   - isActive
+                  - customFields
                   - createdAt
                   - updatedAt
     delete:
@@ -1596,6 +1841,18 @@ paths:
                       - 'null'
                   isActive:
                     type: boolean
+                  customFields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - key
+                        - value
                   createdAt:
                     anyOf:
                       - type: string
@@ -1614,6 +1871,7 @@ paths:
                   - materialTypeId
                   - notes
                   - isActive
+                  - customFields
                   - createdAt
                   - updatedAt
   /materials/bulk-import:
@@ -1648,6 +1906,18 @@ paths:
                         type:
                           - string
                           - 'null'
+                      customFields:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            key:
+                              type: string
+                            value:
+                              type: string
+                          required:
+                            - key
+                            - value
                     required:
                       - code
                       - name
@@ -1955,6 +2225,18 @@ paths:
                   type:
                     - string
                     - 'null'
+                customFields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                      - key
+                      - value
               required:
                 - code
                 - name
@@ -2000,6 +2282,18 @@ paths:
                       - 'null'
                   isActive:
                     type: boolean
+                  customFields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - key
+                        - value
                   createdAt:
                     anyOf:
                       - type: string
@@ -2021,6 +2315,7 @@ paths:
                   - qboId
                   - notes
                   - isActive
+                  - customFields
                   - createdAt
                   - updatedAt
     get:
@@ -2065,6 +2360,16 @@ paths:
             type: string
           required: false
           name: q
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: customFieldKey
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: customFieldValue
           in: query
       responses:
         '200':
@@ -2112,6 +2417,18 @@ paths:
                             - 'null'
                         isActive:
                           type: boolean
+                        customFields:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              key:
+                                type: string
+                              value:
+                                type: string
+                            required:
+                              - key
+                              - value
                         createdAt:
                           anyOf:
                             - type: string
@@ -2133,6 +2450,7 @@ paths:
                         - qboId
                         - notes
                         - isActive
+                        - customFields
                         - createdAt
                         - updatedAt
                 required:
@@ -2183,6 +2501,18 @@ paths:
                   type:
                     - string
                     - 'null'
+                customFields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                      - key
+                      - value
                 isActive:
                   type: boolean
       responses:
@@ -2226,6 +2556,18 @@ paths:
                       - 'null'
                   isActive:
                     type: boolean
+                  customFields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - key
+                        - value
                   createdAt:
                     anyOf:
                       - type: string
@@ -2247,6 +2589,7 @@ paths:
                   - qboId
                   - notes
                   - isActive
+                  - customFields
                   - createdAt
                   - updatedAt
     delete:
@@ -2328,6 +2671,18 @@ paths:
                       - 'null'
                   isActive:
                     type: boolean
+                  customFields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - key
+                        - value
                   createdAt:
                     anyOf:
                       - type: string
@@ -2349,6 +2704,7 @@ paths:
                   - qboId
                   - notes
                   - isActive
+                  - customFields
                   - createdAt
                   - updatedAt
         '404':
@@ -2423,6 +2779,18 @@ paths:
                         type:
                           - string
                           - 'null'
+                      customFields:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            key:
+                              type: string
+                            value:
+                              type: string
+                          required:
+                            - key
+                            - value
                     required:
                       - code
                       - name
@@ -16406,6 +16774,18 @@ paths:
                   type:
                     - string
                     - 'null'
+                customFields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                      - key
+                      - value
               required:
                 - name
                 - typeId
@@ -16484,6 +16864,18 @@ paths:
                       - 'null'
                   isActive:
                     type: boolean
+                  customFields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - key
+                        - value
                   createdAt:
                     anyOf:
                       - type: string
@@ -16511,6 +16903,7 @@ paths:
                   - qboId
                   - notes
                   - isActive
+                  - customFields
                   - createdAt
                   - updatedAt
     get:
@@ -16550,6 +16943,16 @@ paths:
             type: string
           required: false
           name: q
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: customFieldKey
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: customFieldValue
           in: query
       responses:
         '200':
@@ -16631,6 +17034,18 @@ paths:
                             - 'null'
                         isActive:
                           type: boolean
+                        customFields:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              key:
+                                type: string
+                              value:
+                                type: string
+                            required:
+                              - key
+                              - value
                         createdAt:
                           anyOf:
                             - type: string
@@ -16658,6 +17073,7 @@ paths:
                         - qboId
                         - notes
                         - isActive
+                        - customFields
                         - createdAt
                         - updatedAt
                 required:
@@ -16741,6 +17157,18 @@ paths:
                   type:
                     - string
                     - 'null'
+                customFields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                      - key
+                      - value
                 isActive:
                   type: boolean
       responses:
@@ -16818,6 +17246,18 @@ paths:
                       - 'null'
                   isActive:
                     type: boolean
+                  customFields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - key
+                        - value
                   createdAt:
                     anyOf:
                       - type: string
@@ -16845,6 +17285,7 @@ paths:
                   - qboId
                   - notes
                   - isActive
+                  - customFields
                   - createdAt
                   - updatedAt
     delete:
@@ -16960,6 +17401,18 @@ paths:
                       - 'null'
                   isActive:
                     type: boolean
+                  customFields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - key
+                        - value
                   createdAt:
                     anyOf:
                       - type: string
@@ -16987,6 +17440,7 @@ paths:
                   - qboId
                   - notes
                   - isActive
+                  - customFields
                   - createdAt
                   - updatedAt
   /customers/bulk-import:
@@ -17065,6 +17519,18 @@ paths:
                         type:
                           - string
                           - 'null'
+                      customFields:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            key:
+                              type: string
+                            value:
+                              type: string
+                          required:
+                            - key
+                            - value
                     required:
                       - name
                       - typeId
