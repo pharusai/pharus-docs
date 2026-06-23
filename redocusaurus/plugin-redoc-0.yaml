@@ -9372,8 +9372,14 @@ paths:
                     - 'null'
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                orderDate:
+                  type:
+                    - string
+                    - 'null'
                 placedAt:
-                  type: string
+                  type:
+                    - string
+                    - 'null'
                 shipDate:
                   type:
                     - string
@@ -9474,12 +9480,18 @@ paths:
                           - 'null'
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      orderDate:
+                        type:
+                          - string
+                          - 'null'
                       planningAt:
                         type:
                           - string
                           - 'null'
                       placedAt:
-                        type: string
+                        type:
+                          - string
+                          - 'null'
                       shipDate:
                         type:
                           - string
@@ -9542,6 +9554,7 @@ paths:
                       - targetType
                       - status
                       - shipToLocationId
+                      - orderDate
                       - planningAt
                       - placedAt
                       - shipDate
@@ -9657,12 +9670,18 @@ paths:
                             - 'null'
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        orderDate:
+                          type:
+                            - string
+                            - 'null'
                         planningAt:
                           type:
                             - string
                             - 'null'
                         placedAt:
-                          type: string
+                          type:
+                            - string
+                            - 'null'
                         shipDate:
                           type:
                             - string
@@ -9725,6 +9744,7 @@ paths:
                         - targetType
                         - status
                         - shipToLocationId
+                        - orderDate
                         - planningAt
                         - placedAt
                         - shipDate
@@ -9803,8 +9823,14 @@ paths:
                     - 'null'
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                orderDate:
+                  type:
+                    - string
+                    - 'null'
                 placedAt:
-                  type: string
+                  type:
+                    - string
+                    - 'null'
                 shipDate:
                   type:
                     - string
@@ -9896,12 +9922,18 @@ paths:
                       - 'null'
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  orderDate:
+                    type:
+                      - string
+                      - 'null'
                   planningAt:
                     type:
                       - string
                       - 'null'
                   placedAt:
-                    type: string
+                    type:
+                      - string
+                      - 'null'
                   shipDate:
                     type:
                       - string
@@ -9964,6 +9996,7 @@ paths:
                   - targetType
                   - status
                   - shipToLocationId
+                  - orderDate
                   - planningAt
                   - placedAt
                   - shipDate
@@ -10063,12 +10096,18 @@ paths:
                           - 'null'
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      orderDate:
+                        type:
+                          - string
+                          - 'null'
                       planningAt:
                         type:
                           - string
                           - 'null'
                       placedAt:
-                        type: string
+                        type:
+                          - string
+                          - 'null'
                       shipDate:
                         type:
                           - string
@@ -10131,6 +10170,7 @@ paths:
                       - targetType
                       - status
                       - shipToLocationId
+                      - orderDate
                       - planningAt
                       - placedAt
                       - shipDate
@@ -10235,8 +10275,14 @@ paths:
                           - 'null'
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      orderDate:
+                        type:
+                          - string
+                          - 'null'
                       placedAt:
-                        type: string
+                        type:
+                          - string
+                          - 'null'
                       shipDate:
                         type:
                           - string
@@ -10669,12 +10715,18 @@ paths:
                           - 'null'
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      orderDate:
+                        type:
+                          - string
+                          - 'null'
                       planningAt:
                         type:
                           - string
                           - 'null'
                       placedAt:
-                        type: string
+                        type:
+                          - string
+                          - 'null'
                       shipDate:
                         type:
                           - string
@@ -10737,6 +10789,7 @@ paths:
                       - targetType
                       - status
                       - shipToLocationId
+                      - orderDate
                       - planningAt
                       - placedAt
                       - shipDate
