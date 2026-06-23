@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 350" font-family="Inter, system-ui, -apple-system, sans-serif">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
+    </marker>
+    <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <!-- zone labels -->
+  <text x="270" y="44" text-anchor="middle" font-size="11" letter-spacing="1.5" fill="#64748b">SET BY HAND</text>
+  <text x="756" y="44" text-anchor="middle" font-size="11" letter-spacing="1.5" fill="#64748b">DRIVEN BY RECEIPTS</text>
+
+  <!-- transitions (drawn under the boxes) -->
+  <!-- Planning <-> Placed -->
+  <line x1="156" y1="82" x2="204" y2="82" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  <!-- Placed <-> In Transit -->
+  <line x1="336" y1="82" x2="384" y2="82" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  <!-- In Transit -> Partial (receipt) -->
+  <line x1="516" y1="82" x2="600" y2="82" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ahg)"/>
+  <text x="558" y="73" text-anchor="middle" font-size="12" fill="#16a34a">post a receipt</text>
+  <!-- Partial -> Received (receipt) -->
+  <line x1="732" y1="82" x2="780" y2="82" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ahg)"/>
+  <text x="756" y="73" text-anchor="middle" font-size="12" fill="#16a34a">receipt</text>
+  <!-- Received <-> Paid -->
+  <line x1="912" y1="82" x2="952" y2="82" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  <text x="932" y="70" text-anchor="middle" font-size="11" fill="#475569">pay /</text>
+  <text x="932" y="104" text-anchor="middle" font-size="11" fill="#475569">revert</text>
+  <!-- delete receipts (back) -->
+  <path d="M632,108 C596,168 504,168 468,108" fill="none" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ahg)"/>
+  <text x="550" y="160" text-anchor="middle" font-size="12" fill="#16a34a">delete receipts</text>
+  <!-- cancel / reactivate -->
+  <line x1="270" y1="108" x2="270" y2="240" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  <text x="286" y="166" text-anchor="start" font-size="12" fill="#475569">cancel /</text>
+  <text x="286" y="182" text-anchor="start" font-size="12" fill="#475569">reactivate</text>
+
+  <!-- state boxes -->
+  <g>
+    <rect x="24"  y="56" width="132" height="52" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="90"  y="87" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a">Planning</text>
+
+    <rect x="204" y="56" width="132" height="52" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="270" y="87" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a">Placed</text>
+
+    <rect x="384" y="56" width="132" height="52" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="450" y="87" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a">In Transit</text>
+
+    <rect x="600" y="56" width="132" height="52" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+    <text x="666" y="87" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a">Partial</text>
+
+    <rect x="780" y="56" width="132" height="52" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+    <text x="846" y="87" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a">Received</text>
+
+    <rect x="952" y="56" width="132" height="52" rx="10" fill="#ecfccb" stroke="#bef264" stroke-width="1.5"/>
+    <text x="1018" y="87" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a">Paid</text>
+
+    <rect x="204" y="240" width="132" height="52" rx="10" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+    <text x="270" y="271" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a">Cancelled</text>
+  </g>
+
+  <!-- legend -->
+  <line x1="600" y1="266" x2="638" y2="266" stroke="#334155" stroke-width="2"/>
+  <text x="648" y="270" font-size="12" fill="#475569">set by hand (you)</text>
+  <line x1="600" y1="288" x2="638" y2="288" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4"/>
+  <text x="648" y="292" font-size="12" fill="#475569">driven by receipts</text>
+</svg>
