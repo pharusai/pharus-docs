@@ -25,6 +25,10 @@
   <text x="200" y="178" text-anchor="start" font-size="12" fill="#475569">reject / reactivate</text>
   <text x="200" y="194" text-anchor="start" font-size="11" fill="#94a3b8">(before In Transit only)</text>
 
+  <!-- Invoiced <-> In-Dispute (from Invoiced only) -->
+  <line x1="659" y1="106" x2="659" y2="210" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  <text x="669" y="160" text-anchor="start" font-size="11" fill="#475569">dispute / resolve</text>
+
   <!-- state boxes -->
   <g font-size="14" font-weight="600" fill="#0f172a">
     <rect x="24"   y="56" width="130" height="50" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
@@ -48,5 +52,5 @@
   </g>
 
   <!-- legend -->
-  <text x="594" y="290" font-size="12" fill="#475569">In-Dispute is a flag: set or clear anytime, no inventory effect.</text>
+  <text x="594" y="290" font-size="12" fill="#475569">In-Dispute branches off Invoiced only, and touches no inventory.</text>
 </svg>
