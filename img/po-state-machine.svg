@@ -30,10 +30,13 @@
   <!-- delete receipts (back) -->
   <path d="M632,108 C596,168 504,168 468,108" fill="none" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ahg)"/>
   <text x="550" y="160" text-anchor="middle" font-size="12" fill="#16a34a">delete receipts</text>
-  <!-- cancel / reactivate -->
-  <line x1="270" y1="108" x2="270" y2="240" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
-  <text x="286" y="166" text-anchor="start" font-size="12" fill="#475569">cancel /</text>
-  <text x="286" y="182" text-anchor="start" font-size="12" fill="#475569">reactivate</text>
+  <!-- cancel / reactivate: reachable from any of Planning / Placed / In Transit -->
+  <line x1="90"  y1="108" x2="90"  y2="132" stroke="#334155" stroke-width="2"/>
+  <line x1="270" y1="108" x2="270" y2="132" stroke="#334155" stroke-width="2"/>
+  <line x1="450" y1="108" x2="450" y2="132" stroke="#334155" stroke-width="2"/>
+  <line x1="90"  y1="132" x2="450" y2="132" stroke="#334155" stroke-width="2"/>
+  <line x1="270" y1="132" x2="270" y2="240" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  <text x="286" y="190" text-anchor="start" font-size="12" fill="#475569">cancel / reactivate</text>
 
   <!-- state boxes -->
   <g>
