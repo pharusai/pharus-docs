@@ -5400,6 +5400,8 @@ paths:
                           - TRANSFER
                           - ADJUST
                           - DISPOSE
+                          - SETTLE_ORDER
+                          - SETTLE_ALLOCATE
                           - REVERSE_ORDER
                           - REVERSE_RECEIVE
                           - REVERSE_DEMAND
@@ -5561,6 +5563,8 @@ paths:
                       - TRANSFER
                       - ADJUST
                       - DISPOSE
+                      - SETTLE_ORDER
+                      - SETTLE_ALLOCATE
                       - REVERSE_ORDER
                       - REVERSE_RECEIVE
                       - REVERSE_DEMAND
@@ -5755,6 +5759,8 @@ paths:
                       - TRANSFER
                       - ADJUST
                       - DISPOSE
+                      - SETTLE_ORDER
+                      - SETTLE_ALLOCATE
                       - REVERSE_ORDER
                       - REVERSE_RECEIVE
                       - REVERSE_DEMAND
@@ -5920,6 +5926,8 @@ paths:
                       - TRANSFER
                       - ADJUST
                       - DISPOSE
+                      - SETTLE_ORDER
+                      - SETTLE_ALLOCATE
                       - REVERSE_ORDER
                       - REVERSE_RECEIVE
                       - REVERSE_DEMAND
@@ -6099,6 +6107,8 @@ paths:
               - TRANSFER
               - ADJUST
               - DISPOSE
+              - SETTLE_ORDER
+              - SETTLE_ALLOCATE
               - REVERSE_ORDER
               - REVERSE_RECEIVE
               - REVERSE_DEMAND
@@ -6167,6 +6177,8 @@ paths:
                             - TRANSFER
                             - ADJUST
                             - DISPOSE
+                            - SETTLE_ORDER
+                            - SETTLE_ALLOCATE
                             - REVERSE_ORDER
                             - REVERSE_RECEIVE
                             - REVERSE_DEMAND
@@ -6286,6 +6298,8 @@ paths:
                       - TRANSFER
                       - ADJUST
                       - DISPOSE
+                      - SETTLE_ORDER
+                      - SETTLE_ALLOCATE
                       - REVERSE_ORDER
                       - REVERSE_RECEIVE
                       - REVERSE_DEMAND
@@ -6460,6 +6474,8 @@ paths:
                           - TRANSFER
                           - ADJUST
                           - DISPOSE
+                          - SETTLE_ORDER
+                          - SETTLE_ALLOCATE
                           - REVERSE_ORDER
                           - REVERSE_RECEIVE
                           - REVERSE_PRODUCE
@@ -6623,6 +6639,8 @@ paths:
                       - TRANSFER
                       - ADJUST
                       - DISPOSE
+                      - SETTLE_ORDER
+                      - SETTLE_ALLOCATE
                       - REVERSE_ORDER
                       - REVERSE_RECEIVE
                       - REVERSE_PRODUCE
@@ -6819,6 +6837,8 @@ paths:
                       - TRANSFER
                       - ADJUST
                       - DISPOSE
+                      - SETTLE_ORDER
+                      - SETTLE_ALLOCATE
                       - REVERSE_ORDER
                       - REVERSE_RECEIVE
                       - REVERSE_PRODUCE
@@ -6986,6 +7006,8 @@ paths:
                       - TRANSFER
                       - ADJUST
                       - DISPOSE
+                      - SETTLE_ORDER
+                      - SETTLE_ALLOCATE
                       - REVERSE_ORDER
                       - REVERSE_RECEIVE
                       - REVERSE_PRODUCE
@@ -7173,6 +7195,8 @@ paths:
               - TRANSFER
               - ADJUST
               - DISPOSE
+              - SETTLE_ORDER
+              - SETTLE_ALLOCATE
               - REVERSE_ORDER
               - REVERSE_RECEIVE
               - REVERSE_PRODUCE
@@ -7243,6 +7267,8 @@ paths:
                             - TRANSFER
                             - ADJUST
                             - DISPOSE
+                            - SETTLE_ORDER
+                            - SETTLE_ALLOCATE
                             - REVERSE_ORDER
                             - REVERSE_RECEIVE
                             - REVERSE_PRODUCE
@@ -7364,6 +7390,8 @@ paths:
                       - TRANSFER
                       - ADJUST
                       - DISPOSE
+                      - SETTLE_ORDER
+                      - SETTLE_ALLOCATE
                       - REVERSE_ORDER
                       - REVERSE_RECEIVE
                       - REVERSE_PRODUCE
