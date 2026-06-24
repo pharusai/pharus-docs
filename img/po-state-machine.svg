@@ -16,19 +16,19 @@
   <line x1="144" y1="81" x2="194" y2="81" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
   <line x1="314" y1="81" x2="364" y2="81" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
 
-  <!-- receipt transitions -->
+  <!-- first receipt: into Partial only -->
   <line x1="484" y1="81" x2="560" y2="81" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ahg)"/>
-  <text x="522" y="72" text-anchor="middle" font-size="12" fill="#16a34a">post a receipt</text>
-  <line x1="680" y1="81" x2="730" y2="81" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ahg)"/>
+  <text x="522" y="72" text-anchor="middle" font-size="12" fill="#16a34a">first receipt</text>
+
+  <!-- Partial <-> Received (manual: done receiving / reopen) -->
+  <line x1="680" y1="81" x2="730" y2="81" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  <text x="705" y="72" text-anchor="middle" font-size="10" fill="#475569">done /</text>
+  <text x="705" y="100" text-anchor="middle" font-size="10" fill="#475569">reopen</text>
 
   <!-- Received <-> Completed -->
   <line x1="850" y1="81" x2="900" y2="81" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
   <text x="875" y="72" text-anchor="middle" font-size="10" fill="#475569">close /</text>
   <text x="875" y="100" text-anchor="middle" font-size="10" fill="#475569">revert</text>
-
-  <!-- Partial -> Completed (close short) -->
-  <path d="M620,106 C730,160 850,160 960,106" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#ah)"/>
-  <text x="790" y="160" text-anchor="middle" font-size="12" fill="#475569">close short</text>
 
   <!-- cancel / reactivate: from any pre-Partial status -->
   <line x1="84"  y1="106" x2="84"  y2="140" stroke="#334155" stroke-width="2"/>
