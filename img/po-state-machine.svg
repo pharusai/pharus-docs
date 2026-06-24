@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 350" font-family="Inter, system-ui, -apple-system, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 310" font-family="Inter, system-ui, -apple-system, sans-serif">
   <defs>
     <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#334155"/>
@@ -8,63 +8,59 @@
     </marker>
   </defs>
 
-  <!-- zone labels -->
-  <text x="270" y="44" text-anchor="middle" font-size="11" letter-spacing="1.5" fill="#64748b">SET BY HAND</text>
-  <text x="756" y="44" text-anchor="middle" font-size="11" letter-spacing="1.5" fill="#64748b">DRIVEN BY RECEIPTS</text>
+  <!-- books labels: what each status adds to the ledger -->
+  <text x="254" y="46" text-anchor="middle" font-size="11" fill="#0891b2">books ORDER</text>
+  <text x="620" y="46" text-anchor="middle" font-size="11" fill="#0891b2">books RECEIVE</text>
 
-  <!-- transitions (drawn under the boxes) -->
-  <!-- Planning <-> Placed -->
-  <line x1="156" y1="82" x2="204" y2="82" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
-  <!-- Placed <-> In Transit -->
-  <line x1="336" y1="82" x2="384" y2="82" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
-  <!-- In Transit -> Partial (receipt) -->
-  <line x1="516" y1="82" x2="600" y2="82" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ahg)"/>
-  <text x="558" y="73" text-anchor="middle" font-size="12" fill="#16a34a">post a receipt</text>
-  <!-- Partial -> Received (receipt) -->
-  <line x1="732" y1="82" x2="780" y2="82" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ahg)"/>
-  <text x="756" y="73" text-anchor="middle" font-size="12" fill="#16a34a">receipt</text>
-  <!-- Received <-> Paid -->
-  <line x1="912" y1="82" x2="952" y2="82" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
-  <text x="932" y="70" text-anchor="middle" font-size="11" fill="#475569">pay /</text>
-  <text x="932" y="104" text-anchor="middle" font-size="11" fill="#475569">revert</text>
-  <!-- delete receipts (back) -->
-  <path d="M632,108 C596,168 504,168 468,108" fill="none" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ahg)"/>
-  <text x="550" y="160" text-anchor="middle" font-size="12" fill="#16a34a">delete receipts</text>
-  <!-- cancel / reactivate: reachable from any of Planning / Placed / In Transit -->
-  <line x1="90"  y1="108" x2="90"  y2="132" stroke="#334155" stroke-width="2"/>
-  <line x1="270" y1="108" x2="270" y2="132" stroke="#334155" stroke-width="2"/>
-  <line x1="450" y1="108" x2="450" y2="132" stroke="#334155" stroke-width="2"/>
-  <line x1="90"  y1="132" x2="450" y2="132" stroke="#334155" stroke-width="2"/>
-  <line x1="270" y1="132" x2="270" y2="240" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
-  <text x="286" y="190" text-anchor="start" font-size="12" fill="#475569">cancel / reactivate</text>
+  <!-- cluster transitions (bidirectional) -->
+  <line x1="144" y1="81" x2="194" y2="81" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  <line x1="314" y1="81" x2="364" y2="81" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
+
+  <!-- receipt transitions -->
+  <line x1="484" y1="81" x2="560" y2="81" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ahg)"/>
+  <text x="522" y="72" text-anchor="middle" font-size="12" fill="#16a34a">post a receipt</text>
+  <line x1="680" y1="81" x2="730" y2="81" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#ahg)"/>
+
+  <!-- Received <-> Completed -->
+  <line x1="850" y1="81" x2="900" y2="81" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  <text x="875" y="72" text-anchor="middle" font-size="10" fill="#475569">close /</text>
+  <text x="875" y="100" text-anchor="middle" font-size="10" fill="#475569">revert</text>
+
+  <!-- Partial -> Completed (close short) -->
+  <path d="M620,106 C730,160 850,160 960,106" fill="none" stroke="#334155" stroke-width="2" marker-end="url(#ah)"/>
+  <text x="790" y="160" text-anchor="middle" font-size="12" fill="#475569">close short</text>
+
+  <!-- cancel / reactivate: from any pre-Partial status -->
+  <line x1="84"  y1="106" x2="84"  y2="140" stroke="#334155" stroke-width="2"/>
+  <line x1="254" y1="106" x2="254" y2="140" stroke="#334155" stroke-width="2"/>
+  <line x1="424" y1="106" x2="424" y2="140" stroke="#334155" stroke-width="2"/>
+  <line x1="84"  y1="140" x2="424" y2="140" stroke="#334155" stroke-width="2"/>
+  <line x1="254" y1="140" x2="254" y2="210" stroke="#334155" stroke-width="2" marker-start="url(#ah)" marker-end="url(#ah)"/>
+  <text x="270" y="178" text-anchor="start" font-size="12" fill="#475569">cancel / reactivate</text>
+  <text x="270" y="194" text-anchor="start" font-size="11" fill="#94a3b8">(before Partial only)</text>
 
   <!-- state boxes -->
-  <g>
-    <rect x="24"  y="56" width="132" height="52" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
-    <text x="90"  y="87" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a">Planning</text>
+  <g font-size="14" font-weight="600" fill="#0f172a">
+    <rect x="24"  y="56" width="120" height="50" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="84"  y="86" text-anchor="middle">Planning</text>
+    <rect x="194" y="56" width="120" height="50" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="254" y="86" text-anchor="middle">Placed</text>
+    <rect x="364" y="56" width="120" height="50" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+    <text x="424" y="86" text-anchor="middle">In Transit</text>
+    <rect x="560" y="56" width="120" height="50" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+    <text x="620" y="86" text-anchor="middle">Partial</text>
+    <rect x="730" y="56" width="120" height="50" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+    <text x="790" y="86" text-anchor="middle">Received</text>
+    <rect x="900" y="56" width="120" height="50" rx="10" fill="#ecfccb" stroke="#bef264" stroke-width="1.5"/>
+    <text x="960" y="86" text-anchor="middle">Completed</text>
 
-    <rect x="204" y="56" width="132" height="52" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
-    <text x="270" y="87" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a">Placed</text>
-
-    <rect x="384" y="56" width="132" height="52" rx="10" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
-    <text x="450" y="87" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a">In Transit</text>
-
-    <rect x="600" y="56" width="132" height="52" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
-    <text x="666" y="87" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a">Partial</text>
-
-    <rect x="780" y="56" width="132" height="52" rx="10" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
-    <text x="846" y="87" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a">Received</text>
-
-    <rect x="952" y="56" width="132" height="52" rx="10" fill="#ecfccb" stroke="#bef264" stroke-width="1.5"/>
-    <text x="1018" y="87" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a">Paid</text>
-
-    <rect x="204" y="240" width="132" height="52" rx="10" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
-    <text x="270" y="271" text-anchor="middle" font-size="15" font-weight="600" fill="#0f172a">Cancelled</text>
+    <rect x="194" y="210" width="120" height="50" rx="10" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.5"/>
+    <text x="254" y="240" text-anchor="middle">Cancelled</text>
   </g>
 
   <!-- legend -->
-  <line x1="600" y1="266" x2="638" y2="266" stroke="#334155" stroke-width="2"/>
-  <text x="648" y="270" font-size="12" fill="#475569">set by hand (you)</text>
-  <line x1="600" y1="288" x2="638" y2="288" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4"/>
-  <text x="648" y="292" font-size="12" fill="#475569">driven by receipts</text>
+  <line x1="560" y1="232" x2="598" y2="232" stroke="#334155" stroke-width="2"/>
+  <text x="608" y="236" font-size="12" fill="#475569">set by hand (you)</text>
+  <line x1="560" y1="254" x2="598" y2="254" stroke="#16a34a" stroke-width="2" stroke-dasharray="5 4"/>
+  <text x="608" y="258" font-size="12" fill="#475569">driven by receipts</text>
 </svg>
