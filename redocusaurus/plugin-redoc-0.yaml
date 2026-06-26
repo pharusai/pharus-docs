@@ -9410,6 +9410,1000 @@ paths:
                       type: string
                 required:
                   - data
+  /sales-receipts:
+    post:
+      tags:
+        - SalesReceipts
+      summary: Create sales receipt
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customerId:
+                  type: string
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                channelId:
+                  type: string
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                status:
+                  type: string
+                  enum:
+                    - Placed
+                    - Confirmed
+                    - In Transit
+                    - Completed
+                    - Cancelled
+                locationId:
+                  type:
+                    - string
+                    - 'null'
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                fulfillmentCosts:
+                  type: number
+                  minimum: 0
+                freightCosts:
+                  type: number
+                  minimum: 0
+                promoCosts:
+                  type: number
+                  minimum: 0
+                otherCosts:
+                  type: number
+                  minimum: 0
+                orderDate:
+                  type: string
+                notes:
+                  type:
+                    - string
+                    - 'null'
+                srNumber:
+                  type: string
+                  minLength: 1
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      skuId:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      quantity:
+                        type: number
+                        exclusiveMinimum: 0
+                      unitPrice:
+                        type: number
+                        minimum: 0
+                    required:
+                      - skuId
+                      - quantity
+                  minItems: 1
+              required:
+                - customerId
+                - channelId
+                - items
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  salesReceipt:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      orgId:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      customerId:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      srNumber:
+                        type:
+                          - string
+                          - 'null'
+                      orderChannelId:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      status:
+                        type: string
+                        enum:
+                          - Placed
+                          - Confirmed
+                          - In Transit
+                          - Completed
+                          - Cancelled
+                      locationId:
+                        type:
+                          - string
+                          - 'null'
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      fulfillmentCosts:
+                        anyOf:
+                          - type: string
+                          - type: number
+                      freightCosts:
+                        anyOf:
+                          - type: string
+                          - type: number
+                      promoCosts:
+                        anyOf:
+                          - type: string
+                          - type: number
+                      otherCosts:
+                        anyOf:
+                          - type: string
+                          - type: number
+                      orderDate:
+                        type: string
+                      placedAt:
+                        type:
+                          - string
+                          - 'null'
+                      confirmedAt:
+                        type:
+                          - string
+                          - 'null'
+                      inTransitAt:
+                        type:
+                          - string
+                          - 'null'
+                      completedAt:
+                        type:
+                          - string
+                          - 'null'
+                      cancelledAt:
+                        type:
+                          - string
+                          - 'null'
+                      notes:
+                        type:
+                          - string
+                          - 'null'
+                      createdAt:
+                        anyOf:
+                          - type: string
+                          - type: string
+                            format: date-time
+                      updatedAt:
+                        anyOf:
+                          - type: string
+                          - type: string
+                            format: date-time
+                    required:
+                      - id
+                      - orgId
+                      - customerId
+                      - srNumber
+                      - orderChannelId
+                      - status
+                      - locationId
+                      - fulfillmentCosts
+                      - freightCosts
+                      - promoCosts
+                      - otherCosts
+                      - orderDate
+                      - placedAt
+                      - confirmedAt
+                      - inTransitAt
+                      - completedAt
+                      - cancelledAt
+                      - notes
+                      - createdAt
+                      - updatedAt
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        orgId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        salesReceiptId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        skuId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        unitPrice:
+                          anyOf:
+                            - type: string
+                            - type: number
+                      required:
+                        - id
+                        - orgId
+                        - salesReceiptId
+                        - skuId
+                        - quantity
+                        - unitPrice
+                required:
+                  - salesReceipt
+                  - items
+    get:
+      tags:
+        - SalesReceipts
+      summary: List sales receipts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        orgId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        customerId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        srNumber:
+                          type:
+                            - string
+                            - 'null'
+                        orderChannelId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        status:
+                          type: string
+                          enum:
+                            - Placed
+                            - Confirmed
+                            - In Transit
+                            - Completed
+                            - Cancelled
+                        locationId:
+                          type:
+                            - string
+                            - 'null'
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        fulfillmentCosts:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        freightCosts:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        promoCosts:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        otherCosts:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        orderDate:
+                          type: string
+                        placedAt:
+                          type:
+                            - string
+                            - 'null'
+                        confirmedAt:
+                          type:
+                            - string
+                            - 'null'
+                        inTransitAt:
+                          type:
+                            - string
+                            - 'null'
+                        completedAt:
+                          type:
+                            - string
+                            - 'null'
+                        cancelledAt:
+                          type:
+                            - string
+                            - 'null'
+                        notes:
+                          type:
+                            - string
+                            - 'null'
+                        createdAt:
+                          anyOf:
+                            - type: string
+                            - type: string
+                              format: date-time
+                        updatedAt:
+                          anyOf:
+                            - type: string
+                            - type: string
+                              format: date-time
+                      required:
+                        - id
+                        - orgId
+                        - customerId
+                        - srNumber
+                        - orderChannelId
+                        - status
+                        - locationId
+                        - fulfillmentCosts
+                        - freightCosts
+                        - promoCosts
+                        - otherCosts
+                        - orderDate
+                        - placedAt
+                        - confirmedAt
+                        - inTransitAt
+                        - completedAt
+                        - cancelledAt
+                        - notes
+                        - createdAt
+                        - updatedAt
+                required:
+                  - data
+  /sales-receipts/next-number:
+    get:
+      tags:
+        - SalesReceipts
+      summary: Preview next SR number
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  number:
+                    type: string
+                required:
+                  - number
+  /sales-receipts/{id}:
+    patch:
+      tags:
+        - SalesReceipts
+      summary: Update sales receipt
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                customerId:
+                  type: string
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                channelId:
+                  type: string
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                status:
+                  type: string
+                  enum:
+                    - Placed
+                    - Confirmed
+                    - In Transit
+                    - Completed
+                    - Cancelled
+                locationId:
+                  type:
+                    - string
+                    - 'null'
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                fulfillmentCosts:
+                  type: number
+                  minimum: 0
+                freightCosts:
+                  type: number
+                  minimum: 0
+                promoCosts:
+                  type: number
+                  minimum: 0
+                otherCosts:
+                  type: number
+                  minimum: 0
+                orderDate:
+                  type: string
+                notes:
+                  type:
+                    - string
+                    - 'null'
+                placedAt:
+                  type:
+                    - string
+                    - 'null'
+                confirmedAt:
+                  type:
+                    - string
+                    - 'null'
+                inTransitAt:
+                  type:
+                    - string
+                    - 'null'
+                completedAt:
+                  type:
+                    - string
+                    - 'null'
+                cancelledAt:
+                  type:
+                    - string
+                    - 'null'
+                srNumber:
+                  type:
+                    - string
+                    - 'null'
+                  minLength: 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  orgId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  customerId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  srNumber:
+                    type:
+                      - string
+                      - 'null'
+                  orderChannelId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  status:
+                    type: string
+                    enum:
+                      - Placed
+                      - Confirmed
+                      - In Transit
+                      - Completed
+                      - Cancelled
+                  locationId:
+                    type:
+                      - string
+                      - 'null'
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  fulfillmentCosts:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  freightCosts:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  promoCosts:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  otherCosts:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  orderDate:
+                    type: string
+                  placedAt:
+                    type:
+                      - string
+                      - 'null'
+                  confirmedAt:
+                    type:
+                      - string
+                      - 'null'
+                  inTransitAt:
+                    type:
+                      - string
+                      - 'null'
+                  completedAt:
+                    type:
+                      - string
+                      - 'null'
+                  cancelledAt:
+                    type:
+                      - string
+                      - 'null'
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  updatedAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                required:
+                  - id
+                  - orgId
+                  - customerId
+                  - srNumber
+                  - orderChannelId
+                  - status
+                  - locationId
+                  - fulfillmentCosts
+                  - freightCosts
+                  - promoCosts
+                  - otherCosts
+                  - orderDate
+                  - placedAt
+                  - confirmedAt
+                  - inTransitAt
+                  - completedAt
+                  - cancelledAt
+                  - notes
+                  - createdAt
+                  - updatedAt
+    delete:
+      tags:
+        - SalesReceipts
+      summary: Delete sales receipt
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                required:
+                  - deletedId
+    get:
+      tags:
+        - SalesReceipts
+      summary: Get sales receipt detail
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  salesReceipt:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      orgId:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      customerId:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      srNumber:
+                        type:
+                          - string
+                          - 'null'
+                      orderChannelId:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      status:
+                        type: string
+                        enum:
+                          - Placed
+                          - Confirmed
+                          - In Transit
+                          - Completed
+                          - Cancelled
+                      locationId:
+                        type:
+                          - string
+                          - 'null'
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      fulfillmentCosts:
+                        anyOf:
+                          - type: string
+                          - type: number
+                      freightCosts:
+                        anyOf:
+                          - type: string
+                          - type: number
+                      promoCosts:
+                        anyOf:
+                          - type: string
+                          - type: number
+                      otherCosts:
+                        anyOf:
+                          - type: string
+                          - type: number
+                      orderDate:
+                        type: string
+                      placedAt:
+                        type:
+                          - string
+                          - 'null'
+                      confirmedAt:
+                        type:
+                          - string
+                          - 'null'
+                      inTransitAt:
+                        type:
+                          - string
+                          - 'null'
+                      completedAt:
+                        type:
+                          - string
+                          - 'null'
+                      cancelledAt:
+                        type:
+                          - string
+                          - 'null'
+                      notes:
+                        type:
+                          - string
+                          - 'null'
+                      createdAt:
+                        anyOf:
+                          - type: string
+                          - type: string
+                            format: date-time
+                      updatedAt:
+                        anyOf:
+                          - type: string
+                          - type: string
+                            format: date-time
+                    required:
+                      - id
+                      - orgId
+                      - customerId
+                      - srNumber
+                      - orderChannelId
+                      - status
+                      - locationId
+                      - fulfillmentCosts
+                      - freightCosts
+                      - promoCosts
+                      - otherCosts
+                      - orderDate
+                      - placedAt
+                      - confirmedAt
+                      - inTransitAt
+                      - completedAt
+                      - cancelledAt
+                      - notes
+                      - createdAt
+                      - updatedAt
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        orgId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        salesReceiptId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        skuId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        unitPrice:
+                          anyOf:
+                            - type: string
+                            - type: number
+                      required:
+                        - id
+                        - orgId
+                        - salesReceiptId
+                        - skuId
+                        - quantity
+                        - unitPrice
+                required:
+                  - salesReceipt
+                  - items
+  /sales-receipts/{id}/items:
+    post:
+      tags:
+        - SalesReceipts
+      summary: Add item to sales receipt
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skuId:
+                  type: string
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                quantity:
+                  type: number
+                  exclusiveMinimum: 0
+                unitPrice:
+                  type: number
+                  minimum: 0
+              required:
+                - skuId
+                - quantity
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  orgId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  salesReceiptId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  skuId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  quantity:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  unitPrice:
+                    anyOf:
+                      - type: string
+                      - type: number
+                required:
+                  - id
+                  - orgId
+                  - salesReceiptId
+                  - skuId
+                  - quantity
+                  - unitPrice
+    get:
+      tags:
+        - SalesReceipts
+      summary: List sales receipt items
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        orgId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        salesReceiptId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        skuId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        unitPrice:
+                          anyOf:
+                            - type: string
+                            - type: number
+                      required:
+                        - id
+                        - orgId
+                        - salesReceiptId
+                        - skuId
+                        - quantity
+                        - unitPrice
+                required:
+                  - data
+  /sales-receipt-items/{id}:
+    patch:
+      tags:
+        - SalesReceipts
+      summary: Update sales receipt item
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skuId:
+                  type: string
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                quantity:
+                  type: number
+                  exclusiveMinimum: 0
+                unitPrice:
+                  type: number
+                  minimum: 0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  orgId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  salesReceiptId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  skuId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  quantity:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  unitPrice:
+                    anyOf:
+                      - type: string
+                      - type: number
+                required:
+                  - id
+                  - orgId
+                  - salesReceiptId
+                  - skuId
+                  - quantity
+                  - unitPrice
+    delete:
+      tags:
+        - SalesReceipts
+      summary: Remove item from sales receipt
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                required:
+                  - deletedId
   /purchase-orders:
     post:
       tags:
