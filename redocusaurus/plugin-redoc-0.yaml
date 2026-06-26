@@ -5709,7 +5709,6 @@ paths:
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                 quantity:
                   type: number
-                  exclusiveMinimum: 0
                 notes:
                   type:
                     - string
@@ -6807,7 +6806,6 @@ paths:
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                 quantity:
                   type: number
-                  exclusiveMinimum: 0
                 notes:
                   type:
                     - string
