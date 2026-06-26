@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Pharus API
-  version: 1.0.0
+  version: 1.1.0
   description: >-
     Pharus exposes every action in the platform as a REST endpoint. Use this API
     to
@@ -6069,11 +6069,32 @@ paths:
                           type: string
                         onOrder:
                           type: string
+                        allocated:
+                          type: string
+                        available:
+                          type: string
+                        inStock:
+                          type: string
+                        demand:
+                          type: string
+                        wasted:
+                          type: string
+                        inTransit:
+                          type: string
+                        netPosition:
+                          type: string
                       required:
                         - materialId
                         - locationId
                         - onHand
                         - onOrder
+                        - allocated
+                        - available
+                        - inStock
+                        - demand
+                        - wasted
+                        - inTransit
+                        - netPosition
                 required:
                   - data
   /materials-inventory/ledger:
@@ -7148,19 +7169,34 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         onHand:
                           type: string
-                        demand:
+                        onOrder:
                           type: string
                         allocated:
                           type: string
                         available:
                           type: string
+                        inStock:
+                          type: string
+                        demand:
+                          type: string
+                        wasted:
+                          type: string
+                        inTransit:
+                          type: string
+                        netPosition:
+                          type: string
                       required:
                         - skuId
                         - locationId
                         - onHand
-                        - demand
+                        - onOrder
                         - allocated
                         - available
+                        - inStock
+                        - demand
+                        - wasted
+                        - inTransit
+                        - netPosition
                 required:
                   - data
   /finished-goods-inventory/ledger:
@@ -7509,9 +7545,9 @@ paths:
                 status:
                   type: string
                   enum:
-                    - Received
-                    - Entered
-                    - Shipped
+                    - Planning
+                    - Placed
+                    - In Transit
                     - Invoiced
                     - Paid
                     - Rejected
@@ -7555,6 +7591,8 @@ paths:
                   type: number
                   minimum: 0
                 mabd:
+                  type: string
+                orderDate:
                   type: string
                 notes:
                   type:
@@ -7626,9 +7664,9 @@ paths:
                       orderStatus:
                         type: string
                         enum:
-                          - Received
-                          - Entered
-                          - Shipped
+                          - Planning
+                          - Placed
+                          - In Transit
                           - Invoiced
                           - Paid
                           - Rejected
@@ -7679,17 +7717,19 @@ paths:
                           - type: number
                       mabd:
                         type: string
+                      orderDate:
+                        type:
+                          - string
+                          - 'null'
+                      planningAt:
+                        type:
+                          - string
+                          - 'null'
                       placedAt:
-                        type: string
-                      receivedAt:
                         type:
                           - string
                           - 'null'
-                      enteredAt:
-                        type:
-                          - string
-                          - 'null'
-                      shippedAt:
+                      inTransitAt:
                         type:
                           - string
                           - 'null'
@@ -7748,10 +7788,10 @@ paths:
                       - promoCosts
                       - otherCosts
                       - mabd
+                      - orderDate
+                      - planningAt
                       - placedAt
-                      - receivedAt
-                      - enteredAt
-                      - shippedAt
+                      - inTransitAt
                       - invoicedAt
                       - paidAt
                       - rejectedAt
@@ -7838,9 +7878,9 @@ paths:
                         orderStatus:
                           type: string
                           enum:
-                            - Received
-                            - Entered
-                            - Shipped
+                            - Planning
+                            - Placed
+                            - In Transit
                             - Invoiced
                             - Paid
                             - Rejected
@@ -7891,17 +7931,19 @@ paths:
                             - type: number
                         mabd:
                           type: string
+                        orderDate:
+                          type:
+                            - string
+                            - 'null'
+                        planningAt:
+                          type:
+                            - string
+                            - 'null'
                         placedAt:
-                          type: string
-                        receivedAt:
                           type:
                             - string
                             - 'null'
-                        enteredAt:
-                          type:
-                            - string
-                            - 'null'
-                        shippedAt:
+                        inTransitAt:
                           type:
                             - string
                             - 'null'
@@ -7960,10 +8002,10 @@ paths:
                         - promoCosts
                         - otherCosts
                         - mabd
+                        - orderDate
+                        - planningAt
                         - placedAt
-                        - receivedAt
-                        - enteredAt
-                        - shippedAt
+                        - inTransitAt
                         - invoicedAt
                         - paidAt
                         - rejectedAt
@@ -8022,9 +8064,9 @@ paths:
                 status:
                   type: string
                   enum:
-                    - Received
-                    - Entered
-                    - Shipped
+                    - Planning
+                    - Placed
+                    - In Transit
                     - Invoiced
                     - Paid
                     - Rejected
@@ -8069,6 +8111,8 @@ paths:
                   minimum: 0
                 mabd:
                   type: string
+                orderDate:
+                  type: string
                 notes:
                   type:
                     - string
@@ -8077,17 +8121,15 @@ paths:
                   type:
                     - string
                     - 'null'
+                planningAt:
+                  type:
+                    - string
+                    - 'null'
                 placedAt:
-                  type: string
-                receivedAt:
                   type:
                     - string
                     - 'null'
-                enteredAt:
-                  type:
-                    - string
-                    - 'null'
-                shippedAt:
+                inTransitAt:
                   type:
                     - string
                     - 'null'
@@ -8147,9 +8189,9 @@ paths:
                   orderStatus:
                     type: string
                     enum:
-                      - Received
-                      - Entered
-                      - Shipped
+                      - Planning
+                      - Placed
+                      - In Transit
                       - Invoiced
                       - Paid
                       - Rejected
@@ -8200,17 +8242,19 @@ paths:
                       - type: number
                   mabd:
                     type: string
+                  orderDate:
+                    type:
+                      - string
+                      - 'null'
+                  planningAt:
+                    type:
+                      - string
+                      - 'null'
                   placedAt:
-                    type: string
-                  receivedAt:
                     type:
                       - string
                       - 'null'
-                  enteredAt:
-                    type:
-                      - string
-                      - 'null'
-                  shippedAt:
+                  inTransitAt:
                     type:
                       - string
                       - 'null'
@@ -8269,10 +8313,10 @@ paths:
                   - promoCosts
                   - otherCosts
                   - mabd
+                  - orderDate
+                  - planningAt
                   - placedAt
-                  - receivedAt
-                  - enteredAt
-                  - shippedAt
+                  - inTransitAt
                   - invoicedAt
                   - paidAt
                   - rejectedAt
@@ -8354,9 +8398,9 @@ paths:
                       orderStatus:
                         type: string
                         enum:
-                          - Received
-                          - Entered
-                          - Shipped
+                          - Planning
+                          - Placed
+                          - In Transit
                           - Invoiced
                           - Paid
                           - Rejected
@@ -8407,17 +8451,19 @@ paths:
                           - type: number
                       mabd:
                         type: string
+                      orderDate:
+                        type:
+                          - string
+                          - 'null'
+                      planningAt:
+                        type:
+                          - string
+                          - 'null'
                       placedAt:
-                        type: string
-                      receivedAt:
                         type:
                           - string
                           - 'null'
-                      enteredAt:
-                        type:
-                          - string
-                          - 'null'
-                      shippedAt:
+                      inTransitAt:
                         type:
                           - string
                           - 'null'
@@ -8476,10 +8522,10 @@ paths:
                       - promoCosts
                       - otherCosts
                       - mabd
+                      - orderDate
+                      - planningAt
                       - placedAt
-                      - receivedAt
-                      - enteredAt
-                      - shippedAt
+                      - inTransitAt
                       - invoicedAt
                       - paidAt
                       - rejectedAt
@@ -8553,9 +8599,9 @@ paths:
                       status:
                         type: string
                         enum:
-                          - Received
-                          - Entered
-                          - Shipped
+                          - Planning
+                          - Placed
+                          - In Transit
                           - Invoiced
                           - Paid
                           - Rejected
@@ -8599,6 +8645,8 @@ paths:
                         type: number
                         minimum: 0
                       mabd:
+                        type: string
+                      orderDate:
                         type: string
                       notes:
                         type:
@@ -8893,9 +8941,9 @@ paths:
                 statusAtTime:
                   type: string
                   enum:
-                    - Received
-                    - Entered
-                    - Shipped
+                    - Planning
+                    - Placed
+                    - In Transit
                     - Invoiced
                     - Paid
                     - Rejected
@@ -8926,9 +8974,9 @@ paths:
                   orderStatus:
                     type: string
                     enum:
-                      - Received
-                      - Entered
-                      - Shipped
+                      - Planning
+                      - Placed
+                      - In Transit
                       - Invoiced
                       - Paid
                       - Rejected
@@ -8988,9 +9036,9 @@ paths:
                         orderStatus:
                           type: string
                           enum:
-                            - Received
-                            - Entered
-                            - Shipped
+                            - Planning
+                            - Placed
+                            - In Transit
                             - Invoiced
                             - Paid
                             - Rejected
@@ -9392,7 +9440,7 @@ paths:
                     - In Transit
                     - Partial
                     - Received
-                    - Paid
+                    - Completed
                     - Cancelled
                 shipToLocationId:
                   type:
@@ -9500,7 +9548,7 @@ paths:
                           - In Transit
                           - Partial
                           - Received
-                          - Paid
+                          - Completed
                           - Cancelled
                       shipToLocationId:
                         type:
@@ -9540,7 +9588,7 @@ paths:
                         type:
                           - string
                           - 'null'
-                      paidAt:
+                      completedAt:
                         type:
                           - string
                           - 'null'
@@ -9590,7 +9638,7 @@ paths:
                       - partialAt
                       - expectedDeliveryDate
                       - receivedAt
-                      - paidAt
+                      - completedAt
                       - cancelledAt
                       - shippingCosts
                       - setupCosts
@@ -9690,7 +9738,7 @@ paths:
                             - In Transit
                             - Partial
                             - Received
-                            - Paid
+                            - Completed
                             - Cancelled
                         shipToLocationId:
                           type:
@@ -9730,7 +9778,7 @@ paths:
                           type:
                             - string
                             - 'null'
-                        paidAt:
+                        completedAt:
                           type:
                             - string
                             - 'null'
@@ -9780,7 +9828,7 @@ paths:
                         - partialAt
                         - expectedDeliveryDate
                         - receivedAt
-                        - paidAt
+                        - completedAt
                         - cancelledAt
                         - shippingCosts
                         - setupCosts
@@ -9843,7 +9891,7 @@ paths:
                     - In Transit
                     - Partial
                     - Received
-                    - Paid
+                    - Completed
                     - Cancelled
                 shipToLocationId:
                   type:
@@ -9896,7 +9944,7 @@ paths:
                   type:
                     - string
                     - 'null'
-                paidAt:
+                completedAt:
                   type:
                     - string
                     - 'null'
@@ -9942,7 +9990,7 @@ paths:
                       - In Transit
                       - Partial
                       - Received
-                      - Paid
+                      - Completed
                       - Cancelled
                   shipToLocationId:
                     type:
@@ -9982,7 +10030,7 @@ paths:
                     type:
                       - string
                       - 'null'
-                  paidAt:
+                  completedAt:
                     type:
                       - string
                       - 'null'
@@ -10032,7 +10080,7 @@ paths:
                   - partialAt
                   - expectedDeliveryDate
                   - receivedAt
-                  - paidAt
+                  - completedAt
                   - cancelledAt
                   - shippingCosts
                   - setupCosts
@@ -10116,7 +10164,7 @@ paths:
                           - In Transit
                           - Partial
                           - Received
-                          - Paid
+                          - Completed
                           - Cancelled
                       shipToLocationId:
                         type:
@@ -10156,7 +10204,7 @@ paths:
                         type:
                           - string
                           - 'null'
-                      paidAt:
+                      completedAt:
                         type:
                           - string
                           - 'null'
@@ -10206,7 +10254,7 @@ paths:
                       - partialAt
                       - expectedDeliveryDate
                       - receivedAt
-                      - paidAt
+                      - completedAt
                       - cancelledAt
                       - shippingCosts
                       - setupCosts
@@ -10295,7 +10343,7 @@ paths:
                           - In Transit
                           - Partial
                           - Received
-                          - Paid
+                          - Completed
                           - Cancelled
                       shipToLocationId:
                         type:
@@ -10735,7 +10783,7 @@ paths:
                           - In Transit
                           - Partial
                           - Received
-                          - Paid
+                          - Completed
                           - Cancelled
                       shipToLocationId:
                         type:
@@ -10775,7 +10823,7 @@ paths:
                         type:
                           - string
                           - 'null'
-                      paidAt:
+                      completedAt:
                         type:
                           - string
                           - 'null'
@@ -10825,7 +10873,7 @@ paths:
                       - partialAt
                       - expectedDeliveryDate
                       - receivedAt
-                      - paidAt
+                      - completedAt
                       - cancelledAt
                       - shippingCosts
                       - setupCosts
@@ -11317,11 +11365,9 @@ paths:
                 status:
                   type: string
                   enum:
-                    - Draft
-                    - Entered
+                    - Planning
                     - Placed
                     - Production
-                    - In Transit
                     - Partial
                     - Received
                     - Completed
@@ -11389,11 +11435,9 @@ paths:
                       status:
                         type: string
                         enum:
-                          - Draft
-                          - Entered
+                          - Planning
                           - Placed
                           - Production
-                          - In Transit
                           - Partial
                           - Received
                           - Completed
@@ -11402,11 +11446,11 @@ paths:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      draftAt:
+                      orderDate:
                         type:
                           - string
                           - 'null'
-                      enteredAt:
+                      planningAt:
                         type:
                           - string
                           - 'null'
@@ -11419,10 +11463,6 @@ paths:
                           - string
                           - 'null'
                       productionStartedAt:
-                        type:
-                          - string
-                          - 'null'
-                      inTransitAt:
                         type:
                           - string
                           - 'null'
@@ -11462,12 +11502,11 @@ paths:
                       - woNumber
                       - status
                       - workSiteId
-                      - draftAt
-                      - enteredAt
+                      - orderDate
+                      - planningAt
                       - placedAt
                       - expectedDeliveryDate
                       - productionStartedAt
-                      - inTransitAt
                       - partialAt
                       - receivedAt
                       - completedAt
@@ -11600,11 +11639,9 @@ paths:
                         status:
                           type: string
                           enum:
-                            - Draft
-                            - Entered
+                            - Planning
                             - Placed
                             - Production
-                            - In Transit
                             - Partial
                             - Received
                             - Completed
@@ -11613,11 +11650,11 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        draftAt:
+                        orderDate:
                           type:
                             - string
                             - 'null'
-                        enteredAt:
+                        planningAt:
                           type:
                             - string
                             - 'null'
@@ -11630,10 +11667,6 @@ paths:
                             - string
                             - 'null'
                         productionStartedAt:
-                          type:
-                            - string
-                            - 'null'
-                        inTransitAt:
                           type:
                             - string
                             - 'null'
@@ -11673,12 +11706,11 @@ paths:
                         - woNumber
                         - status
                         - workSiteId
-                        - draftAt
-                        - enteredAt
+                        - orderDate
+                        - planningAt
                         - placedAt
                         - expectedDeliveryDate
                         - productionStartedAt
-                        - inTransitAt
                         - partialAt
                         - receivedAt
                         - completedAt
@@ -11727,11 +11759,9 @@ paths:
                 status:
                   type: string
                   enum:
-                    - Draft
-                    - Entered
+                    - Planning
                     - Placed
                     - Production
-                    - In Transit
                     - Partial
                     - Received
                     - Completed
@@ -11750,21 +11780,15 @@ paths:
                   type:
                     - string
                     - 'null'
-                placedAt:
-                  type: string
-                draftAt:
+                planningAt:
                   type:
                     - string
                     - 'null'
-                enteredAt:
+                placedAt:
                   type:
                     - string
                     - 'null'
                 productionStartedAt:
-                  type:
-                    - string
-                    - 'null'
-                inTransitAt:
                   type:
                     - string
                     - 'null'
@@ -11808,11 +11832,9 @@ paths:
                   status:
                     type: string
                     enum:
-                      - Draft
-                      - Entered
+                      - Planning
                       - Placed
                       - Production
-                      - In Transit
                       - Partial
                       - Received
                       - Completed
@@ -11821,11 +11843,11 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  draftAt:
+                  orderDate:
                     type:
                       - string
                       - 'null'
-                  enteredAt:
+                  planningAt:
                     type:
                       - string
                       - 'null'
@@ -11838,10 +11860,6 @@ paths:
                       - string
                       - 'null'
                   productionStartedAt:
-                    type:
-                      - string
-                      - 'null'
-                  inTransitAt:
                     type:
                       - string
                       - 'null'
@@ -11881,12 +11899,11 @@ paths:
                   - woNumber
                   - status
                   - workSiteId
-                  - draftAt
-                  - enteredAt
+                  - orderDate
+                  - planningAt
                   - placedAt
                   - expectedDeliveryDate
                   - productionStartedAt
-                  - inTransitAt
                   - partialAt
                   - receivedAt
                   - completedAt
@@ -11956,11 +11973,9 @@ paths:
                       status:
                         type: string
                         enum:
-                          - Draft
-                          - Entered
+                          - Planning
                           - Placed
                           - Production
-                          - In Transit
                           - Partial
                           - Received
                           - Completed
@@ -11969,11 +11984,11 @@ paths:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      draftAt:
+                      orderDate:
                         type:
                           - string
                           - 'null'
-                      enteredAt:
+                      planningAt:
                         type:
                           - string
                           - 'null'
@@ -11986,10 +12001,6 @@ paths:
                           - string
                           - 'null'
                       productionStartedAt:
-                        type:
-                          - string
-                          - 'null'
-                      inTransitAt:
                         type:
                           - string
                           - 'null'
@@ -12029,12 +12040,11 @@ paths:
                       - woNumber
                       - status
                       - workSiteId
-                      - draftAt
-                      - enteredAt
+                      - orderDate
+                      - planningAt
                       - placedAt
                       - expectedDeliveryDate
                       - productionStartedAt
-                      - inTransitAt
                       - partialAt
                       - receivedAt
                       - completedAt
@@ -12156,11 +12166,9 @@ paths:
                       status:
                         type: string
                         enum:
-                          - Draft
-                          - Entered
+                          - Planning
                           - Placed
                           - Production
-                          - In Transit
                           - Partial
                           - Received
                           - Completed
@@ -12658,11 +12666,9 @@ paths:
                       status:
                         type: string
                         enum:
-                          - Draft
-                          - Entered
+                          - Planning
                           - Placed
                           - Production
-                          - In Transit
                           - Partial
                           - Received
                           - Completed
@@ -12671,11 +12677,11 @@ paths:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      draftAt:
+                      orderDate:
                         type:
                           - string
                           - 'null'
-                      enteredAt:
+                      planningAt:
                         type:
                           - string
                           - 'null'
@@ -12688,10 +12694,6 @@ paths:
                           - string
                           - 'null'
                       productionStartedAt:
-                        type:
-                          - string
-                          - 'null'
-                      inTransitAt:
                         type:
                           - string
                           - 'null'
@@ -12731,12 +12733,11 @@ paths:
                       - woNumber
                       - status
                       - workSiteId
-                      - draftAt
-                      - enteredAt
+                      - orderDate
+                      - planningAt
                       - placedAt
                       - expectedDeliveryDate
                       - productionStartedAt
-                      - inTransitAt
                       - partialAt
                       - receivedAt
                       - completedAt
@@ -13101,8 +13102,7 @@ paths:
                 status:
                   type: string
                   enum:
-                    - Draft
-                    - Entered
+                    - Planning
                     - Placed
                     - Production
                     - In Transit
@@ -13175,8 +13175,7 @@ paths:
                       status:
                         type: string
                         enum:
-                          - Draft
-                          - Entered
+                          - Planning
                           - Placed
                           - Production
                           - In Transit
@@ -13188,19 +13187,19 @@ paths:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      orderDate:
+                        type:
+                          - string
+                          - 'null'
+                      planningAt:
+                        type:
+                          - string
+                          - 'null'
                       placedAt:
                         type:
                           - string
                           - 'null'
                       expectedDeliveryDate:
-                        type:
-                          - string
-                          - 'null'
-                      draftAt:
-                        type:
-                          - string
-                          - 'null'
-                      enteredAt:
                         type:
                           - string
                           - 'null'
@@ -13248,10 +13247,10 @@ paths:
                       - prodNumber
                       - status
                       - locationId
+                      - orderDate
+                      - planningAt
                       - placedAt
                       - expectedDeliveryDate
-                      - draftAt
-                      - enteredAt
                       - productionStartedAt
                       - inTransitAt
                       - partialAt
@@ -13378,8 +13377,7 @@ paths:
                         status:
                           type: string
                           enum:
-                            - Draft
-                            - Entered
+                            - Planning
                             - Placed
                             - Production
                             - In Transit
@@ -13391,19 +13389,19 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        orderDate:
+                          type:
+                            - string
+                            - 'null'
+                        planningAt:
+                          type:
+                            - string
+                            - 'null'
                         placedAt:
                           type:
                             - string
                             - 'null'
                         expectedDeliveryDate:
-                          type:
-                            - string
-                            - 'null'
-                        draftAt:
-                          type:
-                            - string
-                            - 'null'
-                        enteredAt:
                           type:
                             - string
                             - 'null'
@@ -13451,10 +13449,10 @@ paths:
                         - prodNumber
                         - status
                         - locationId
+                        - orderDate
+                        - planningAt
                         - placedAt
                         - expectedDeliveryDate
-                        - draftAt
-                        - enteredAt
                         - productionStartedAt
                         - inTransitAt
                         - partialAt
@@ -13505,8 +13503,7 @@ paths:
                 status:
                   type: string
                   enum:
-                    - Draft
-                    - Entered
+                    - Planning
                     - Placed
                     - Production
                     - In Transit
@@ -13528,13 +13525,11 @@ paths:
                   type:
                     - string
                     - 'null'
-                placedAt:
-                  type: string
-                draftAt:
+                planningAt:
                   type:
                     - string
                     - 'null'
-                enteredAt:
+                placedAt:
                   type:
                     - string
                     - 'null'
@@ -13586,8 +13581,7 @@ paths:
                   status:
                     type: string
                     enum:
-                      - Draft
-                      - Entered
+                      - Planning
                       - Placed
                       - Production
                       - In Transit
@@ -13599,19 +13593,19 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  orderDate:
+                    type:
+                      - string
+                      - 'null'
+                  planningAt:
+                    type:
+                      - string
+                      - 'null'
                   placedAt:
                     type:
                       - string
                       - 'null'
                   expectedDeliveryDate:
-                    type:
-                      - string
-                      - 'null'
-                  draftAt:
-                    type:
-                      - string
-                      - 'null'
-                  enteredAt:
                     type:
                       - string
                       - 'null'
@@ -13659,10 +13653,10 @@ paths:
                   - prodNumber
                   - status
                   - locationId
+                  - orderDate
+                  - planningAt
                   - placedAt
                   - expectedDeliveryDate
-                  - draftAt
-                  - enteredAt
                   - productionStartedAt
                   - inTransitAt
                   - partialAt
@@ -13734,8 +13728,7 @@ paths:
                       status:
                         type: string
                         enum:
-                          - Draft
-                          - Entered
+                          - Planning
                           - Placed
                           - Production
                           - In Transit
@@ -13747,19 +13740,19 @@ paths:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      orderDate:
+                        type:
+                          - string
+                          - 'null'
+                      planningAt:
+                        type:
+                          - string
+                          - 'null'
                       placedAt:
                         type:
                           - string
                           - 'null'
                       expectedDeliveryDate:
-                        type:
-                          - string
-                          - 'null'
-                      draftAt:
-                        type:
-                          - string
-                          - 'null'
-                      enteredAt:
                         type:
                           - string
                           - 'null'
@@ -13807,10 +13800,10 @@ paths:
                       - prodNumber
                       - status
                       - locationId
+                      - orderDate
+                      - planningAt
                       - placedAt
                       - expectedDeliveryDate
-                      - draftAt
-                      - enteredAt
                       - productionStartedAt
                       - inTransitAt
                       - partialAt
@@ -13926,8 +13919,7 @@ paths:
                       status:
                         type: string
                         enum:
-                          - Draft
-                          - Entered
+                          - Planning
                           - Placed
                           - Production
                           - In Transit
@@ -14415,8 +14407,7 @@ paths:
                       status:
                         type: string
                         enum:
-                          - Draft
-                          - Entered
+                          - Planning
                           - Placed
                           - Production
                           - In Transit
@@ -14428,19 +14419,19 @@ paths:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      orderDate:
+                        type:
+                          - string
+                          - 'null'
+                      planningAt:
+                        type:
+                          - string
+                          - 'null'
                       placedAt:
                         type:
                           - string
                           - 'null'
                       expectedDeliveryDate:
-                        type:
-                          - string
-                          - 'null'
-                      draftAt:
-                        type:
-                          - string
-                          - 'null'
-                      enteredAt:
                         type:
                           - string
                           - 'null'
@@ -14488,10 +14479,10 @@ paths:
                       - prodNumber
                       - status
                       - locationId
+                      - orderDate
+                      - planningAt
                       - placedAt
                       - expectedDeliveryDate
-                      - draftAt
-                      - enteredAt
                       - productionStartedAt
                       - inTransitAt
                       - partialAt
