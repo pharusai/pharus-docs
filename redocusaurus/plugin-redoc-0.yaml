@@ -5446,6 +5446,14 @@ paths:
                           - 'null'
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      lotNumber:
+                        type:
+                          - string
+                          - 'null'
+                      expirationDate:
+                        type:
+                          - string
+                          - 'null'
                       createdAt:
                         anyOf:
                           - type: string
@@ -5459,13 +5467,14 @@ paths:
                       - locationId
                       - eventType
                       - quantity
-                      - unitCost
                       - ref
                       - toLocationId
                       - notes
                       - eventDate
                       - sourceType
                       - sourceId
+                      - lotNumber
+                      - expirationDate
                       - createdAt
                   ref:
                     type: string
@@ -5609,6 +5618,14 @@ paths:
                       - 'null'
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
                   createdAt:
                     anyOf:
                       - type: string
@@ -5622,13 +5639,14 @@ paths:
                   - locationId
                   - eventType
                   - quantity
-                  - unitCost
                   - ref
                   - toLocationId
                   - notes
                   - eventDate
                   - sourceType
                   - sourceId
+                  - lotNumber
+                  - expirationDate
                   - createdAt
         '404':
           description: Not found
@@ -5804,6 +5822,14 @@ paths:
                       - 'null'
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
                   createdAt:
                     anyOf:
                       - type: string
@@ -5817,13 +5843,14 @@ paths:
                   - locationId
                   - eventType
                   - quantity
-                  - unitCost
                   - ref
                   - toLocationId
                   - notes
                   - eventDate
                   - sourceType
                   - sourceId
+                  - lotNumber
+                  - expirationDate
                   - createdAt
         '422':
           description: Validation failed
@@ -5971,6 +5998,14 @@ paths:
                       - 'null'
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
                   createdAt:
                     anyOf:
                       - type: string
@@ -5984,13 +6019,14 @@ paths:
                   - locationId
                   - eventType
                   - quantity
-                  - unitCost
                   - ref
                   - toLocationId
                   - notes
                   - eventDate
                   - sourceType
                   - sourceId
+                  - lotNumber
+                  - expirationDate
                   - createdAt
         '422':
           description: Validation failed
@@ -6082,6 +6118,10 @@ paths:
                           type: string
                         netPosition:
                           type: string
+                        value:
+                          anyOf:
+                            - type: string
+                            - type: number
                       required:
                         - materialId
                         - locationId
@@ -6243,6 +6283,14 @@ paths:
                             - 'null'
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        lotNumber:
+                          type:
+                            - string
+                            - 'null'
+                        expirationDate:
+                          type:
+                            - string
+                            - 'null'
                         createdAt:
                           anyOf:
                             - type: string
@@ -6256,13 +6304,14 @@ paths:
                         - locationId
                         - eventType
                         - quantity
-                        - unitCost
                         - ref
                         - toLocationId
                         - notes
                         - eventDate
                         - sourceType
                         - sourceId
+                        - lotNumber
+                        - expirationDate
                         - createdAt
                 required:
                   - data
@@ -6364,6 +6413,14 @@ paths:
                       - 'null'
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
                   createdAt:
                     anyOf:
                       - type: string
@@ -6377,13 +6434,14 @@ paths:
                   - locationId
                   - eventType
                   - quantity
-                  - unitCost
                   - ref
                   - toLocationId
                   - notes
                   - eventDate
                   - sourceType
                   - sourceId
+                  - lotNumber
+                  - expirationDate
                   - createdAt
         '404':
           description: Not found
@@ -6541,6 +6599,14 @@ paths:
                           - 'null'
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      lotNumber:
+                        type:
+                          - string
+                          - 'null'
+                      expirationDate:
+                        type:
+                          - string
+                          - 'null'
                       createdAt:
                         anyOf:
                           - type: string
@@ -6554,13 +6620,14 @@ paths:
                       - locationId
                       - eventType
                       - quantity
-                      - unitCost
                       - ref
                       - toLocationId
                       - notes
                       - eventDate
                       - sourceType
                       - sourceId
+                      - lotNumber
+                      - expirationDate
                       - createdAt
                   ref:
                     type: string
@@ -6706,6 +6773,14 @@ paths:
                       - 'null'
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
                   createdAt:
                     anyOf:
                       - type: string
@@ -6719,13 +6794,14 @@ paths:
                   - locationId
                   - eventType
                   - quantity
-                  - unitCost
                   - ref
                   - toLocationId
                   - notes
                   - eventDate
                   - sourceType
                   - sourceId
+                  - lotNumber
+                  - expirationDate
                   - createdAt
         '404':
           description: Not found
@@ -6903,6 +6979,14 @@ paths:
                       - 'null'
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
                   createdAt:
                     anyOf:
                       - type: string
@@ -6916,13 +7000,14 @@ paths:
                   - locationId
                   - eventType
                   - quantity
-                  - unitCost
                   - ref
                   - toLocationId
                   - notes
                   - eventDate
                   - sourceType
                   - sourceId
+                  - lotNumber
+                  - expirationDate
                   - createdAt
         '422':
           description: Validation failed
@@ -7072,6 +7157,14 @@ paths:
                       - 'null'
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
                   createdAt:
                     anyOf:
                       - type: string
@@ -7085,13 +7178,14 @@ paths:
                   - locationId
                   - eventType
                   - quantity
-                  - unitCost
                   - ref
                   - toLocationId
                   - notes
                   - eventDate
                   - sourceType
                   - sourceId
+                  - lotNumber
+                  - expirationDate
                   - createdAt
         '422':
           description: Validation failed
@@ -7183,6 +7277,10 @@ paths:
                           type: string
                         netPosition:
                           type: string
+                        value:
+                          anyOf:
+                            - type: string
+                            - type: number
                       required:
                         - skuId
                         - locationId
@@ -7348,6 +7446,14 @@ paths:
                             - 'null'
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        lotNumber:
+                          type:
+                            - string
+                            - 'null'
+                        expirationDate:
+                          type:
+                            - string
+                            - 'null'
                         createdAt:
                           anyOf:
                             - type: string
@@ -7361,13 +7467,14 @@ paths:
                         - locationId
                         - eventType
                         - quantity
-                        - unitCost
                         - ref
                         - toLocationId
                         - notes
                         - eventDate
                         - sourceType
                         - sourceId
+                        - lotNumber
+                        - expirationDate
                         - createdAt
                 required:
                   - data
@@ -7471,6 +7578,14 @@ paths:
                       - 'null'
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
                   createdAt:
                     anyOf:
                       - type: string
@@ -7484,13 +7599,14 @@ paths:
                   - locationId
                   - eventType
                   - quantity
-                  - unitCost
                   - ref
                   - toLocationId
                   - notes
                   - eventDate
                   - sourceType
                   - sourceId
+                  - lotNumber
+                  - expirationDate
                   - createdAt
         '404':
           description: Not found
@@ -7693,26 +7809,38 @@ paths:
                           - type: string
                           - type: number
                           - type: 'null'
-                      brokerFees:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      fulfillmentCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      freightCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      promoCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      otherCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
+                      financials:
+                        type: object
+                        properties:
+                          fulfillmentCosts:
+                            type: number
+                          freightCosts:
+                            type: number
+                          promoCosts:
+                            type: number
+                          otherCosts:
+                            type: number
+                          brokerFees:
+                            type: number
+                          revenue:
+                            type: number
+                          inventoryCost:
+                            type: number
+                          grossProfit:
+                            type: number
+                          profit:
+                            type: number
+                          margin:
+                            type:
+                              - number
+                              - 'null'
+                        required:
+                          - fulfillmentCosts
+                          - freightCosts
+                          - promoCosts
+                          - otherCosts
+                          - brokerFees
+                          - revenue
                       mabd:
                         type: string
                       orderDate:
@@ -7780,11 +7908,7 @@ paths:
                       - fulfillmentLocationId
                       - brokerId
                       - brokerFeePercent
-                      - brokerFees
-                      - fulfillmentCosts
-                      - freightCosts
-                      - promoCosts
-                      - otherCosts
+                      - financials
                       - mabd
                       - orderDate
                       - planningAt
@@ -7907,26 +8031,38 @@ paths:
                             - type: string
                             - type: number
                             - type: 'null'
-                        brokerFees:
-                          anyOf:
-                            - type: string
-                            - type: number
-                        fulfillmentCosts:
-                          anyOf:
-                            - type: string
-                            - type: number
-                        freightCosts:
-                          anyOf:
-                            - type: string
-                            - type: number
-                        promoCosts:
-                          anyOf:
-                            - type: string
-                            - type: number
-                        otherCosts:
-                          anyOf:
-                            - type: string
-                            - type: number
+                        financials:
+                          type: object
+                          properties:
+                            fulfillmentCosts:
+                              type: number
+                            freightCosts:
+                              type: number
+                            promoCosts:
+                              type: number
+                            otherCosts:
+                              type: number
+                            brokerFees:
+                              type: number
+                            revenue:
+                              type: number
+                            inventoryCost:
+                              type: number
+                            grossProfit:
+                              type: number
+                            profit:
+                              type: number
+                            margin:
+                              type:
+                                - number
+                                - 'null'
+                          required:
+                            - fulfillmentCosts
+                            - freightCosts
+                            - promoCosts
+                            - otherCosts
+                            - brokerFees
+                            - revenue
                         mabd:
                           type: string
                         orderDate:
@@ -7994,11 +8130,7 @@ paths:
                         - fulfillmentLocationId
                         - brokerId
                         - brokerFeePercent
-                        - brokerFees
-                        - fulfillmentCosts
-                        - freightCosts
-                        - promoCosts
-                        - otherCosts
+                        - financials
                         - mabd
                         - orderDate
                         - planningAt
@@ -8218,26 +8350,38 @@ paths:
                       - type: string
                       - type: number
                       - type: 'null'
-                  brokerFees:
-                    anyOf:
-                      - type: string
-                      - type: number
-                  fulfillmentCosts:
-                    anyOf:
-                      - type: string
-                      - type: number
-                  freightCosts:
-                    anyOf:
-                      - type: string
-                      - type: number
-                  promoCosts:
-                    anyOf:
-                      - type: string
-                      - type: number
-                  otherCosts:
-                    anyOf:
-                      - type: string
-                      - type: number
+                  financials:
+                    type: object
+                    properties:
+                      fulfillmentCosts:
+                        type: number
+                      freightCosts:
+                        type: number
+                      promoCosts:
+                        type: number
+                      otherCosts:
+                        type: number
+                      brokerFees:
+                        type: number
+                      revenue:
+                        type: number
+                      inventoryCost:
+                        type: number
+                      grossProfit:
+                        type: number
+                      profit:
+                        type: number
+                      margin:
+                        type:
+                          - number
+                          - 'null'
+                    required:
+                      - fulfillmentCosts
+                      - freightCosts
+                      - promoCosts
+                      - otherCosts
+                      - brokerFees
+                      - revenue
                   mabd:
                     type: string
                   orderDate:
@@ -8305,11 +8449,7 @@ paths:
                   - fulfillmentLocationId
                   - brokerId
                   - brokerFeePercent
-                  - brokerFees
-                  - fulfillmentCosts
-                  - freightCosts
-                  - promoCosts
-                  - otherCosts
+                  - financials
                   - mabd
                   - orderDate
                   - planningAt
@@ -8427,26 +8567,38 @@ paths:
                           - type: string
                           - type: number
                           - type: 'null'
-                      brokerFees:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      fulfillmentCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      freightCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      promoCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      otherCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
+                      financials:
+                        type: object
+                        properties:
+                          fulfillmentCosts:
+                            type: number
+                          freightCosts:
+                            type: number
+                          promoCosts:
+                            type: number
+                          otherCosts:
+                            type: number
+                          brokerFees:
+                            type: number
+                          revenue:
+                            type: number
+                          inventoryCost:
+                            type: number
+                          grossProfit:
+                            type: number
+                          profit:
+                            type: number
+                          margin:
+                            type:
+                              - number
+                              - 'null'
+                        required:
+                          - fulfillmentCosts
+                          - freightCosts
+                          - promoCosts
+                          - otherCosts
+                          - brokerFees
+                          - revenue
                       mabd:
                         type: string
                       orderDate:
@@ -8514,11 +8666,7 @@ paths:
                       - fulfillmentLocationId
                       - brokerId
                       - brokerFeePercent
-                      - brokerFees
-                      - fulfillmentCosts
-                      - freightCosts
-                      - promoCosts
-                      - otherCosts
+                      - financials
                       - mabd
                       - orderDate
                       - planningAt
@@ -9446,10 +9594,10 @@ paths:
                 fulfillmentCosts:
                   type: number
                   minimum: 0
-                freightCosts:
+                shippingCosts:
                   type: number
                   minimum: 0
-                promoCosts:
+                merchantCosts:
                   type: number
                   minimum: 0
                 otherCosts:
@@ -9532,22 +9680,35 @@ paths:
                           - 'null'
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      fulfillmentCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      freightCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      promoCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      otherCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
+                      financials:
+                        type: object
+                        properties:
+                          fulfillmentCosts:
+                            type: number
+                          shippingCosts:
+                            type: number
+                          merchantCosts:
+                            type: number
+                          otherCosts:
+                            type: number
+                          revenue:
+                            type: number
+                          inventoryCost:
+                            type: number
+                          grossProfit:
+                            type: number
+                          profit:
+                            type: number
+                          margin:
+                            type:
+                              - number
+                              - 'null'
+                        required:
+                          - fulfillmentCosts
+                          - shippingCosts
+                          - merchantCosts
+                          - otherCosts
+                          - revenue
                       orderDate:
                         type: string
                       placedAt:
@@ -9592,10 +9753,7 @@ paths:
                       - orderChannelId
                       - status
                       - locationId
-                      - fulfillmentCosts
-                      - freightCosts
-                      - promoCosts
-                      - otherCosts
+                      - financials
                       - orderDate
                       - placedAt
                       - confirmedAt
@@ -9695,22 +9853,35 @@ paths:
                             - 'null'
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        fulfillmentCosts:
-                          anyOf:
-                            - type: string
-                            - type: number
-                        freightCosts:
-                          anyOf:
-                            - type: string
-                            - type: number
-                        promoCosts:
-                          anyOf:
-                            - type: string
-                            - type: number
-                        otherCosts:
-                          anyOf:
-                            - type: string
-                            - type: number
+                        financials:
+                          type: object
+                          properties:
+                            fulfillmentCosts:
+                              type: number
+                            shippingCosts:
+                              type: number
+                            merchantCosts:
+                              type: number
+                            otherCosts:
+                              type: number
+                            revenue:
+                              type: number
+                            inventoryCost:
+                              type: number
+                            grossProfit:
+                              type: number
+                            profit:
+                              type: number
+                            margin:
+                              type:
+                                - number
+                                - 'null'
+                          required:
+                            - fulfillmentCosts
+                            - shippingCosts
+                            - merchantCosts
+                            - otherCosts
+                            - revenue
                         orderDate:
                           type: string
                         placedAt:
@@ -9755,10 +9926,7 @@ paths:
                         - orderChannelId
                         - status
                         - locationId
-                        - fulfillmentCosts
-                        - freightCosts
-                        - promoCosts
-                        - otherCosts
+                        - financials
                         - orderDate
                         - placedAt
                         - confirmedAt
@@ -9831,10 +9999,10 @@ paths:
                 fulfillmentCosts:
                   type: number
                   minimum: 0
-                freightCosts:
+                shippingCosts:
                   type: number
                   minimum: 0
-                promoCosts:
+                merchantCosts:
                   type: number
                   minimum: 0
                 otherCosts:
@@ -9913,22 +10081,35 @@ paths:
                       - 'null'
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  fulfillmentCosts:
-                    anyOf:
-                      - type: string
-                      - type: number
-                  freightCosts:
-                    anyOf:
-                      - type: string
-                      - type: number
-                  promoCosts:
-                    anyOf:
-                      - type: string
-                      - type: number
-                  otherCosts:
-                    anyOf:
-                      - type: string
-                      - type: number
+                  financials:
+                    type: object
+                    properties:
+                      fulfillmentCosts:
+                        type: number
+                      shippingCosts:
+                        type: number
+                      merchantCosts:
+                        type: number
+                      otherCosts:
+                        type: number
+                      revenue:
+                        type: number
+                      inventoryCost:
+                        type: number
+                      grossProfit:
+                        type: number
+                      profit:
+                        type: number
+                      margin:
+                        type:
+                          - number
+                          - 'null'
+                    required:
+                      - fulfillmentCosts
+                      - shippingCosts
+                      - merchantCosts
+                      - otherCosts
+                      - revenue
                   orderDate:
                     type: string
                   placedAt:
@@ -9973,10 +10154,7 @@ paths:
                   - orderChannelId
                   - status
                   - locationId
-                  - fulfillmentCosts
-                  - freightCosts
-                  - promoCosts
-                  - otherCosts
+                  - financials
                   - orderDate
                   - placedAt
                   - confirmedAt
@@ -10069,22 +10247,35 @@ paths:
                           - 'null'
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      fulfillmentCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      freightCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      promoCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      otherCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
+                      financials:
+                        type: object
+                        properties:
+                          fulfillmentCosts:
+                            type: number
+                          shippingCosts:
+                            type: number
+                          merchantCosts:
+                            type: number
+                          otherCosts:
+                            type: number
+                          revenue:
+                            type: number
+                          inventoryCost:
+                            type: number
+                          grossProfit:
+                            type: number
+                          profit:
+                            type: number
+                          margin:
+                            type:
+                              - number
+                              - 'null'
+                        required:
+                          - fulfillmentCosts
+                          - shippingCosts
+                          - merchantCosts
+                          - otherCosts
+                          - revenue
                       orderDate:
                         type: string
                       placedAt:
@@ -10129,10 +10320,7 @@ paths:
                       - orderChannelId
                       - status
                       - locationId
-                      - fulfillmentCosts
-                      - freightCosts
-                      - promoCosts
-                      - otherCosts
+                      - financials
                       - orderDate
                       - placedAt
                       - confirmedAt
@@ -10588,18 +10776,23 @@ paths:
                         type:
                           - string
                           - 'null'
-                      shippingCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      setupCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      otherCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
+                      financials:
+                        type: object
+                        properties:
+                          shippingCosts:
+                            type: number
+                          setupCosts:
+                            type: number
+                          otherCosts:
+                            type: number
+                          goodsCost:
+                            type: number
+                          totalCost:
+                            type: number
+                        required:
+                          - shippingCosts
+                          - setupCosts
+                          - otherCosts
                       notes:
                         type:
                           - string
@@ -10632,9 +10825,7 @@ paths:
                       - receivedAt
                       - completedAt
                       - cancelledAt
-                      - shippingCosts
-                      - setupCosts
-                      - otherCosts
+                      - financials
                       - notes
                       - createdAt
                       - updatedAt
@@ -10778,18 +10969,23 @@ paths:
                           type:
                             - string
                             - 'null'
-                        shippingCosts:
-                          anyOf:
-                            - type: string
-                            - type: number
-                        setupCosts:
-                          anyOf:
-                            - type: string
-                            - type: number
-                        otherCosts:
-                          anyOf:
-                            - type: string
-                            - type: number
+                        financials:
+                          type: object
+                          properties:
+                            shippingCosts:
+                              type: number
+                            setupCosts:
+                              type: number
+                            otherCosts:
+                              type: number
+                            goodsCost:
+                              type: number
+                            totalCost:
+                              type: number
+                          required:
+                            - shippingCosts
+                            - setupCosts
+                            - otherCosts
                         notes:
                           type:
                             - string
@@ -10822,9 +11018,7 @@ paths:
                         - receivedAt
                         - completedAt
                         - cancelledAt
-                        - shippingCosts
-                        - setupCosts
-                        - otherCosts
+                        - financials
                         - notes
                         - createdAt
                         - updatedAt
@@ -11030,18 +11224,23 @@ paths:
                     type:
                       - string
                       - 'null'
-                  shippingCosts:
-                    anyOf:
-                      - type: string
-                      - type: number
-                  setupCosts:
-                    anyOf:
-                      - type: string
-                      - type: number
-                  otherCosts:
-                    anyOf:
-                      - type: string
-                      - type: number
+                  financials:
+                    type: object
+                    properties:
+                      shippingCosts:
+                        type: number
+                      setupCosts:
+                        type: number
+                      otherCosts:
+                        type: number
+                      goodsCost:
+                        type: number
+                      totalCost:
+                        type: number
+                    required:
+                      - shippingCosts
+                      - setupCosts
+                      - otherCosts
                   notes:
                     type:
                       - string
@@ -11074,9 +11273,7 @@ paths:
                   - receivedAt
                   - completedAt
                   - cancelledAt
-                  - shippingCosts
-                  - setupCosts
-                  - otherCosts
+                  - financials
                   - notes
                   - createdAt
                   - updatedAt
@@ -11204,18 +11401,23 @@ paths:
                         type:
                           - string
                           - 'null'
-                      shippingCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      setupCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      otherCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
+                      financials:
+                        type: object
+                        properties:
+                          shippingCosts:
+                            type: number
+                          setupCosts:
+                            type: number
+                          otherCosts:
+                            type: number
+                          goodsCost:
+                            type: number
+                          totalCost:
+                            type: number
+                        required:
+                          - shippingCosts
+                          - setupCosts
+                          - otherCosts
                       notes:
                         type:
                           - string
@@ -11248,9 +11450,7 @@ paths:
                       - receivedAt
                       - completedAt
                       - cancelledAt
-                      - shippingCosts
-                      - setupCosts
-                      - otherCosts
+                      - financials
                       - notes
                       - createdAt
                       - updatedAt
@@ -11733,6 +11933,14 @@ paths:
                       unitCost:
                         type: number
                         minimum: 0
+                      lotNumber:
+                        type:
+                          - string
+                          - 'null'
+                      expirationDate:
+                        type:
+                          - string
+                          - 'null'
                     required:
                       - quantity
               required:
@@ -11823,18 +12031,23 @@ paths:
                         type:
                           - string
                           - 'null'
-                      shippingCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      setupCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      otherCosts:
-                        anyOf:
-                          - type: string
-                          - type: number
+                      financials:
+                        type: object
+                        properties:
+                          shippingCosts:
+                            type: number
+                          setupCosts:
+                            type: number
+                          otherCosts:
+                            type: number
+                          goodsCost:
+                            type: number
+                          totalCost:
+                            type: number
+                        required:
+                          - shippingCosts
+                          - setupCosts
+                          - otherCosts
                       notes:
                         type:
                           - string
@@ -11867,9 +12080,7 @@ paths:
                       - receivedAt
                       - completedAt
                       - cancelledAt
-                      - shippingCosts
-                      - setupCosts
-                      - otherCosts
+                      - financials
                       - notes
                       - createdAt
                       - updatedAt
@@ -11944,6 +12155,14 @@ paths:
                           anyOf:
                             - type: string
                             - type: number
+                        lotNumber:
+                          type:
+                            - string
+                            - 'null'
+                        expirationDate:
+                          type:
+                            - string
+                            - 'null'
                         createdAt:
                           anyOf:
                             - type: string
@@ -11957,6 +12176,8 @@ paths:
                         - skuId
                         - quantity
                         - unitCost
+                        - lotNumber
+                        - expirationDate
                         - createdAt
                 required:
                   - purchaseOrder
@@ -12226,6 +12447,14 @@ paths:
                           anyOf:
                             - type: string
                             - type: number
+                        lotNumber:
+                          type:
+                            - string
+                            - 'null'
+                        expirationDate:
+                          type:
+                            - string
+                            - 'null'
                         createdAt:
                           anyOf:
                             - type: string
@@ -12239,6 +12468,8 @@ paths:
                         - skuId
                         - quantity
                         - unitCost
+                        - lotNumber
+                        - expirationDate
                         - createdAt
                 required:
                   - receipt
@@ -12378,6 +12609,15 @@ paths:
                   type:
                     - string
                     - 'null'
+                inShippingCosts:
+                  type: number
+                  minimum: 0
+                outShippingCosts:
+                  type: number
+                  minimum: 0
+                otherCosts:
+                  type: number
+                  minimum: 0
                 woNumber:
                   type: string
                   minLength: 1
@@ -12478,6 +12718,23 @@ paths:
                         type:
                           - string
                           - 'null'
+                      financials:
+                        type: object
+                        properties:
+                          inShippingCosts:
+                            type: number
+                          outShippingCosts:
+                            type: number
+                          otherCosts:
+                            type: number
+                          goodsCost:
+                            type: number
+                          totalCost:
+                            type: number
+                        required:
+                          - inShippingCosts
+                          - outShippingCosts
+                          - otherCosts
                       createdAt:
                         anyOf:
                           - type: string
@@ -12504,6 +12761,7 @@ paths:
                       - completedAt
                       - cancelledAt
                       - notes
+                      - financials
                       - createdAt
                       - updatedAt
                   items:
@@ -12682,6 +12940,23 @@ paths:
                           type:
                             - string
                             - 'null'
+                        financials:
+                          type: object
+                          properties:
+                            inShippingCosts:
+                              type: number
+                            outShippingCosts:
+                              type: number
+                            otherCosts:
+                              type: number
+                            goodsCost:
+                              type: number
+                            totalCost:
+                              type: number
+                          required:
+                            - inShippingCosts
+                            - outShippingCosts
+                            - otherCosts
                         createdAt:
                           anyOf:
                             - type: string
@@ -12708,6 +12983,7 @@ paths:
                         - completedAt
                         - cancelledAt
                         - notes
+                        - financials
                         - createdAt
                         - updatedAt
                 required:
@@ -12772,6 +13048,15 @@ paths:
                   type:
                     - string
                     - 'null'
+                inShippingCosts:
+                  type: number
+                  minimum: 0
+                outShippingCosts:
+                  type: number
+                  minimum: 0
+                otherCosts:
+                  type: number
+                  minimum: 0
                 planningAt:
                   type:
                     - string
@@ -12875,6 +13160,23 @@ paths:
                     type:
                       - string
                       - 'null'
+                  financials:
+                    type: object
+                    properties:
+                      inShippingCosts:
+                        type: number
+                      outShippingCosts:
+                        type: number
+                      otherCosts:
+                        type: number
+                      goodsCost:
+                        type: number
+                      totalCost:
+                        type: number
+                    required:
+                      - inShippingCosts
+                      - outShippingCosts
+                      - otherCosts
                   createdAt:
                     anyOf:
                       - type: string
@@ -12901,6 +13203,7 @@ paths:
                   - completedAt
                   - cancelledAt
                   - notes
+                  - financials
                   - createdAt
                   - updatedAt
     delete:
@@ -13016,6 +13319,23 @@ paths:
                         type:
                           - string
                           - 'null'
+                      financials:
+                        type: object
+                        properties:
+                          inShippingCosts:
+                            type: number
+                          outShippingCosts:
+                            type: number
+                          otherCosts:
+                            type: number
+                          goodsCost:
+                            type: number
+                          totalCost:
+                            type: number
+                        required:
+                          - inShippingCosts
+                          - outShippingCosts
+                          - otherCosts
                       createdAt:
                         anyOf:
                           - type: string
@@ -13042,6 +13362,7 @@ paths:
                       - completedAt
                       - cancelledAt
                       - notes
+                      - financials
                       - createdAt
                       - updatedAt
                   items:
@@ -13179,6 +13500,15 @@ paths:
                         type:
                           - string
                           - 'null'
+                      inShippingCosts:
+                        type: number
+                        minimum: 0
+                      outShippingCosts:
+                        type: number
+                        minimum: 0
+                      otherCosts:
+                        type: number
+                        minimum: 0
                       items:
                         type: array
                         items:
@@ -13626,9 +13956,14 @@ paths:
                       quantity:
                         type: integer
                         minimum: 1
-                      unitCost:
-                        type: number
-                        minimum: 0
+                      lotNumber:
+                        type:
+                          - string
+                          - 'null'
+                      expirationDate:
+                        type:
+                          - string
+                          - 'null'
                     required:
                       - skuId
                       - quantity
@@ -13709,6 +14044,23 @@ paths:
                         type:
                           - string
                           - 'null'
+                      financials:
+                        type: object
+                        properties:
+                          inShippingCosts:
+                            type: number
+                          outShippingCosts:
+                            type: number
+                          otherCosts:
+                            type: number
+                          goodsCost:
+                            type: number
+                          totalCost:
+                            type: number
+                        required:
+                          - inShippingCosts
+                          - outShippingCosts
+                          - otherCosts
                       createdAt:
                         anyOf:
                           - type: string
@@ -13735,6 +14087,7 @@ paths:
                       - completedAt
                       - cancelledAt
                       - notes
+                      - financials
                       - createdAt
                       - updatedAt
                   receipt:
@@ -13788,10 +14141,18 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         quantity:
                           type: integer
-                        unitCost:
+                        conversionCost:
                           anyOf:
                             - type: string
                             - type: number
+                        lotNumber:
+                          type:
+                            - string
+                            - 'null'
+                        expirationDate:
+                          type:
+                            - string
+                            - 'null'
                         createdAt:
                           anyOf:
                             - type: string
@@ -13803,7 +14164,9 @@ paths:
                         - receiptId
                         - skuId
                         - quantity
-                        - unitCost
+                        - conversionCost
+                        - lotNumber
+                        - expirationDate
                         - createdAt
                 required:
                   - workOrder
@@ -14041,10 +14404,18 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         quantity:
                           type: integer
-                        unitCost:
+                        conversionCost:
                           anyOf:
                             - type: string
                             - type: number
+                        lotNumber:
+                          type:
+                            - string
+                            - 'null'
+                        expirationDate:
+                          type:
+                            - string
+                            - 'null'
                         createdAt:
                           anyOf:
                             - type: string
@@ -14056,7 +14427,9 @@ paths:
                         - receiptId
                         - skuId
                         - quantity
-                        - unitCost
+                        - conversionCost
+                        - lotNumber
+                        - expirationDate
                         - createdAt
                 required:
                   - receipt
@@ -14116,6 +14489,15 @@ paths:
                   type:
                     - string
                     - 'null'
+                inShippingCosts:
+                  type: number
+                  minimum: 0
+                outShippingCosts:
+                  type: number
+                  minimum: 0
+                otherCosts:
+                  type: number
+                  minimum: 0
                 prodNumber:
                   type: string
                   minLength: 1
@@ -14223,6 +14605,23 @@ paths:
                         type:
                           - string
                           - 'null'
+                      financials:
+                        type: object
+                        properties:
+                          inShippingCosts:
+                            type: number
+                          outShippingCosts:
+                            type: number
+                          otherCosts:
+                            type: number
+                          goodsCost:
+                            type: number
+                          totalCost:
+                            type: number
+                        required:
+                          - inShippingCosts
+                          - outShippingCosts
+                          - otherCosts
                       createdAt:
                         anyOf:
                           - type: string
@@ -14250,6 +14649,7 @@ paths:
                       - completedAt
                       - cancelledAt
                       - notes
+                      - financials
                       - createdAt
                       - updatedAt
                   items:
@@ -14425,6 +14825,23 @@ paths:
                           type:
                             - string
                             - 'null'
+                        financials:
+                          type: object
+                          properties:
+                            inShippingCosts:
+                              type: number
+                            outShippingCosts:
+                              type: number
+                            otherCosts:
+                              type: number
+                            goodsCost:
+                              type: number
+                            totalCost:
+                              type: number
+                          required:
+                            - inShippingCosts
+                            - outShippingCosts
+                            - otherCosts
                         createdAt:
                           anyOf:
                             - type: string
@@ -14452,6 +14869,7 @@ paths:
                         - completedAt
                         - cancelledAt
                         - notes
+                        - financials
                         - createdAt
                         - updatedAt
                 required:
@@ -14517,6 +14935,15 @@ paths:
                   type:
                     - string
                     - 'null'
+                inShippingCosts:
+                  type: number
+                  minimum: 0
+                outShippingCosts:
+                  type: number
+                  minimum: 0
+                otherCosts:
+                  type: number
+                  minimum: 0
                 planningAt:
                   type:
                     - string
@@ -14629,6 +15056,23 @@ paths:
                     type:
                       - string
                       - 'null'
+                  financials:
+                    type: object
+                    properties:
+                      inShippingCosts:
+                        type: number
+                      outShippingCosts:
+                        type: number
+                      otherCosts:
+                        type: number
+                      goodsCost:
+                        type: number
+                      totalCost:
+                        type: number
+                    required:
+                      - inShippingCosts
+                      - outShippingCosts
+                      - otherCosts
                   createdAt:
                     anyOf:
                       - type: string
@@ -14656,6 +15100,7 @@ paths:
                   - completedAt
                   - cancelledAt
                   - notes
+                  - financials
                   - createdAt
                   - updatedAt
     delete:
@@ -14776,6 +15221,23 @@ paths:
                         type:
                           - string
                           - 'null'
+                      financials:
+                        type: object
+                        properties:
+                          inShippingCosts:
+                            type: number
+                          outShippingCosts:
+                            type: number
+                          otherCosts:
+                            type: number
+                          goodsCost:
+                            type: number
+                          totalCost:
+                            type: number
+                        required:
+                          - inShippingCosts
+                          - outShippingCosts
+                          - otherCosts
                       createdAt:
                         anyOf:
                           - type: string
@@ -14803,6 +15265,7 @@ paths:
                       - completedAt
                       - cancelledAt
                       - notes
+                      - financials
                       - createdAt
                       - updatedAt
                   items:
@@ -14933,6 +15396,15 @@ paths:
                         type:
                           - string
                           - 'null'
+                      inShippingCosts:
+                        type: number
+                        minimum: 0
+                      outShippingCosts:
+                        type: number
+                        minimum: 0
+                      otherCosts:
+                        type: number
+                        minimum: 0
                       items:
                         type: array
                         items:
@@ -15370,6 +15842,14 @@ paths:
                       quantity:
                         type: integer
                         minimum: 1
+                      lotNumber:
+                        type:
+                          - string
+                          - 'null'
+                      expirationDate:
+                        type:
+                          - string
+                          - 'null'
                     required:
                       - skuId
                       - quantity
@@ -15455,6 +15935,23 @@ paths:
                         type:
                           - string
                           - 'null'
+                      financials:
+                        type: object
+                        properties:
+                          inShippingCosts:
+                            type: number
+                          outShippingCosts:
+                            type: number
+                          otherCosts:
+                            type: number
+                          goodsCost:
+                            type: number
+                          totalCost:
+                            type: number
+                        required:
+                          - inShippingCosts
+                          - outShippingCosts
+                          - otherCosts
                       createdAt:
                         anyOf:
                           - type: string
@@ -15482,6 +15979,7 @@ paths:
                       - completedAt
                       - cancelledAt
                       - notes
+                      - financials
                       - createdAt
                       - updatedAt
                   receipt:
@@ -15535,10 +16033,18 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         quantity:
                           type: integer
-                        unitCost:
+                        productionCost:
                           anyOf:
                             - type: string
                             - type: number
+                        lotNumber:
+                          type:
+                            - string
+                            - 'null'
+                        expirationDate:
+                          type:
+                            - string
+                            - 'null'
                         createdAt:
                           anyOf:
                             - type: string
@@ -15550,7 +16056,9 @@ paths:
                         - receiptId
                         - skuId
                         - quantity
-                        - unitCost
+                        - productionCost
+                        - lotNumber
+                        - expirationDate
                         - createdAt
                 required:
                   - productionOrder
@@ -15788,10 +16296,18 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         quantity:
                           type: integer
-                        unitCost:
+                        productionCost:
                           anyOf:
                             - type: string
                             - type: number
+                        lotNumber:
+                          type:
+                            - string
+                            - 'null'
+                        expirationDate:
+                          type:
+                            - string
+                            - 'null'
                         createdAt:
                           anyOf:
                             - type: string
@@ -15803,7 +16319,9 @@ paths:
                         - receiptId
                         - skuId
                         - quantity
-                        - unitCost
+                        - productionCost
+                        - lotNumber
+                        - expirationDate
                         - createdAt
                 required:
                   - receipt
@@ -16323,6 +16841,21 @@ paths:
                               type:
                                 - string
                                 - 'null'
+                            operatingModel:
+                              type:
+                                - string
+                                - 'null'
+                              enum:
+                                - Manufacturer
+                                - Reseller
+                                - null
+                            costingMethod:
+                              type: string
+                              enum:
+                                - FIFO
+                                - FEFO
+                                - LIFO
+                                - WEIGHTED_AVERAGE
                             createdAt:
                               anyOf:
                                 - type: string
@@ -16344,6 +16877,8 @@ paths:
                             - logoUrl
                             - contactEmail
                             - contactPhone
+                            - operatingModel
+                            - costingMethod
                             - createdAt
                             - updatedAt
                       required:
@@ -16925,6 +17460,18 @@ paths:
                 slug:
                   type: string
                   pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
+                operatingModel:
+                  type: string
+                  enum:
+                    - Manufacturer
+                    - Reseller
+                costingMethod:
+                  type: string
+                  enum:
+                    - FIFO
+                    - FEFO
+                    - LIFO
+                    - WEIGHTED_AVERAGE
               required:
                 - name
                 - slug
@@ -17112,6 +17659,21 @@ paths:
                         type:
                           - string
                           - 'null'
+                      operatingModel:
+                        type:
+                          - string
+                          - 'null'
+                        enum:
+                          - Manufacturer
+                          - Reseller
+                          - null
+                      costingMethod:
+                        type: string
+                        enum:
+                          - FIFO
+                          - FEFO
+                          - LIFO
+                          - WEIGHTED_AVERAGE
                       createdAt:
                         anyOf:
                           - type: string
@@ -17133,6 +17695,8 @@ paths:
                       - logoUrl
                       - contactEmail
                       - contactPhone
+                      - operatingModel
+                      - costingMethod
                       - createdAt
                       - updatedAt
                 required:
@@ -17188,6 +17752,21 @@ paths:
                   type:
                     - string
                     - 'null'
+                operatingModel:
+                  type:
+                    - string
+                    - 'null'
+                  enum:
+                    - Manufacturer
+                    - Reseller
+                    - null
+                costingMethod:
+                  type: string
+                  enum:
+                    - FIFO
+                    - FEFO
+                    - LIFO
+                    - WEIGHTED_AVERAGE
       responses:
         '200':
           description: OK
@@ -17271,6 +17850,21 @@ paths:
                         type:
                           - string
                           - 'null'
+                      operatingModel:
+                        type:
+                          - string
+                          - 'null'
+                        enum:
+                          - Manufacturer
+                          - Reseller
+                          - null
+                      costingMethod:
+                        type: string
+                        enum:
+                          - FIFO
+                          - FEFO
+                          - LIFO
+                          - WEIGHTED_AVERAGE
                       createdAt:
                         anyOf:
                           - type: string
@@ -17292,6 +17886,8 @@ paths:
                       - logoUrl
                       - contactEmail
                       - contactPhone
+                      - operatingModel
+                      - costingMethod
                       - createdAt
                       - updatedAt
                 required:
