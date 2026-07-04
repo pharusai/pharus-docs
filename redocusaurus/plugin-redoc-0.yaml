@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Pharus API
-  version: 1.2.0
+  version: 1.4.0
   description: >-
     Pharus exposes every action in the platform as a REST endpoint. Use this API
     to
@@ -9569,11 +9569,25 @@ paths:
             schema:
               type: object
               properties:
-                customerId:
-                  type: string
+                customerName:
+                  type:
+                    - string
+                    - 'null'
+                customerRef:
+                  type:
+                    - string
+                    - 'null'
+                isSubscription:
+                  type: boolean
+                isRecurring:
+                  type: boolean
+                channelId:
+                  type:
+                    - string
+                    - 'null'
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                channelId:
+                acquisitionSourceId:
                   type: string
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -9632,8 +9646,7 @@ paths:
                       - quantity
                   minItems: 1
               required:
-                - customerId
-                - channelId
+                - acquisitionSourceId
                 - items
       responses:
         '201':
@@ -9654,15 +9667,29 @@ paths:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      customerId:
-                        type: string
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      customerName:
+                        type:
+                          - string
+                          - 'null'
+                      customerRef:
+                        type:
+                          - string
+                          - 'null'
+                      isSubscription:
+                        type: boolean
+                      isRecurring:
+                        type: boolean
                       srNumber:
                         type:
                           - string
                           - 'null'
                       orderChannelId:
+                        type:
+                          - string
+                          - 'null'
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      acquisitionSourceId:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -9748,9 +9775,13 @@ paths:
                     required:
                       - id
                       - orgId
-                      - customerId
+                      - customerName
+                      - customerRef
+                      - isSubscription
+                      - isRecurring
                       - srNumber
                       - orderChannelId
+                      - acquisitionSourceId
                       - status
                       - locationId
                       - financials
@@ -9827,15 +9858,29 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        customerId:
-                          type: string
-                          pattern: >-
-                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        customerName:
+                          type:
+                            - string
+                            - 'null'
+                        customerRef:
+                          type:
+                            - string
+                            - 'null'
+                        isSubscription:
+                          type: boolean
+                        isRecurring:
+                          type: boolean
                         srNumber:
                           type:
                             - string
                             - 'null'
                         orderChannelId:
+                          type:
+                            - string
+                            - 'null'
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        acquisitionSourceId:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -9921,9 +9966,13 @@ paths:
                       required:
                         - id
                         - orgId
-                        - customerId
+                        - customerName
+                        - customerRef
+                        - isSubscription
+                        - isRecurring
                         - srNumber
                         - orderChannelId
+                        - acquisitionSourceId
                         - status
                         - locationId
                         - financials
@@ -9974,11 +10023,25 @@ paths:
             schema:
               type: object
               properties:
-                customerId:
-                  type: string
+                customerName:
+                  type:
+                    - string
+                    - 'null'
+                customerRef:
+                  type:
+                    - string
+                    - 'null'
+                isSubscription:
+                  type: boolean
+                isRecurring:
+                  type: boolean
+                channelId:
+                  type:
+                    - string
+                    - 'null'
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                channelId:
+                acquisitionSourceId:
                   type: string
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -10055,15 +10118,29 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  customerId:
-                    type: string
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  customerName:
+                    type:
+                      - string
+                      - 'null'
+                  customerRef:
+                    type:
+                      - string
+                      - 'null'
+                  isSubscription:
+                    type: boolean
+                  isRecurring:
+                    type: boolean
                   srNumber:
                     type:
                       - string
                       - 'null'
                   orderChannelId:
+                    type:
+                      - string
+                      - 'null'
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  acquisitionSourceId:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -10149,9 +10226,13 @@ paths:
                 required:
                   - id
                   - orgId
-                  - customerId
+                  - customerName
+                  - customerRef
+                  - isSubscription
+                  - isRecurring
                   - srNumber
                   - orderChannelId
+                  - acquisitionSourceId
                   - status
                   - locationId
                   - financials
@@ -10221,15 +10302,29 @@ paths:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      customerId:
-                        type: string
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      customerName:
+                        type:
+                          - string
+                          - 'null'
+                      customerRef:
+                        type:
+                          - string
+                          - 'null'
+                      isSubscription:
+                        type: boolean
+                      isRecurring:
+                        type: boolean
                       srNumber:
                         type:
                           - string
                           - 'null'
                       orderChannelId:
+                        type:
+                          - string
+                          - 'null'
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      acquisitionSourceId:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -10315,9 +10410,13 @@ paths:
                     required:
                       - id
                       - orgId
-                      - customerId
+                      - customerName
+                      - customerRef
+                      - isSubscription
+                      - isRecurring
                       - srNumber
                       - orderChannelId
+                      - acquisitionSourceId
                       - status
                       - locationId
                       - financials
@@ -10592,6 +10691,293 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                 required:
                   - deletedId
+  /acquisition-sources:
+    post:
+      tags:
+        - SalesReceipts
+      summary: Create acquisition source
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+              required:
+                - name
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  orgId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  name:
+                    type: string
+                  sortOrder:
+                    type: integer
+                  isActive:
+                    type: boolean
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                required:
+                  - id
+                  - orgId
+                  - name
+                  - sortOrder
+                  - isActive
+                  - createdAt
+    get:
+      tags:
+        - SalesReceipts
+      summary: List acquisition sources
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        orgId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        name:
+                          type: string
+                        sortOrder:
+                          type: integer
+                        isActive:
+                          type: boolean
+                        createdAt:
+                          anyOf:
+                            - type: string
+                            - type: string
+                              format: date-time
+                      required:
+                        - id
+                        - orgId
+                        - name
+                        - sortOrder
+                        - isActive
+                        - createdAt
+                required:
+                  - data
+  /acquisition-sources/{id}:
+    patch:
+      tags:
+        - SalesReceipts
+      summary: Update acquisition source
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                sortOrder:
+                  type: integer
+                isActive:
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  orgId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  name:
+                    type: string
+                  sortOrder:
+                    type: integer
+                  isActive:
+                    type: boolean
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                required:
+                  - id
+                  - orgId
+                  - name
+                  - sortOrder
+                  - isActive
+                  - createdAt
+    delete:
+      tags:
+        - SalesReceipts
+      summary: Delete acquisition source
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                required:
+                  - deletedId
+        '409':
+          description: In use
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /acquisition-sources/{id}/reactivate:
+    post:
+      tags:
+        - SalesReceipts
+      summary: Reactivate acquisition source
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  orgId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  name:
+                    type: string
+                  sortOrder:
+                    type: integer
+                  isActive:
+                    type: boolean
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                required:
+                  - id
+                  - orgId
+                  - name
+                  - sortOrder
+                  - isActive
+                  - createdAt
+  /acquisition-sources/{id}/in-use:
+    get:
+      tags:
+        - SalesReceipts
+      summary: Check acquisition source usage
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  inUse:
+                    type: boolean
+                  srCount:
+                    type: integer
+                required:
+                  - inUse
+                  - srCount
   /purchase-orders:
     post:
       tags:
