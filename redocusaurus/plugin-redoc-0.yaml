@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Pharus API
-  version: 1.4.0
+  version: 1.5.0
   description: >-
     Pharus exposes every action in the platform as a REST endpoint. Use this API
     to
@@ -12860,6 +12860,132 @@ paths:
                 required:
                   - receipt
                   - items
+  /purchase-order-receipt-items/{id}:
+    patch:
+      tags:
+        - PurchaseOrders
+      summary: Update PO receipt item
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: number
+                  exclusiveMinimum: 0
+                unitCost:
+                  type: number
+                  minimum: 0
+                lotNumber:
+                  type:
+                    - string
+                    - 'null'
+                expirationDate:
+                  type:
+                    - string
+                    - 'null'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  orgId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  receiptId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  materialId:
+                    type:
+                      - string
+                      - 'null'
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  skuId:
+                    type:
+                      - string
+                      - 'null'
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  quantity:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  unitCost:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                required:
+                  - id
+                  - orgId
+                  - receiptId
+                  - materialId
+                  - skuId
+                  - quantity
+                  - unitCost
+                  - lotNumber
+                  - expirationDate
+                  - createdAt
+        '409':
+          description: PO completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
   /purchase-order-items:
     get:
       tags:
@@ -14820,6 +14946,121 @@ paths:
                 required:
                   - receipt
                   - items
+  /work-order-receipt-items/{id}:
+    patch:
+      tags:
+        - WorkOrders
+      summary: Update WO receipt item
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+                conversionCost:
+                  type: number
+                  minimum: 0
+                lotNumber:
+                  type:
+                    - string
+                    - 'null'
+                expirationDate:
+                  type:
+                    - string
+                    - 'null'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  orgId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  receiptId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  skuId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  quantity:
+                    type: integer
+                  conversionCost:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                required:
+                  - id
+                  - orgId
+                  - receiptId
+                  - skuId
+                  - quantity
+                  - conversionCost
+                  - lotNumber
+                  - expirationDate
+                  - createdAt
+        '409':
+          description: WO completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
   /work-order-status-types:
     get:
       tags:
@@ -16712,6 +16953,121 @@ paths:
                 required:
                   - receipt
                   - items
+  /production-order-receipt-items/{id}:
+    patch:
+      tags:
+        - ProductionOrders
+      summary: Update production order receipt item
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+                productionCost:
+                  type: number
+                  minimum: 0
+                lotNumber:
+                  type:
+                    - string
+                    - 'null'
+                expirationDate:
+                  type:
+                    - string
+                    - 'null'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  orgId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  receiptId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  skuId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  quantity:
+                    type: integer
+                  productionCost:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                required:
+                  - id
+                  - orgId
+                  - receiptId
+                  - skuId
+                  - quantity
+                  - productionCost
+                  - lotNumber
+                  - expirationDate
+                  - createdAt
+        '409':
+          description: Order completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
   /production-order-status-types:
     get:
       tags:
