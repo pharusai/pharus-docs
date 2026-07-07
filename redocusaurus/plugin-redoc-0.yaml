@@ -651,11 +651,14 @@ paths:
                         type: integer
                       ledgerCount:
                         type: integer
+                      transferCount:
+                        type: integer
                     required:
                       - poCount
                       - woCount
                       - soCount
                       - ledgerCount
+                      - transferCount
                 required:
                   - inUse
                   - references
@@ -5321,391 +5324,6 @@ paths:
                       - message
                 required:
                   - error
-  /materials-inventory/transfers:
-    post:
-      tags:
-        - MaterialsInventory
-      summary: Create materials transfer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                materialId:
-                  type: string
-                  pattern: >-
-                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                sourceLocationId:
-                  type: string
-                  pattern: >-
-                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                destinationLocationId:
-                  type: string
-                  pattern: >-
-                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                quantity:
-                  type: number
-                  exclusiveMinimum: 0
-                eventDate:
-                  type: string
-                notes:
-                  type:
-                    - string
-                    - 'null'
-              required:
-                - materialId
-                - sourceLocationId
-                - destinationLocationId
-                - quantity
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ledgerEntry:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      orgId:
-                        type: string
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      code:
-                        type: string
-                      materialId:
-                        type: string
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      locationId:
-                        type:
-                          - string
-                          - 'null'
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      eventType:
-                        type: string
-                        enum:
-                          - ORDER
-                          - RECEIVE
-                          - DEMAND
-                          - ALLOCATE
-                          - CONSUME
-                          - TRANSFER
-                          - ADJUST
-                          - DISPOSE
-                          - SETTLE_ORDER
-                          - SETTLE_ALLOCATE
-                          - REVERSE_ORDER
-                          - REVERSE_RECEIVE
-                          - REVERSE_DEMAND
-                          - REVERSE_ALLOCATE
-                          - REVERSE_CONSUME
-                          - REVERSE_TRANSFER
-                      quantity:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      unitCost:
-                        anyOf:
-                          - type: string
-                          - type: number
-                          - type: 'null'
-                      ref:
-                        type:
-                          - string
-                          - 'null'
-                      toLocationId:
-                        type:
-                          - string
-                          - 'null'
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      notes:
-                        type:
-                          - string
-                          - 'null'
-                      eventDate:
-                        anyOf:
-                          - type: string
-                          - type: string
-                            format: date-time
-                      sourceType:
-                        type:
-                          - string
-                          - 'null'
-                      sourceId:
-                        type:
-                          - string
-                          - 'null'
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      lotNumber:
-                        type:
-                          - string
-                          - 'null'
-                      expirationDate:
-                        type:
-                          - string
-                          - 'null'
-                      createdAt:
-                        anyOf:
-                          - type: string
-                          - type: string
-                            format: date-time
-                    required:
-                      - id
-                      - orgId
-                      - code
-                      - materialId
-                      - locationId
-                      - eventType
-                      - quantity
-                      - ref
-                      - toLocationId
-                      - notes
-                      - eventDate
-                      - sourceType
-                      - sourceId
-                      - lotNumber
-                      - expirationDate
-                      - createdAt
-                  ref:
-                    type: string
-                required:
-                  - ledgerEntry
-                  - ref
-        '422':
-          description: Validation failed
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                        enum:
-                          - not_found
-                          - in_use
-                          - invalid_transition
-                          - validation_failed
-                          - forbidden
-                          - unauthorized
-                          - conflict
-                          - internal_error
-                      message:
-                        type: string
-                      details: {}
-                    required:
-                      - code
-                      - message
-                required:
-                  - error
-  /materials-inventory/transfers/{ref}/complete:
-    post:
-      tags:
-        - MaterialsInventory
-      summary: Complete in-transit transfer
-      parameters:
-        - schema:
-            type: string
-          required: true
-          name: ref
-          in: path
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                eventDate:
-                  type: string
-                notes:
-                  type:
-                    - string
-                    - 'null'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  orgId:
-                    type: string
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  code:
-                    type: string
-                  materialId:
-                    type: string
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  locationId:
-                    type:
-                      - string
-                      - 'null'
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  eventType:
-                    type: string
-                    enum:
-                      - ORDER
-                      - RECEIVE
-                      - DEMAND
-                      - ALLOCATE
-                      - CONSUME
-                      - TRANSFER
-                      - ADJUST
-                      - DISPOSE
-                      - SETTLE_ORDER
-                      - SETTLE_ALLOCATE
-                      - REVERSE_ORDER
-                      - REVERSE_RECEIVE
-                      - REVERSE_DEMAND
-                      - REVERSE_ALLOCATE
-                      - REVERSE_CONSUME
-                      - REVERSE_TRANSFER
-                  quantity:
-                    anyOf:
-                      - type: string
-                      - type: number
-                  unitCost:
-                    anyOf:
-                      - type: string
-                      - type: number
-                      - type: 'null'
-                  ref:
-                    type:
-                      - string
-                      - 'null'
-                  toLocationId:
-                    type:
-                      - string
-                      - 'null'
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  notes:
-                    type:
-                      - string
-                      - 'null'
-                  eventDate:
-                    anyOf:
-                      - type: string
-                      - type: string
-                        format: date-time
-                  sourceType:
-                    type:
-                      - string
-                      - 'null'
-                  sourceId:
-                    type:
-                      - string
-                      - 'null'
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  lotNumber:
-                    type:
-                      - string
-                      - 'null'
-                  expirationDate:
-                    type:
-                      - string
-                      - 'null'
-                  createdAt:
-                    anyOf:
-                      - type: string
-                      - type: string
-                        format: date-time
-                required:
-                  - id
-                  - orgId
-                  - code
-                  - materialId
-                  - locationId
-                  - eventType
-                  - quantity
-                  - ref
-                  - toLocationId
-                  - notes
-                  - eventDate
-                  - sourceType
-                  - sourceId
-                  - lotNumber
-                  - expirationDate
-                  - createdAt
-        '404':
-          description: Not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                        enum:
-                          - not_found
-                          - in_use
-                          - invalid_transition
-                          - validation_failed
-                          - forbidden
-                          - unauthorized
-                          - conflict
-                          - internal_error
-                      message:
-                        type: string
-                      details: {}
-                    required:
-                      - code
-                      - message
-                required:
-                  - error
-        '409':
-          description: Already completed
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                        enum:
-                          - not_found
-                          - in_use
-                          - invalid_transition
-                          - validation_failed
-                          - forbidden
-                          - unauthorized
-                          - conflict
-                          - internal_error
-                      message:
-                        type: string
-                      details: {}
-                    required:
-                      - code
-                      - message
-                required:
-                  - error
   /materials-inventory/adjustments:
     post:
       tags:
@@ -5773,7 +5391,6 @@ paths:
                       - DEMAND
                       - ALLOCATE
                       - CONSUME
-                      - TRANSFER
                       - ADJUST
                       - DISPOSE
                       - SETTLE_ORDER
@@ -5783,7 +5400,6 @@ paths:
                       - REVERSE_DEMAND
                       - REVERSE_ALLOCATE
                       - REVERSE_CONSUME
-                      - REVERSE_TRANSFER
                   quantity:
                     anyOf:
                       - type: string
@@ -5797,12 +5413,6 @@ paths:
                     type:
                       - string
                       - 'null'
-                  toLocationId:
-                    type:
-                      - string
-                      - 'null'
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   notes:
                     type:
                       - string
@@ -5835,6 +5445,10 @@ paths:
                       - type: string
                       - type: string
                         format: date-time
+                  lotLineIndex:
+                    type: integer
+                  lotLineCount:
+                    type: integer
                 required:
                   - id
                   - orgId
@@ -5844,7 +5458,6 @@ paths:
                   - eventType
                   - quantity
                   - ref
-                  - toLocationId
                   - notes
                   - eventDate
                   - sourceType
@@ -5949,7 +5562,6 @@ paths:
                       - DEMAND
                       - ALLOCATE
                       - CONSUME
-                      - TRANSFER
                       - ADJUST
                       - DISPOSE
                       - SETTLE_ORDER
@@ -5959,7 +5571,6 @@ paths:
                       - REVERSE_DEMAND
                       - REVERSE_ALLOCATE
                       - REVERSE_CONSUME
-                      - REVERSE_TRANSFER
                   quantity:
                     anyOf:
                       - type: string
@@ -5973,12 +5584,6 @@ paths:
                     type:
                       - string
                       - 'null'
-                  toLocationId:
-                    type:
-                      - string
-                      - 'null'
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   notes:
                     type:
                       - string
@@ -6011,6 +5616,10 @@ paths:
                       - type: string
                       - type: string
                         format: date-time
+                  lotLineIndex:
+                    type: integer
+                  lotLineCount:
+                    type: integer
                 required:
                   - id
                   - orgId
@@ -6020,7 +5629,6 @@ paths:
                   - eventType
                   - quantity
                   - ref
-                  - toLocationId
                   - notes
                   - eventDate
                   - sourceType
@@ -6164,7 +5772,6 @@ paths:
               - DEMAND
               - ALLOCATE
               - CONSUME
-              - TRANSFER
               - ADJUST
               - DISPOSE
               - SETTLE_ORDER
@@ -6174,7 +5781,6 @@ paths:
               - REVERSE_DEMAND
               - REVERSE_ALLOCATE
               - REVERSE_CONSUME
-              - REVERSE_TRANSFER
           required: false
           name: eventType
           in: query
@@ -6234,7 +5840,6 @@ paths:
                             - DEMAND
                             - ALLOCATE
                             - CONSUME
-                            - TRANSFER
                             - ADJUST
                             - DISPOSE
                             - SETTLE_ORDER
@@ -6244,7 +5849,6 @@ paths:
                             - REVERSE_DEMAND
                             - REVERSE_ALLOCATE
                             - REVERSE_CONSUME
-                            - REVERSE_TRANSFER
                         quantity:
                           anyOf:
                             - type: string
@@ -6258,12 +5862,6 @@ paths:
                           type:
                             - string
                             - 'null'
-                        toLocationId:
-                          type:
-                            - string
-                            - 'null'
-                          pattern: >-
-                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         notes:
                           type:
                             - string
@@ -6296,6 +5894,10 @@ paths:
                             - type: string
                             - type: string
                               format: date-time
+                        lotLineIndex:
+                          type: integer
+                        lotLineCount:
+                          type: integer
                       required:
                         - id
                         - orgId
@@ -6305,7 +5907,6 @@ paths:
                         - eventType
                         - quantity
                         - ref
-                        - toLocationId
                         - notes
                         - eventDate
                         - sourceType
@@ -6364,7 +5965,6 @@ paths:
                       - DEMAND
                       - ALLOCATE
                       - CONSUME
-                      - TRANSFER
                       - ADJUST
                       - DISPOSE
                       - SETTLE_ORDER
@@ -6374,7 +5974,6 @@ paths:
                       - REVERSE_DEMAND
                       - REVERSE_ALLOCATE
                       - REVERSE_CONSUME
-                      - REVERSE_TRANSFER
                   quantity:
                     anyOf:
                       - type: string
@@ -6388,12 +5987,6 @@ paths:
                     type:
                       - string
                       - 'null'
-                  toLocationId:
-                    type:
-                      - string
-                      - 'null'
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   notes:
                     type:
                       - string
@@ -6426,6 +6019,10 @@ paths:
                       - type: string
                       - type: string
                         format: date-time
+                  lotLineIndex:
+                    type: integer
+                  lotLineCount:
+                    type: integer
                 required:
                   - id
                   - orgId
@@ -6435,7 +6032,6 @@ paths:
                   - eventType
                   - quantity
                   - ref
-                  - toLocationId
                   - notes
                   - eventDate
                   - sourceType
@@ -6445,395 +6041,6 @@ paths:
                   - createdAt
         '404':
           description: Not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                        enum:
-                          - not_found
-                          - in_use
-                          - invalid_transition
-                          - validation_failed
-                          - forbidden
-                          - unauthorized
-                          - conflict
-                          - internal_error
-                      message:
-                        type: string
-                      details: {}
-                    required:
-                      - code
-                      - message
-                required:
-                  - error
-  /finished-goods-inventory/transfers:
-    post:
-      tags:
-        - FinishedGoodsInventory
-      summary: Create FG transfer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                skuId:
-                  type: string
-                  pattern: >-
-                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                sourceLocationId:
-                  type: string
-                  pattern: >-
-                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                destinationLocationId:
-                  type: string
-                  pattern: >-
-                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                quantity:
-                  type: number
-                  exclusiveMinimum: 0
-                eventDate:
-                  type: string
-                notes:
-                  type:
-                    - string
-                    - 'null'
-              required:
-                - skuId
-                - sourceLocationId
-                - destinationLocationId
-                - quantity
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ledgerEntry:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      orgId:
-                        type: string
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      code:
-                        type: string
-                      skuId:
-                        type: string
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      locationId:
-                        type:
-                          - string
-                          - 'null'
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      eventType:
-                        type: string
-                        enum:
-                          - ORDER
-                          - RECEIVE
-                          - PRODUCE
-                          - DEMAND
-                          - ALLOCATE
-                          - CONSUME
-                          - TRANSFER
-                          - ADJUST
-                          - DISPOSE
-                          - SETTLE_ORDER
-                          - SETTLE_ALLOCATE
-                          - REVERSE_ORDER
-                          - REVERSE_RECEIVE
-                          - REVERSE_PRODUCE
-                          - REVERSE_DEMAND
-                          - REVERSE_ALLOCATE
-                          - REVERSE_CONSUME
-                          - REVERSE_TRANSFER
-                      quantity:
-                        anyOf:
-                          - type: string
-                          - type: number
-                      unitCost:
-                        anyOf:
-                          - type: string
-                          - type: number
-                          - type: 'null'
-                      ref:
-                        type:
-                          - string
-                          - 'null'
-                      toLocationId:
-                        type:
-                          - string
-                          - 'null'
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      notes:
-                        type:
-                          - string
-                          - 'null'
-                      eventDate:
-                        anyOf:
-                          - type: string
-                          - type: string
-                            format: date-time
-                      sourceType:
-                        type:
-                          - string
-                          - 'null'
-                      sourceId:
-                        type:
-                          - string
-                          - 'null'
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      lotNumber:
-                        type:
-                          - string
-                          - 'null'
-                      expirationDate:
-                        type:
-                          - string
-                          - 'null'
-                      createdAt:
-                        anyOf:
-                          - type: string
-                          - type: string
-                            format: date-time
-                    required:
-                      - id
-                      - orgId
-                      - code
-                      - skuId
-                      - locationId
-                      - eventType
-                      - quantity
-                      - ref
-                      - toLocationId
-                      - notes
-                      - eventDate
-                      - sourceType
-                      - sourceId
-                      - lotNumber
-                      - expirationDate
-                      - createdAt
-                  ref:
-                    type: string
-                required:
-                  - ledgerEntry
-                  - ref
-        '422':
-          description: Validation failed
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                        enum:
-                          - not_found
-                          - in_use
-                          - invalid_transition
-                          - validation_failed
-                          - forbidden
-                          - unauthorized
-                          - conflict
-                          - internal_error
-                      message:
-                        type: string
-                      details: {}
-                    required:
-                      - code
-                      - message
-                required:
-                  - error
-  /finished-goods-inventory/transfers/{ref}/complete:
-    post:
-      tags:
-        - FinishedGoodsInventory
-      summary: Complete FG in-transit transfer
-      parameters:
-        - schema:
-            type: string
-          required: true
-          name: ref
-          in: path
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                eventDate:
-                  type: string
-                notes:
-                  type:
-                    - string
-                    - 'null'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  orgId:
-                    type: string
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  code:
-                    type: string
-                  skuId:
-                    type: string
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  locationId:
-                    type:
-                      - string
-                      - 'null'
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  eventType:
-                    type: string
-                    enum:
-                      - ORDER
-                      - RECEIVE
-                      - PRODUCE
-                      - DEMAND
-                      - ALLOCATE
-                      - CONSUME
-                      - TRANSFER
-                      - ADJUST
-                      - DISPOSE
-                      - SETTLE_ORDER
-                      - SETTLE_ALLOCATE
-                      - REVERSE_ORDER
-                      - REVERSE_RECEIVE
-                      - REVERSE_PRODUCE
-                      - REVERSE_DEMAND
-                      - REVERSE_ALLOCATE
-                      - REVERSE_CONSUME
-                      - REVERSE_TRANSFER
-                  quantity:
-                    anyOf:
-                      - type: string
-                      - type: number
-                  unitCost:
-                    anyOf:
-                      - type: string
-                      - type: number
-                      - type: 'null'
-                  ref:
-                    type:
-                      - string
-                      - 'null'
-                  toLocationId:
-                    type:
-                      - string
-                      - 'null'
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  notes:
-                    type:
-                      - string
-                      - 'null'
-                  eventDate:
-                    anyOf:
-                      - type: string
-                      - type: string
-                        format: date-time
-                  sourceType:
-                    type:
-                      - string
-                      - 'null'
-                  sourceId:
-                    type:
-                      - string
-                      - 'null'
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  lotNumber:
-                    type:
-                      - string
-                      - 'null'
-                  expirationDate:
-                    type:
-                      - string
-                      - 'null'
-                  createdAt:
-                    anyOf:
-                      - type: string
-                      - type: string
-                        format: date-time
-                required:
-                  - id
-                  - orgId
-                  - code
-                  - skuId
-                  - locationId
-                  - eventType
-                  - quantity
-                  - ref
-                  - toLocationId
-                  - notes
-                  - eventDate
-                  - sourceType
-                  - sourceId
-                  - lotNumber
-                  - expirationDate
-                  - createdAt
-        '404':
-          description: Not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                        enum:
-                          - not_found
-                          - in_use
-                          - invalid_transition
-                          - validation_failed
-                          - forbidden
-                          - unauthorized
-                          - conflict
-                          - internal_error
-                      message:
-                        type: string
-                      details: {}
-                    required:
-                      - code
-                      - message
-                required:
-                  - error
-        '409':
-          description: Already completed
           content:
             application/json:
               schema:
@@ -6925,22 +6132,18 @@ paths:
                     enum:
                       - ORDER
                       - RECEIVE
-                      - PRODUCE
                       - DEMAND
                       - ALLOCATE
                       - CONSUME
-                      - TRANSFER
                       - ADJUST
                       - DISPOSE
                       - SETTLE_ORDER
                       - SETTLE_ALLOCATE
                       - REVERSE_ORDER
                       - REVERSE_RECEIVE
-                      - REVERSE_PRODUCE
                       - REVERSE_DEMAND
                       - REVERSE_ALLOCATE
                       - REVERSE_CONSUME
-                      - REVERSE_TRANSFER
                   quantity:
                     anyOf:
                       - type: string
@@ -6954,12 +6157,6 @@ paths:
                     type:
                       - string
                       - 'null'
-                  toLocationId:
-                    type:
-                      - string
-                      - 'null'
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   notes:
                     type:
                       - string
@@ -6992,6 +6189,10 @@ paths:
                       - type: string
                       - type: string
                         format: date-time
+                  lotLineIndex:
+                    type: integer
+                  lotLineCount:
+                    type: integer
                 required:
                   - id
                   - orgId
@@ -7001,7 +6202,6 @@ paths:
                   - eventType
                   - quantity
                   - ref
-                  - toLocationId
                   - notes
                   - eventDate
                   - sourceType
@@ -7103,22 +6303,18 @@ paths:
                     enum:
                       - ORDER
                       - RECEIVE
-                      - PRODUCE
                       - DEMAND
                       - ALLOCATE
                       - CONSUME
-                      - TRANSFER
                       - ADJUST
                       - DISPOSE
                       - SETTLE_ORDER
                       - SETTLE_ALLOCATE
                       - REVERSE_ORDER
                       - REVERSE_RECEIVE
-                      - REVERSE_PRODUCE
                       - REVERSE_DEMAND
                       - REVERSE_ALLOCATE
                       - REVERSE_CONSUME
-                      - REVERSE_TRANSFER
                   quantity:
                     anyOf:
                       - type: string
@@ -7132,12 +6328,6 @@ paths:
                     type:
                       - string
                       - 'null'
-                  toLocationId:
-                    type:
-                      - string
-                      - 'null'
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   notes:
                     type:
                       - string
@@ -7170,6 +6360,10 @@ paths:
                       - type: string
                       - type: string
                         format: date-time
+                  lotLineIndex:
+                    type: integer
+                  lotLineCount:
+                    type: integer
                 required:
                   - id
                   - orgId
@@ -7179,7 +6373,6 @@ paths:
                   - eventType
                   - quantity
                   - ref
-                  - toLocationId
                   - notes
                   - eventDate
                   - sourceType
@@ -7320,22 +6513,18 @@ paths:
             enum:
               - ORDER
               - RECEIVE
-              - PRODUCE
               - DEMAND
               - ALLOCATE
               - CONSUME
-              - TRANSFER
               - ADJUST
               - DISPOSE
               - SETTLE_ORDER
               - SETTLE_ALLOCATE
               - REVERSE_ORDER
               - REVERSE_RECEIVE
-              - REVERSE_PRODUCE
               - REVERSE_DEMAND
               - REVERSE_ALLOCATE
               - REVERSE_CONSUME
-              - REVERSE_TRANSFER
           required: false
           name: eventType
           in: query
@@ -7392,22 +6581,18 @@ paths:
                           enum:
                             - ORDER
                             - RECEIVE
-                            - PRODUCE
                             - DEMAND
                             - ALLOCATE
                             - CONSUME
-                            - TRANSFER
                             - ADJUST
                             - DISPOSE
                             - SETTLE_ORDER
                             - SETTLE_ALLOCATE
                             - REVERSE_ORDER
                             - REVERSE_RECEIVE
-                            - REVERSE_PRODUCE
                             - REVERSE_DEMAND
                             - REVERSE_ALLOCATE
                             - REVERSE_CONSUME
-                            - REVERSE_TRANSFER
                         quantity:
                           anyOf:
                             - type: string
@@ -7421,12 +6606,6 @@ paths:
                           type:
                             - string
                             - 'null'
-                        toLocationId:
-                          type:
-                            - string
-                            - 'null'
-                          pattern: >-
-                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         notes:
                           type:
                             - string
@@ -7459,6 +6638,10 @@ paths:
                             - type: string
                             - type: string
                               format: date-time
+                        lotLineIndex:
+                          type: integer
+                        lotLineCount:
+                          type: integer
                       required:
                         - id
                         - orgId
@@ -7468,7 +6651,6 @@ paths:
                         - eventType
                         - quantity
                         - ref
-                        - toLocationId
                         - notes
                         - eventDate
                         - sourceType
@@ -7524,22 +6706,18 @@ paths:
                     enum:
                       - ORDER
                       - RECEIVE
-                      - PRODUCE
                       - DEMAND
                       - ALLOCATE
                       - CONSUME
-                      - TRANSFER
                       - ADJUST
                       - DISPOSE
                       - SETTLE_ORDER
                       - SETTLE_ALLOCATE
                       - REVERSE_ORDER
                       - REVERSE_RECEIVE
-                      - REVERSE_PRODUCE
                       - REVERSE_DEMAND
                       - REVERSE_ALLOCATE
                       - REVERSE_CONSUME
-                      - REVERSE_TRANSFER
                   quantity:
                     anyOf:
                       - type: string
@@ -7553,12 +6731,6 @@ paths:
                     type:
                       - string
                       - 'null'
-                  toLocationId:
-                    type:
-                      - string
-                      - 'null'
-                    pattern: >-
-                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   notes:
                     type:
                       - string
@@ -7591,6 +6763,10 @@ paths:
                       - type: string
                       - type: string
                         format: date-time
+                  lotLineIndex:
+                    type: integer
+                  lotLineCount:
+                    type: integer
                 required:
                   - id
                   - orgId
@@ -7600,7 +6776,6 @@ paths:
                   - eventType
                   - quantity
                   - ref
-                  - toLocationId
                   - notes
                   - eventDate
                   - sourceType
@@ -7637,6 +6812,747 @@ paths:
                       - message
                 required:
                   - error
+  /transfers:
+    post:
+      tags:
+        - Transfers
+      summary: Create transfer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                itemKind:
+                  type: string
+                  enum:
+                    - material
+                    - sku
+                itemId:
+                  type: string
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                sourceLocationId:
+                  type: string
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                destinationLocationId:
+                  type: string
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                quantity:
+                  type: number
+                  exclusiveMinimum: 0
+                status:
+                  type: string
+                  enum:
+                    - Planning
+                    - In Transit
+                    - Completed
+                planningAt:
+                  type: string
+                inTransitAt:
+                  type: string
+                completedAt:
+                  type: string
+                notes:
+                  type:
+                    - string
+                    - 'null'
+              required:
+                - itemKind
+                - itemId
+                - sourceLocationId
+                - destinationLocationId
+                - quantity
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  orgId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  code:
+                    type: string
+                  itemKind:
+                    type: string
+                    enum:
+                      - material
+                      - sku
+                  itemId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  sourceLocationId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  destinationLocationId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  quantity:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  status:
+                    type: string
+                    enum:
+                      - Planning
+                      - In Transit
+                      - Completed
+                  planningAt:
+                    type:
+                      - string
+                      - 'null'
+                  inTransitAt:
+                    type:
+                      - string
+                      - 'null'
+                  completedAt:
+                    type:
+                      - string
+                      - 'null'
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  updatedAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                required:
+                  - id
+                  - orgId
+                  - code
+                  - itemKind
+                  - itemId
+                  - sourceLocationId
+                  - destinationLocationId
+                  - quantity
+                  - status
+                  - planningAt
+                  - inTransitAt
+                  - completedAt
+                  - notes
+                  - createdAt
+                  - updatedAt
+        '404':
+          description: Item or location not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    get:
+      tags:
+        - Transfers
+      summary: List transfers
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - material
+              - sku
+          required: false
+          name: itemKind
+          in: query
+        - schema:
+            type: string
+            enum:
+              - Planning
+              - In Transit
+              - Completed
+          required: false
+          name: status
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: dateFrom
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: dateTo
+          in: query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        orgId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        code:
+                          type: string
+                        itemKind:
+                          type: string
+                          enum:
+                            - material
+                            - sku
+                        itemId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        sourceLocationId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        destinationLocationId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        status:
+                          type: string
+                          enum:
+                            - Planning
+                            - In Transit
+                            - Completed
+                        planningAt:
+                          type:
+                            - string
+                            - 'null'
+                        inTransitAt:
+                          type:
+                            - string
+                            - 'null'
+                        completedAt:
+                          type:
+                            - string
+                            - 'null'
+                        notes:
+                          type:
+                            - string
+                            - 'null'
+                        createdAt:
+                          anyOf:
+                            - type: string
+                            - type: string
+                              format: date-time
+                        updatedAt:
+                          anyOf:
+                            - type: string
+                            - type: string
+                              format: date-time
+                      required:
+                        - id
+                        - orgId
+                        - code
+                        - itemKind
+                        - itemId
+                        - sourceLocationId
+                        - destinationLocationId
+                        - quantity
+                        - status
+                        - planningAt
+                        - inTransitAt
+                        - completedAt
+                        - notes
+                        - createdAt
+                        - updatedAt
+                required:
+                  - data
+  /transfers/{id}:
+    patch:
+      tags:
+        - Transfers
+      summary: Update transfer
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - Planning
+                    - In Transit
+                    - Completed
+                planningAt:
+                  type:
+                    - string
+                    - 'null'
+                inTransitAt:
+                  type:
+                    - string
+                    - 'null'
+                completedAt:
+                  type:
+                    - string
+                    - 'null'
+                notes:
+                  type:
+                    - string
+                    - 'null'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  orgId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  code:
+                    type: string
+                  itemKind:
+                    type: string
+                    enum:
+                      - material
+                      - sku
+                  itemId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  sourceLocationId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  destinationLocationId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  quantity:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  status:
+                    type: string
+                    enum:
+                      - Planning
+                      - In Transit
+                      - Completed
+                  planningAt:
+                    type:
+                      - string
+                      - 'null'
+                  inTransitAt:
+                    type:
+                      - string
+                      - 'null'
+                  completedAt:
+                    type:
+                      - string
+                      - 'null'
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  updatedAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                required:
+                  - id
+                  - orgId
+                  - code
+                  - itemKind
+                  - itemId
+                  - sourceLocationId
+                  - destinationLocationId
+                  - quantity
+                  - status
+                  - planningAt
+                  - inTransitAt
+                  - completedAt
+                  - notes
+                  - createdAt
+                  - updatedAt
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '409':
+          description: Invalid transition
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    delete:
+      tags:
+        - Transfers
+      summary: Delete transfer
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                required:
+                  - deletedId
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    get:
+      tags:
+        - Transfers
+      summary: Get transfer detail
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  orgId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  code:
+                    type: string
+                  itemKind:
+                    type: string
+                    enum:
+                      - material
+                      - sku
+                  itemId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  sourceLocationId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  destinationLocationId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  quantity:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  status:
+                    type: string
+                    enum:
+                      - Planning
+                      - In Transit
+                      - Completed
+                  planningAt:
+                    type:
+                      - string
+                      - 'null'
+                  inTransitAt:
+                    type:
+                      - string
+                      - 'null'
+                  completedAt:
+                    type:
+                      - string
+                      - 'null'
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  updatedAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                required:
+                  - id
+                  - orgId
+                  - code
+                  - itemKind
+                  - itemId
+                  - sourceLocationId
+                  - destinationLocationId
+                  - quantity
+                  - status
+                  - planningAt
+                  - inTransitAt
+                  - completedAt
+                  - notes
+                  - createdAt
+                  - updatedAt
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /transfer-status-types:
+    get:
+      tags:
+        - Transfers
+      summary: List transfer status values
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                required:
+                  - data
   /sales-orders:
     post:
       tags:
