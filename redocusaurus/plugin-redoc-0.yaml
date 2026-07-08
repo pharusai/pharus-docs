@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Pharus API
-  version: 1.7.0
+  version: 1.8.0
   description: >-
     Pharus exposes every action in the platform as a REST endpoint. Use this API
     to
@@ -590,6 +590,132 @@ paths:
                   - error
         '409':
           description: In use
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    get:
+      tags:
+        - Locations
+      summary: Get location
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  orgId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  name:
+                    type: string
+                  sortOrder:
+                    type: integer
+                  address:
+                    type:
+                      - string
+                      - 'null'
+                  city:
+                    type:
+                      - string
+                      - 'null'
+                  state:
+                    type:
+                      - string
+                      - 'null'
+                  country:
+                    type:
+                      - string
+                      - 'null'
+                  zipCode:
+                    type:
+                      - string
+                      - 'null'
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  isActive:
+                    type: boolean
+                  customFields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - key
+                        - value
+                  createdAt:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                      - type: string
+                        format: date-time
+                  updatedAt:
+                    anyOf:
+                      - type: string
+                        format: date-time
+                      - type: string
+                        format: date-time
+                required:
+                  - id
+                  - orgId
+                  - name
+                  - sortOrder
+                  - address
+                  - city
+                  - state
+                  - country
+                  - zipCode
+                  - notes
+                  - isActive
+                  - customFields
+                  - createdAt
+                  - updatedAt
+        '404':
+          description: Not found
           content:
             application/json:
               schema:
@@ -3556,7 +3682,13 @@ paths:
     get:
       tags:
         - Contacts
-      summary: List contacts
+      summary: List contacts with their entity links
+      parameters:
+        - schema:
+            type: string
+          required: false
+          name: q
+          in: query
       responses:
         '200':
           description: OK
@@ -3608,6 +3740,72 @@ paths:
                             - type: string
                             - type: string
                               format: date-time
+                        links:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                pattern: >-
+                                  ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                              orgId:
+                                type: string
+                                pattern: >-
+                                  ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                              contactId:
+                                type: string
+                                pattern: >-
+                                  ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                              entityType:
+                                type: string
+                                enum:
+                                  - customer
+                                  - vendor
+                                  - location
+                              entityId:
+                                type: string
+                                pattern: >-
+                                  ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                              role:
+                                type:
+                                  - string
+                                  - 'null'
+                              isPrimary:
+                                type: boolean
+                              notes:
+                                type:
+                                  - string
+                                  - 'null'
+                              isActive:
+                                type: boolean
+                              createdAt:
+                                anyOf:
+                                  - type: string
+                                  - type: string
+                                    format: date-time
+                              updatedAt:
+                                anyOf:
+                                  - type: string
+                                  - type: string
+                                    format: date-time
+                              entityName:
+                                type:
+                                  - string
+                                  - 'null'
+                            required:
+                              - id
+                              - orgId
+                              - contactId
+                              - entityType
+                              - entityId
+                              - role
+                              - isPrimary
+                              - notes
+                              - isActive
+                              - createdAt
+                              - updatedAt
+                              - entityName
                       required:
                         - id
                         - orgId
@@ -3619,6 +3817,7 @@ paths:
                         - isActive
                         - createdAt
                         - updatedAt
+                        - links
                 required:
                   - data
   /contacts/{id}:
@@ -4499,6 +4698,7 @@ paths:
                   enum:
                     - customer
                     - vendor
+                    - location
                 entityId:
                   type: string
                   pattern: >-
@@ -4843,6 +5043,7 @@ paths:
                   enum:
                     - customer
                     - vendor
+                    - location
                 entityId:
                   type: string
                   pattern: >-
@@ -5102,6 +5303,7 @@ paths:
             enum:
               - customer
               - vendor
+              - location
           required: true
           name: entityType
           in: query
@@ -13825,6 +14027,290 @@ paths:
               schema:
                 type: string
                 format: binary
+    post:
+      tags:
+        - PurchaseOrders
+      summary: Generate PO PDF with overrides
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                overrides:
+                  type: object
+                  properties:
+                    terms:
+                      type:
+                        - string
+                        - 'null'
+                    shipVia:
+                      type:
+                        - string
+                        - 'null'
+                    orderDate:
+                      type:
+                        - string
+                        - 'null'
+                    expectedDeliveryDate:
+                      type:
+                        - string
+                        - 'null'
+                    vendor:
+                      type: object
+                      properties:
+                        displayName:
+                          type:
+                            - string
+                            - 'null'
+                        name:
+                          type: string
+                        address:
+                          type:
+                            - string
+                            - 'null'
+                        city:
+                          type:
+                            - string
+                            - 'null'
+                        state:
+                          type:
+                            - string
+                            - 'null'
+                        zipCode:
+                          type:
+                            - string
+                            - 'null'
+                    shipTo:
+                      type: object
+                      properties:
+                        attention:
+                          type:
+                            - string
+                            - 'null'
+                        name:
+                          type:
+                            - string
+                            - 'null'
+                        address:
+                          type:
+                            - string
+                            - 'null'
+                        city:
+                          type:
+                            - string
+                            - 'null'
+                        state:
+                          type:
+                            - string
+                            - 'null'
+                        zipCode:
+                          type:
+                            - string
+                            - 'null'
+                    items:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          description:
+                            type:
+                              - string
+                              - 'null'
+                          vendorPart:
+                            type:
+                              - string
+                              - 'null'
+                        required:
+                          - id
+                    notes:
+                      type:
+                        - string
+                        - 'null'
+                withPrices:
+                  type: boolean
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+  /purchase-orders/{id}/pdf-form:
+    get:
+      tags:
+        - PurchaseOrders
+      summary: Get PO PDF form values
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      poNumber:
+                        type: string
+                      terms:
+                        type:
+                          - string
+                          - 'null'
+                      shipVia:
+                        type:
+                          - string
+                          - 'null'
+                      orderDate:
+                        type:
+                          - string
+                          - 'null'
+                      expectedDeliveryDate:
+                        type:
+                          - string
+                          - 'null'
+                      vendor:
+                        type: object
+                        properties:
+                          displayName:
+                            type:
+                              - string
+                              - 'null'
+                          name:
+                            type: string
+                          address:
+                            type:
+                              - string
+                              - 'null'
+                          city:
+                            type:
+                              - string
+                              - 'null'
+                          state:
+                            type:
+                              - string
+                              - 'null'
+                          zipCode:
+                            type:
+                              - string
+                              - 'null'
+                        required:
+                          - displayName
+                          - name
+                          - address
+                          - city
+                          - state
+                          - zipCode
+                      shipTo:
+                        type:
+                          - object
+                          - 'null'
+                        properties:
+                          attention:
+                            type:
+                              - string
+                              - 'null'
+                          name:
+                            type:
+                              - string
+                              - 'null'
+                          address:
+                            type:
+                              - string
+                              - 'null'
+                          city:
+                            type:
+                              - string
+                              - 'null'
+                          state:
+                            type:
+                              - string
+                              - 'null'
+                          zipCode:
+                            type:
+                              - string
+                              - 'null'
+                        required:
+                          - attention
+                          - name
+                          - address
+                          - city
+                          - state
+                          - zipCode
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            itemName:
+                              type: string
+                            description:
+                              type:
+                                - string
+                                - 'null'
+                            vendorPart:
+                              type:
+                                - string
+                                - 'null'
+                            quantity:
+                              type: number
+                            unitCost:
+                              type: number
+                          required:
+                            - id
+                            - itemName
+                            - description
+                            - vendorPart
+                            - quantity
+                            - unitCost
+                      shippingCosts:
+                        type: number
+                      setupCosts:
+                        type: number
+                      notes:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - poNumber
+                      - terms
+                      - shipVia
+                      - orderDate
+                      - expectedDeliveryDate
+                      - vendor
+                      - shipTo
+                      - items
+                      - shippingCosts
+                      - setupCosts
+                      - notes
+                required:
+                  - data
   /purchase-order-status-types:
     get:
       tags:
