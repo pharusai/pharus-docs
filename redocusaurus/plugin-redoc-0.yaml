@@ -40641,24 +40641,27 @@ paths:
                       - message
                 required:
                   - error
-  /reports/segment-contribution:
+  /reports/channel-segment-contribution:
     get:
       tags:
         - Reporting
-      summary: Get segment contribution report
+      summary: Get channel-segment contribution report
       description: >-
-        Completed sales orders and sales receipts grouped by customer segment
-        over a trailing window (window=30d, 45d or 90d; default 45d), each row
-        carrying orders, revenue, operational costs, engine-derived COGS,
-        contribution margin and margin ratio, for the current window and the
-        equal-length prior window side by side. A sales order's segment is its
-        customer's segment at report time; sales receipts have no customer
-        entity to segment and all roll into a fixed DTC row, always listed even
-        at zero. Sales orders whose customer has no segment roll into a No
-        segment row, listed only when it has activity, a data-quality signal.
-        missingFreightCount flags completed orders in the current window with no
-        freight or shipping cost recorded, meaning the margin reads high. Sales
-        returns are not netted out yet.
+        Completed sales orders and sales receipts grouped by the (order channel,
+        customer segment) pair over a trailing window (window=30d, 45d or 90d;
+        default 45d), each row carrying orders, revenue, operational costs,
+        engine-derived COGS, contribution margin and margin ratio, for the
+        current window and the equal-length prior window side by side. A sales
+        order's row pairs its order channel with its customer's segment at
+        report time (segment null when the customer is unsegmented, a
+        data-quality signal). Sales receipts have no customer entity to segment:
+        their rows carry the fixed DTC segment dimension paired with the
+        receipt's order channel (null when the receipt has none). Rows appear
+        only when they have activity in the current or prior window; idle
+        channels and segments are not listed. missingFreightCount flags
+        completed orders in the current window with no freight or shipping cost
+        recorded, meaning the margin reads high. Sales returns are not netted
+        out yet.
       parameters:
         - schema:
             type: string
@@ -40717,18 +40720,32 @@ paths:
                                 - segment
                                 - dtc
                                 - unsegmented
-                            id:
+                            channelId:
                               type:
                                 - string
                                 - 'null'
                               pattern: >-
                                 ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                            name:
-                              type: string
+                            channelName:
+                              type:
+                                - string
+                                - 'null'
+                            segmentId:
+                              type:
+                                - string
+                                - 'null'
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            segmentName:
+                              type:
+                                - string
+                                - 'null'
                           required:
                             - kind
-                            - id
-                            - name
+                            - channelId
+                            - channelName
+                            - segmentId
+                            - segmentName
                         current:
                           type: object
                           properties:
