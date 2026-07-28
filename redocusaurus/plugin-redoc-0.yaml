@@ -11427,8 +11427,18 @@ paths:
         Compute the full inventory position per (material, location) from the
         ledger: on-hand, on-order, allocated, available, in-stock, demand,
         wasted, in-transit, net position, and `weeklyDemand`, the real outflow
-        of the trailing 28 days divided by 4 (transfers between your own
-        locations and disposals are not demand, so they are excluded). Every
+        of the trailing window divided by its weeks (transfers between your own
+        locations and disposals are not demand, so they are excluded). The
+        window defaults to 4 whole weeks; pass `demandWindowWeeks` (1..52) for a
+        steadier, longer-memory rate, e.g. 13 for a trailing quarter. Each row
+        also splits its open commitment by who wants it: `openSalesDemand`
+        (sales orders and receipts not yet fulfilled) and `openJobDemand`
+        (work/production-order inputs not yet consumed or settled), so customer
+        demand is never conflated with production demand. `weeklyDemandDtc` and
+        `weeklyDemandWholesale` split the same trailing rate by channel (receipt
+        consumption vs order consumption). `inTransitProduction` is the quantity
+        on production orders currently in transit toward the location (still
+        inside on-order, since their ORDER is active until receipt). Every
         filter is optional and AND-ed: `materialId` and `locationId` are CSV id
         multi-selects (each OR-ed within itself), and `search` is a
         case-insensitive substring over the material's code and name. Pass
@@ -11459,6 +11469,13 @@ paths:
               - 'false'
           required: false
           name: includeOnHandValue
+          in: query
+        - schema:
+            type: integer
+            minimum: 1
+            maximum: 52
+          required: false
+          name: demandWindowWeeks
           in: query
       responses:
         '200':
@@ -11518,9 +11535,19 @@ paths:
                           type: string
                         inTransit:
                           type: string
+                        inTransitProduction:
+                          type: string
                         netPosition:
                           type: string
                         weeklyDemand:
+                          type: string
+                        weeklyDemandDtc:
+                          type: string
+                        weeklyDemandWholesale:
+                          type: string
+                        openSalesDemand:
+                          type: string
+                        openJobDemand:
                           type: string
                         onHandValue:
                           type: number
@@ -11535,8 +11562,166 @@ paths:
                         - demand
                         - wasted
                         - inTransit
+                        - inTransitProduction
                         - netPosition
                         - weeklyDemand
+                        - weeklyDemandDtc
+                        - weeklyDemandWholesale
+                        - openSalesDemand
+                        - openJobDemand
+                required:
+                  - data
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /materials-inventory/open-requirements:
+    get:
+      tags:
+        - MaterialsInventory
+      summary: List open job requirements for a material
+      description: >-
+        The open job commitments behind one material: every work and production
+        order still holding open input demand for it, one row per order with its
+        reference ({ id, number, type }), status, the required quantity, and
+        what is still open after consumption and settles, netted server-side by
+        the same rules the summary's openJobDemand uses. Rows are ordered by
+        open quantity, largest first; orders fully consumed or settled are
+        omitted. This is the drill-down behind the summary's openJobDemand
+        figure.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: materialId
+          in: query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        order:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            number:
+                              type: string
+                            type:
+                              type: string
+                              enum:
+                                - work_order
+                                - production_order
+                          required:
+                            - id
+                            - number
+                            - type
+                        status:
+                          type: string
+                        required:
+                          type: string
+                        open:
+                          type: string
+                      required:
+                        - order
+                        - status
+                        - required
+                        - open
                 required:
                   - data
         '401':
@@ -12831,15 +13016,25 @@ paths:
         Compute the full inventory position per (SKU, location) from the ledger:
         on-hand, on-order, allocated, available, in-stock, demand, wasted,
         in-transit, net position, and `weeklyDemand`, the real outflow of the
-        trailing 28 days divided by 4 (transfers between your own locations and
-        disposals are not demand, so they are excluded). Every filter is
-        optional and AND-ed: `skuId` and `locationId` are CSV id multi-selects
-        (each OR-ed within itself), and `search` is a case-insensitive substring
-        over the SKU's code and name. Pass `includeOnHandValue=true` to also get
-        `onHandValue`, the costed value of the stock on hand under the org's
-        costing method; it replays the ledger per row, so leave it off unless
-        you need the money. This is the go-to read for how much of a SKU is on
-        hand and where.
+        trailing window divided by its weeks (transfers between your own
+        locations and disposals are not demand, so they are excluded). The
+        window defaults to 4 whole weeks; pass `demandWindowWeeks` (1..52) for a
+        steadier, longer-memory rate, e.g. 13 for a trailing quarter. Each row
+        also splits its open commitment by who wants it: `openSalesDemand`
+        (sales orders and receipts not yet fulfilled) and `openJobDemand`
+        (work/production-order inputs not yet consumed or settled), so customer
+        demand is never conflated with production demand. `weeklyDemandDtc` and
+        `weeklyDemandWholesale` split the same trailing rate by channel (receipt
+        consumption vs order consumption). `inTransitProduction` is the quantity
+        on production orders currently in transit toward the location (still
+        inside on-order, since their ORDER is active until receipt). Every
+        filter is optional and AND-ed: `skuId` and `locationId` are CSV id
+        multi-selects (each OR-ed within itself), and `search` is a
+        case-insensitive substring over the SKU's code and name. Pass
+        `includeOnHandValue=true` to also get `onHandValue`, the costed value of
+        the stock on hand under the org's costing method; it replays the ledger
+        per row, so leave it off unless you need the money. This is the go-to
+        read for how much of a SKU is on hand and where.
       parameters:
         - schema:
             type: string
@@ -12863,6 +13058,13 @@ paths:
               - 'false'
           required: false
           name: includeOnHandValue
+          in: query
+        - schema:
+            type: integer
+            minimum: 1
+            maximum: 52
+          required: false
+          name: demandWindowWeeks
           in: query
       responses:
         '200':
@@ -12922,9 +13124,19 @@ paths:
                           type: string
                         inTransit:
                           type: string
+                        inTransitProduction:
+                          type: string
                         netPosition:
                           type: string
                         weeklyDemand:
+                          type: string
+                        weeklyDemandDtc:
+                          type: string
+                        weeklyDemandWholesale:
+                          type: string
+                        openSalesDemand:
+                          type: string
+                        openJobDemand:
                           type: string
                         onHandValue:
                           type: number
@@ -12939,8 +13151,13 @@ paths:
                         - demand
                         - wasted
                         - inTransit
+                        - inTransitProduction
                         - netPosition
                         - weeklyDemand
+                        - weeklyDemandDtc
+                        - weeklyDemandWholesale
+                        - openSalesDemand
+                        - openJobDemand
                 required:
                   - data
         '401':
