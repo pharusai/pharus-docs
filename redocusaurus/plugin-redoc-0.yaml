@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Pharus API
-  version: 1.10.0
+  version: 1.14.0
   description: >-
     Pharus exposes every action in the platform as a REST endpoint. Use this API
     to
@@ -13875,31 +13875,27 @@ paths:
         - Transfers
       summary: Create transfer
       description: >-
-        Create a stock transfer between two different locations for one material
-        or SKU, under a server-assigned TFR code. It opens in Planning (no
-        inventory effect) unless a later status is supplied, in which case the
-        opening immediately projects the ledger legs (In Transit the outbound
-        CONSUME at the source, Completed also the inbound RECEIVE). The
-        per-status dates auto-stamp from the opening status; explicit values in
-        the optional statusDates object (keyed planning / inTransit / completed)
-        override. The response embeds the resolved item and location references
-        and groups the timestamps in statusDates. Returns 404 if the item or
-        either location does not exist.
+        Create a stock transfer between two different locations, under a
+        server-assigned TFR code. The movement is the `items` array: one line
+        per moved material or SKU, each with its own itemKind, itemId and
+        quantity, so a single transfer can carry raw materials and finished
+        goods together and post to both inventory ledgers. At least one line is
+        required and the same item may not appear twice. It opens in Planning
+        (no inventory effect) unless a later status is supplied, in which case
+        the opening immediately projects every line's ledger legs (In Transit
+        the outbound CONSUME at the source, Completed also the inbound RECEIVE).
+        The per-status dates auto-stamp from the opening status; explicit values
+        in the optional statusDates object (keyed planning / inTransit /
+        completed) override. The response embeds the resolved location
+        references, nests the items with their resolved item references, and
+        groups the timestamps in statusDates. Returns 404 if an item or either
+        location does not exist.
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                itemKind:
-                  type: string
-                  enum:
-                    - material
-                    - sku
-                itemId:
-                  type: string
-                  pattern: >-
-                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                 sourceLocationId:
                   type: string
                   pattern: >-
@@ -13908,9 +13904,28 @@ paths:
                   type: string
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                quantity:
-                  type: number
-                  exclusiveMinimum: 0
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      itemKind:
+                        type: string
+                        enum:
+                          - material
+                          - sku
+                      itemId:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      quantity:
+                        type: number
+                        exclusiveMinimum: 0
+                    required:
+                      - itemKind
+                      - itemId
+                      - quantity
+                  minItems: 1
                 status:
                   type: string
                   enum:
@@ -13935,11 +13950,9 @@ paths:
                     - 'null'
                   maxLength: 2000
               required:
-                - itemKind
-                - itemId
                 - sourceLocationId
                 - destinationLocationId
-                - quantity
+                - items
       responses:
         '201':
           description: Created
@@ -13954,27 +13967,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   code:
                     type: string
-                  item:
-                    type: object
-                    properties:
-                      kind:
-                        type: string
-                        enum:
-                          - material
-                          - sku
-                      id:
-                        type: string
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      code:
-                        type: string
-                      name:
-                        type: string
-                    required:
-                      - kind
-                      - id
-                      - code
-                      - name
                   sourceLocation:
                     type: object
                     properties:
@@ -13999,10 +13991,44 @@ paths:
                     required:
                       - id
                       - name
-                  quantity:
-                    anyOf:
-                      - type: string
-                      - type: number
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        item:
+                          type: object
+                          properties:
+                            kind:
+                              type: string
+                              enum:
+                                - material
+                                - sku
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - kind
+                            - id
+                            - code
+                            - name
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                      required:
+                        - id
+                        - item
+                        - quantity
                   status:
                     type: string
                     enum:
@@ -14045,10 +14071,9 @@ paths:
                 required:
                   - id
                   - code
-                  - item
                   - sourceLocation
                   - destinationLocation
-                  - quantity
+                  - items
                   - status
                   - statusDates
                   - notes
@@ -14113,7 +14138,38 @@ paths:
                 required:
                   - error
         '404':
-          description: The item or a location does not exist
+          description: An item or a location does not exist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '409':
+          description: >-
+            The same item appears on more than one line (`conflict`); a transfer
+            may move an item at most once.
           content:
             application/json:
               schema:
@@ -14176,22 +14232,25 @@ paths:
       summary: List transfers
       description: >-
         List one page of transfers, newest first by default. Each row embeds its
-        item ({ kind, id, code, name }) and its source and destination locations
-        ({ id, name }), the same shape as the detail. Every filter is optional
-        and AND-ed: `itemKind` (material or sku), `itemId` (every transfer that
-        moved one material or SKU; pair it with itemKind), the CSV multi-selects
-        `status` (Planning, In Transit, Completed), `sourceLocationId` and
-        `destinationLocationId` (each OR-ed within itself), and the per-status
-        date filters, one inclusive YYYY-MM-DD From/To pair per status key
+        source and destination locations ({ id, name }) and nests its moved
+        `items` (each { id, item: { kind, id, code, name }, quantity }), the
+        same shape as the detail. Every filter is optional and AND-ed:
+        `itemKind` (material or sku) and `itemId` both match on the LINES, so
+        they return every transfer carrying such a line and a transfer that
+        mixes kinds matches either; the CSV multi-selects `status` (Planning, In
+        Transit, Completed), `sourceLocationId` and `destinationLocationId`
+        (each OR-ed within itself); and the per-status date filters, one
+        inclusive YYYY-MM-DD From/To pair per status key
         (`planningFrom`/`planningTo`, `inTransitFrom`/`inTransitTo`,
         `completedFrom`/`completedTo`), each bounding that status's own date.
         `search` is a case-insensitive substring matched against the transfer's
-        TFR code, the item's code and name, both location names, and notes. Sort
-        with `sort` (number, item, sourceLocation, destinationLocation, status,
-        createdAt, updatedAt; default createdAt descending; empty values always
-        last) and `order` (asc/desc); page with `limit` (default 50, max 200)
-        and `offset`. `meta.total` counts the filtered set, so pagers can render
-        page counts under active filters.
+        TFR code, any line's item code and name, both location names, and notes.
+        Sort with `sort` (number, item, sourceLocation, destinationLocation,
+        status, createdAt, updatedAt; `item` sorts by the alphabetically first
+        line's code; default createdAt descending; empty values always last) and
+        `order` (asc/desc); page with `limit` (default 50, max 200) and
+        `offset`. Paging counts transfers, not lines, so `meta.total` counts the
+        filtered documents.
       parameters:
         - schema:
             type: string
@@ -14317,27 +14376,6 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         code:
                           type: string
-                        item:
-                          type: object
-                          properties:
-                            kind:
-                              type: string
-                              enum:
-                                - material
-                                - sku
-                            id:
-                              type: string
-                              pattern: >-
-                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                            code:
-                              type: string
-                            name:
-                              type: string
-                          required:
-                            - kind
-                            - id
-                            - code
-                            - name
                         sourceLocation:
                           type: object
                           properties:
@@ -14362,10 +14400,44 @@ paths:
                           required:
                             - id
                             - name
-                        quantity:
-                          anyOf:
-                            - type: string
-                            - type: number
+                        items:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                pattern: >-
+                                  ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                              item:
+                                type: object
+                                properties:
+                                  kind:
+                                    type: string
+                                    enum:
+                                      - material
+                                      - sku
+                                  id:
+                                    type: string
+                                    pattern: >-
+                                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                  code:
+                                    type: string
+                                  name:
+                                    type: string
+                                required:
+                                  - kind
+                                  - id
+                                  - code
+                                  - name
+                              quantity:
+                                anyOf:
+                                  - type: string
+                                  - type: number
+                            required:
+                              - id
+                              - item
+                              - quantity
                         status:
                           type: string
                           enum:
@@ -14408,10 +14480,9 @@ paths:
                       required:
                         - id
                         - code
-                        - item
                         - sourceLocation
                         - destinationLocation
-                        - quantity
+                        - items
                         - status
                         - statusDates
                         - notes
@@ -14527,15 +14598,18 @@ paths:
       summary: Update transfer
       description: >-
         Update a transfer. A status change moves it through the Planning -> In
-        Transit -> Completed machine, projecting the outbound leg on In Transit
-        and the inbound RECEIVE on Completed (a step back unwinds the leg it
-        added). The statusDates object merges PER KEY (only the sent keys
-        change); a date edit re-dates the matching ledger leg, and a reached
-        status's date cannot be cleared (422). The item, locations and quantity
-        are editable only while the transfer is still in Planning: sent together
-        with a status change, the field edits apply first, then the transition
-        runs. Past Planning those fields are edit-locked and rejected with 409
-        invalid_transition, as is an illegal transition.
+        Transit -> Completed machine, projecting every line's outbound leg on In
+        Transit and its inbound RECEIVE on Completed (a step back unwinds the
+        legs it added). The statusDates object merges PER KEY (only the sent
+        keys change); a date edit re-dates the matching ledger leg of every
+        line, and a reached status's date cannot be cleared (422). The items and
+        the locations are editable only while the transfer is still in Planning:
+        sent together with a status change, the edits apply first, then the
+        transition runs. Unlike statusDates, `items` does not merge: it is the
+        movement, so a sent array REPLACES the whole line set, needs at least
+        one line, and may not repeat an item. Past Planning items and locations
+        are edit-locked and rejected with 409 invalid_transition, as is an
+        illegal transition.
       parameters:
         - schema:
             type: string
@@ -14550,15 +14624,6 @@ paths:
             schema:
               type: object
               properties:
-                itemKind:
-                  type: string
-                  enum:
-                    - material
-                    - sku
-                itemId:
-                  type: string
-                  pattern: >-
-                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                 sourceLocationId:
                   type: string
                   pattern: >-
@@ -14567,9 +14632,28 @@ paths:
                   type: string
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                quantity:
-                  type: number
-                  exclusiveMinimum: 0
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      itemKind:
+                        type: string
+                        enum:
+                          - material
+                          - sku
+                      itemId:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      quantity:
+                        type: number
+                        exclusiveMinimum: 0
+                    required:
+                      - itemKind
+                      - itemId
+                      - quantity
+                  minItems: 1
                 status:
                   type: string
                   enum:
@@ -14613,27 +14697,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   code:
                     type: string
-                  item:
-                    type: object
-                    properties:
-                      kind:
-                        type: string
-                        enum:
-                          - material
-                          - sku
-                      id:
-                        type: string
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      code:
-                        type: string
-                      name:
-                        type: string
-                    required:
-                      - kind
-                      - id
-                      - code
-                      - name
                   sourceLocation:
                     type: object
                     properties:
@@ -14658,10 +14721,44 @@ paths:
                     required:
                       - id
                       - name
-                  quantity:
-                    anyOf:
-                      - type: string
-                      - type: number
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        item:
+                          type: object
+                          properties:
+                            kind:
+                              type: string
+                              enum:
+                                - material
+                                - sku
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - kind
+                            - id
+                            - code
+                            - name
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                      required:
+                        - id
+                        - item
+                        - quantity
                   status:
                     type: string
                     enum:
@@ -14704,10 +14801,9 @@ paths:
                 required:
                   - id
                   - code
-                  - item
                   - sourceLocation
                   - destinationLocation
-                  - quantity
+                  - items
                   - status
                   - statusDates
                   - notes
@@ -14803,10 +14899,11 @@ paths:
         '409':
           description: >-
             Illegal status transition for the transfer's current state, or an
-            item, location, or quantity edit on a transfer that has left
-            Planning (edit-locked); both are `invalid_transition`. A concurrent
-            update that changes the status first surfaces as `conflict` (retry
-            after re-reading the transfer).
+            items or location edit on a transfer that has left Planning
+            (edit-locked); both are `invalid_transition`. A replacement items
+            array that repeats an item, and a concurrent update that changes the
+            status first, both surface as `conflict` (retry the latter after
+            re-reading the transfer).
           content:
             application/json:
               schema:
@@ -14868,9 +14965,10 @@ paths:
         - Transfers
       summary: Delete transfer
       description: >-
-        Permanently delete a transfer and its ledger movement (both legs). There
-        is no in-use gate: on-hand and in-transit recompute live from the
-        remaining ledger rows.
+        Permanently delete a transfer and its ledger movement (both legs of
+        every moved item, on whichever ledgers they landed). There is no in-use
+        gate: on-hand and in-transit recompute live from the remaining ledger
+        rows.
       parameters:
         - schema:
             type: string
@@ -15014,9 +15112,10 @@ paths:
         - Transfers
       summary: Get transfer detail
       description: >-
-        Fetch a single transfer by id, with its embedded item ({ kind, id, code,
-        name }), source and destination location references ({ id, name }),
-        quantity, status, and the per-status timestamps grouped in statusDates.
+        Fetch a single transfer by id, with its source and destination location
+        references ({ id, name }), its moved `items` (each { id, item: { kind,
+        id, code, name }, quantity }, in item-code order), status, and the
+        per-status timestamps grouped in statusDates.
       parameters:
         - schema:
             type: string
@@ -15039,27 +15138,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   code:
                     type: string
-                  item:
-                    type: object
-                    properties:
-                      kind:
-                        type: string
-                        enum:
-                          - material
-                          - sku
-                      id:
-                        type: string
-                        pattern: >-
-                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      code:
-                        type: string
-                      name:
-                        type: string
-                    required:
-                      - kind
-                      - id
-                      - code
-                      - name
                   sourceLocation:
                     type: object
                     properties:
@@ -15084,10 +15162,44 @@ paths:
                     required:
                       - id
                       - name
-                  quantity:
-                    anyOf:
-                      - type: string
-                      - type: number
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        item:
+                          type: object
+                          properties:
+                            kind:
+                              type: string
+                              enum:
+                                - material
+                                - sku
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - kind
+                            - id
+                            - code
+                            - name
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                      required:
+                        - id
+                        - item
+                        - quantity
                   status:
                     type: string
                     enum:
@@ -15130,10 +15242,9 @@ paths:
                 required:
                   - id
                   - code
-                  - item
                   - sourceLocation
                   - destinationLocation
-                  - quantity
+                  - items
                   - status
                   - statusDates
                   - notes
@@ -24768,6 +24879,667 @@ paths:
                   - error
         '409':
           description: The source is referenced by one or more sales receipts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /connections:
+    get:
+      tags:
+        - Connections
+      summary: List connections
+      description: >-
+        List the org's connections to external tools, one entry per supported
+        provider: providers without a connection come back with status
+        notConnected and a null id. Credentials are never returned; config
+        carries only non-secret details. Admins and owners only.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type:
+                            - string
+                            - 'null'
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        provider:
+                          type: string
+                          enum:
+                            - shopify
+                            - shiphero
+                            - amazonSellerCentral
+                            - metaAds
+                            - googleAds
+                            - tiktokAds
+                        status:
+                          type: string
+                          enum:
+                            - notConnected
+                            - pending
+                            - active
+                            - error
+                        config:
+                          type: object
+                          additionalProperties:
+                            type: string
+                        errorMessage:
+                          type:
+                            - string
+                            - 'null'
+                        connectedAt:
+                          anyOf:
+                            - type: string
+                            - type: string
+                              format: date-time
+                            - type: 'null'
+                      required:
+                        - id
+                        - provider
+                        - status
+                        - config
+                        - errorMessage
+                        - connectedAt
+                required:
+                  - data
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /connections/shopify:
+    post:
+      tags:
+        - Connections
+      summary: Connect Shopify
+      description: >-
+        Submit the org's Shopify credentials: the store's bare .myshopify.com
+        domain plus the client id and secret of the merchant-owned app created
+        from the embedded setup guide. Credentials are stored encrypted and the
+        connection sits in pending until the ingestion partner is wired up
+        manually. Posting again replaces what was stored. Admins and owners
+        only.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                storeDomain:
+                  type: string
+                  pattern: ^[a-z0-9][a-z0-9-]*\.myshopify\.com$
+                clientId:
+                  type: string
+                  minLength: 8
+                  maxLength: 200
+                clientSecret:
+                  type: string
+                  minLength: 8
+                  maxLength: 200
+              required:
+                - storeDomain
+                - clientId
+                - clientSecret
+      responses:
+        '201':
+          description: Submitted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type:
+                      - string
+                      - 'null'
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  provider:
+                    type: string
+                    enum:
+                      - shopify
+                      - shiphero
+                      - amazonSellerCentral
+                      - metaAds
+                      - googleAds
+                      - tiktokAds
+                  status:
+                    type: string
+                    enum:
+                      - notConnected
+                      - pending
+                      - active
+                      - error
+                  config:
+                    type: object
+                    additionalProperties:
+                      type: string
+                  errorMessage:
+                    type:
+                      - string
+                      - 'null'
+                  connectedAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                      - type: 'null'
+                required:
+                  - id
+                  - provider
+                  - status
+                  - config
+                  - errorMessage
+                  - connectedAt
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /connections/{provider}/connect-card:
+    post:
+      tags:
+        - Connections
+      summary: Create a Fivetran Connect Card
+      description: >-
+        For the Powered-by-Fivetran providers (Meta Ads, Google Ads, TikTok Ads,
+        Amazon Seller Central, ShipHero): creates the Fivetran connection on
+        first call (the row appears as pending) and returns a hosted Connect
+        Card URL to open for the user, where they authorize the source with
+        Fivetran directly; credentials never touch Pharus. Amazon Seller Central
+        additionally requires merchantId (the account's Merchant Token) on the
+        first call, since Fivetran cannot create the connection without it (422
+        when missing). Calling again returns a fresh card for the same
+        connection, to resume or re-authorize. Admins and owners only.
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - amazonSellerCentral
+              - metaAds
+              - googleAds
+              - tiktokAds
+              - shiphero
+          required: true
+          name: provider
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                merchantId:
+                  type: string
+                  minLength: 4
+                  maxLength: 64
+      responses:
+        '201':
+          description: Card created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uri:
+                    type: string
+                  connection:
+                    type: object
+                    properties:
+                      id:
+                        type:
+                          - string
+                          - 'null'
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      provider:
+                        type: string
+                        enum:
+                          - shopify
+                          - shiphero
+                          - amazonSellerCentral
+                          - metaAds
+                          - googleAds
+                          - tiktokAds
+                      status:
+                        type: string
+                        enum:
+                          - notConnected
+                          - pending
+                          - active
+                          - error
+                      config:
+                        type: object
+                        additionalProperties:
+                          type: string
+                      errorMessage:
+                        type:
+                          - string
+                          - 'null'
+                      connectedAt:
+                        anyOf:
+                          - type: string
+                          - type: string
+                            format: date-time
+                          - type: 'null'
+                    required:
+                      - id
+                      - provider
+                      - status
+                      - config
+                      - errorMessage
+                      - connectedAt
+                required:
+                  - uri
+                  - connection
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /connections/{provider}:
+    delete:
+      tags:
+        - Connections
+      summary: Disconnect a provider
+      description: >-
+        Disconnect the org from a provider, deleting the stored connection and
+        its encrypted credentials. Returns 404 when the provider was not
+        connected. Admins and owners only.
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - shopify
+              - shiphero
+              - amazonSellerCentral
+              - metaAds
+              - googleAds
+              - tiktokAds
+          required: true
+          name: provider
+          in: path
+      responses:
+        '200':
+          description: Disconnected
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                required:
+                  - deletedId
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
           content:
             application/json:
               schema:
@@ -43740,8 +44512,9 @@ paths:
         - Platform
       summary: Update current organization
       description: >-
-        Updates org identity (name, slug) and/or settings (legal identity,
-        contact, logoUrl, operating model, costing method) atomically. Owner
+        Updates org identity (name) and/or settings (legal identity, contact,
+        logoUrl, operating model, costing method) atomically. The slug is
+        immutable after creation: warehouse datasets are named by it. Owner
         only. Control plane: requires a Firebase session, PATs are rejected.
       requestBody:
         content:
@@ -43753,11 +44526,6 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 255
-                slug:
-                  type: string
-                  minLength: 2
-                  maxLength: 100
-                  pattern: ^[a-z0-9][a-z0-9-]*[a-z0-9]$
                 legalName:
                   type:
                     - string
