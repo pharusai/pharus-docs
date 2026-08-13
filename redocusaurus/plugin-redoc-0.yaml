@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Pharus API
-  version: 1.16.0
+  version: 1.16.2
   description: >-
     Pharus exposes every action in the platform as a REST endpoint. Use this API
     to
@@ -19288,6 +19288,7 @@ paths:
               - orderDate
               - createdAt
               - updatedAt
+              - netRevenue
           required: false
           name: sort
           in: query
@@ -19338,6 +19339,16 @@ paths:
               ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           required: false
           name: containsSkuId
+          in: query
+        - schema:
+            type: number
+          required: false
+          name: netRevenueMin
+          in: query
+        - schema:
+            type: number
+          required: false
+          name: netRevenueMax
           in: query
         - schema:
             type: string
@@ -21327,14 +21338,26 @@ paths:
       summary: List connected sales receipts
       description: >-
         List one page of the org's connected sales receipts: marketplace orders
-        (today Shopify) read live from the org's data plane and mapped into the
-        receipt view model, newest first. Nothing is stored in Pharus and
-        nothing here touches inventory; the surface is read-only, and rows are
-        addressed by the marketplace's own order id rather than a Pharus UUID.
-        `search` matches the order number and the buyer name; page with `limit`
-        (default 50, max 200) and `offset`. `configured` is false when the org
-        has no data-plane connection, meaning the surface does not apply rather
-        than being empty. netRevenue is merchandise net of discounts, excluding
+        (Shopify and Amazon Seller Central, whichever feeds the org has
+        connected) read live from the org's data plane, mapped into the receipt
+        view model, and federated into one list, newest first. Filter by derived
+        `status` (CSV of Placed/Paid/Shipped/Completed/Cancelled), by order date
+        (`orderDateFrom`/`orderDateTo`, inclusive calendar dates), by `source`
+        (CSV of shopify/amazon), by `fulfillmentLocation` (CSV of the display
+        names from list_connected_receipt_locations), and by inclusive
+        `netRevenueMin`/`netRevenueMax` bounds; all apply inside each feed
+        before pagination. Sort with `sort` (orderDate, srNumber, status,
+        source, netRevenue, fulfillmentLocation) and `order`, applied inside
+        each feed and across the merge; status sorts by lifecycle rank. `search`
+        matches the order number, the buyer name (Shopify), and the line SKUs
+        and listing titles. Nothing is stored in Pharus and nothing here touches
+        inventory; the surface is read-only, and rows are addressed by the
+        marketplace's own order id rather than a Pharus UUID (each row's
+        `source` says which feed it came from). `search` matches the order
+        number and, for Shopify rows, the buyer name; page with `limit` (default
+        50, max 200) and `offset`. `configured` is false when the org has no
+        data-plane connection, meaning the surface does not apply rather than
+        being empty. netRevenue is merchandise net of discounts, excluding
         shipping and tax; dataAsOf is the marketplace-extraction watermark for
         the row.
       parameters:
@@ -21342,6 +21365,51 @@ paths:
             type: string
           required: false
           name: search
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: status
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: source
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: fulfillmentLocation
+          in: query
+        - schema:
+            type: number
+          required: false
+          name: netRevenueMin
+          in: query
+        - schema:
+            type: number
+          required: false
+          name: netRevenueMax
+          in: query
+        - schema:
+            type: string
+            enum:
+              - orderDate
+              - srNumber
+              - status
+              - source
+              - netRevenue
+              - fulfillmentLocation
+          required: false
+          name: sort
+          in: query
+        - schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          required: false
+          name: order
           in: query
         - schema:
             type: integer
@@ -21355,6 +21423,18 @@ paths:
             minimum: 0
           required: false
           name: offset
+          in: query
+        - schema:
+            type: string
+            pattern: ^\d{4}-\d{2}-\d{2}$
+          required: false
+          name: orderDateFrom
+          in: query
+        - schema:
+            type: string
+            pattern: ^\d{4}-\d{2}-\d{2}$
+          required: false
+          name: orderDateTo
           in: query
       responses:
         '200':
@@ -21377,6 +21457,7 @@ paths:
                           type: string
                           enum:
                             - shopify
+                            - amazon
                         status:
                           type: string
                           enum:
@@ -21395,6 +21476,24 @@ paths:
                           type:
                             - string
                             - 'null'
+                        fulfillmentLocationKey:
+                          type:
+                            - string
+                            - 'null'
+                        location:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - name
                         netRevenue:
                           type: number
                         dataAsOf:
@@ -21409,6 +21508,8 @@ paths:
                         - orderDate
                         - customerName
                         - fulfillmentLocation
+                        - fulfillmentLocationKey
+                        - location
                         - netRevenue
                         - dataAsOf
                   meta:
@@ -21518,16 +21619,18 @@ paths:
       summary: Get connected sales receipt
       description: >-
         Get one connected sales receipt by its external (marketplace) order id,
-        read live from the org's data plane: identity with the external ids and
-        a best-effort admin deep link, the derived lifecycle with per-status
-        dates and the marketplace's raw source status alongside, customer
-        identity with the retention join key, destination and carrier, the full
-        buyer-side money picture (list subtotal, discounts with codes, shipping
-        charged, tax, total paid, a to-the-cent reconciliation flag, refunds,
-        and processor fees when they exist), the source's line items exactly as
-        sold (bundle-exploded duplicates included), and refund events with their
-        restock linkage. 404 when the id matches nothing or the org has no
-        data-plane connection.
+        read live from the org's data plane; the id's shape routes the read
+        (Amazon order ids are xxx-xxxxxxx-xxxxxxx, Shopify's plain integers).
+        The detail carries identity with the external ids and a best-effort
+        admin deep link, the derived lifecycle with per-status dates and the
+        marketplace's raw source status alongside, customer identity with the
+        retention join key (Shopify; Amazon anonymizes buyers), destination and
+        carrier, the full buyer-side money picture (list subtotal, discounts
+        with codes, shipping charged, tax, total paid, a to-the-cent
+        reconciliation flag, refunds, and processor fees when they exist), the
+        source's line items exactly as sold (bundle-exploded duplicates
+        included), and refund events with their restock linkage. 404 when the id
+        matches nothing or the org has no data-plane connection.
       parameters:
         - schema:
             type: string
@@ -21552,6 +21655,7 @@ paths:
                     type: string
                     enum:
                       - shopify
+                      - amazon
                   externalOrderNumber:
                     type: string
                   externalOrderId:
@@ -21683,6 +21787,24 @@ paths:
                     type:
                       - string
                       - 'null'
+                  fulfillmentLocationKey:
+                    type:
+                      - string
+                      - 'null'
+                  location:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
                   money:
                     type: object
                     properties:
@@ -21826,6 +21948,8 @@ paths:
                   - carrier
                   - trackingNumber
                   - fulfillmentLocation
+                  - fulfillmentLocationKey
+                  - location
                   - money
                   - items
                   - refunds
@@ -21945,18 +22069,424 @@ paths:
                       - message
                 required:
                   - error
+  /connected-receipt-locations:
+    get:
+      tags:
+        - SalesReceipts
+      summary: List connected receipt locations
+      description: >-
+        The distinct fulfillment-location names appearing on the org's connected
+        sales receipts, exactly as the list displays them (Shopify assigned
+        fulfillment locations, Amazon fulfillment-channel labels), sorted. These
+        are the valid values for the connected list's fulfillmentLocation
+        filter; manual receipts' locations come from the locations domain
+        instead. `configured` is false when the org has no data-plane
+        connection.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  configured:
+                    type: boolean
+                required:
+                  - data
+                  - configured
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /connected-location-mappings:
+    get:
+      tags:
+        - SalesReceipts
+      summary: List connected location mappings
+      description: >-
+        The location-mapping worksheet: every fulfillment location the feed's
+        connected receipts reference, keyed by the store's stable identity (the
+        Shopify location id, the Amazon fulfillment-channel code) with its
+        display name, merged with the stored mappings to Pharus locations (null
+        while unmapped). `source` picks the feed, shopify by default. Mapped
+        locations overlay onto connected rows in the receipts list and detail,
+        and the fulfillment-location filter matches mapped rows through them.
+        `configured` is false when the org has no data-plane connection for that
+        feed.
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - shopify
+              - amazon
+          required: false
+          name: source
+          in: query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        externalKey:
+                          type: string
+                        externalName:
+                          type:
+                            - string
+                            - 'null'
+                        location:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - name
+                      required:
+                        - externalKey
+                        - externalName
+                        - location
+                  configured:
+                    type: boolean
+                required:
+                  - data
+                  - configured
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    put:
+      tags:
+        - SalesReceipts
+      summary: Set connected location mapping
+      description: >-
+        Map one connected fulfillment location (by its stable externalKey from
+        the worksheet) to a Pharus location, or clear the mapping by passing
+        locationId null. Upserts: re-mapping replaces the previous mapping. The
+        referenced location must exist in the org (404 otherwise). `source` says
+        which feed, shopify by default.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source:
+                  type: string
+                  enum:
+                    - shopify
+                    - amazon
+                externalKey:
+                  type: string
+                  minLength: 1
+                  maxLength: 64
+                externalName:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 200
+                locationId:
+                  type:
+                    - string
+                    - 'null'
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+              required:
+                - externalKey
+                - locationId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  externalKey:
+                    type: string
+                  location:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                required:
+                  - externalKey
+                  - location
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
   /connected-sku-mappings:
     get:
       tags:
         - SalesReceipts
       summary: List connected SKU mappings
       description: >-
-        The listing-to-SKU worksheet: every distinct marketplace listing
-        (Shopify variant) found on the org's connected order lines, read live
-        from the data plane and ordered by units sold, merged with the stored
-        mappings. Each row carries the listing's own sku code and titles, how
-        much it sold, and the Pharus SKU it maps to (null when unmapped).
-        `configured` is false when the org has no data-plane connection.
+        The listing-to-SKU worksheet: every distinct marketplace listing found
+        on the org's connected order lines for one feed (`source`, shopify by
+        default or amazon), read live from the data plane and ordered by units
+        sold, merged with the stored mappings. Listings are identified by their
+        store's stable key, the variant id on Shopify or the seller SKU on
+        Amazon (both travel in variantId). Each row carries the listing's own
+        sku code and titles, how much it sold, and the Pharus SKU it maps to
+        (null when unmapped). `configured` is false when the org has no
+        data-plane connection for that feed.
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - shopify
+              - amazon
+          required: false
+          name: source
+          in: query
       responses:
         '200':
           description: OK
@@ -22076,21 +22606,57 @@ paths:
                       - message
                 required:
                   - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
     put:
       tags:
         - SalesReceipts
       summary: Set connected SKU mapping
       description: >-
-        Map one marketplace listing (by its variant id) to a Pharus SKU, or
-        clear the mapping by passing skuId null. Upserts: re-mapping a listing
-        replaces its previous mapping. The referenced SKU must exist in the org
-        (404 otherwise). Mapped SKUs appear on connected receipt detail lines.
+        Map one marketplace listing to a Pharus SKU, or clear the mapping by
+        passing skuId null. The listing key travels in variantId: the variant id
+        for Shopify listings, the seller SKU for Amazon ones (`source` says
+        which feed, shopify by default). Upserts: re-mapping a listing replaces
+        its previous mapping. The referenced SKU must exist in the org (404
+        otherwise). Mapped SKUs appear on connected receipt detail lines.
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
+                source:
+                  type: string
+                  enum:
+                    - shopify
+                    - amazon
                 variantId:
                   type: string
                   minLength: 1
