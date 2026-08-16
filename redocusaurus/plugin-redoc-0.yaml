@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Pharus API
-  version: 1.16.2
+  version: 1.17.0
   description: >-
     Pharus exposes every action in the platform as a REST endpoint. Use this API
     to
@@ -20833,10 +20833,12 @@ paths:
         - SalesReceipts
       summary: List sales receipt items
       description: >-
-        List sales receipt line items. Pass salesReceiptId to scope the list to
-        one receipt, or omit it to read lines across every receipt (a flat items
-        view); skuId narrows by the sold SKU. An unknown salesReceiptId returns
-        an empty list rather than a 404.
+        List MANUAL sales receipt line items. Pass salesReceiptId to scope the
+        list to one receipt, or omit it to read lines across every manual
+        receipt (a flat items view); skuId narrows by the sold SKU. Synced
+        marketplace lines are excluded here, exactly like the manual header
+        list: they are served by the connected receipt endpoints. An unknown
+        salesReceiptId returns an empty list rather than a 404.
       parameters:
         - schema:
             type: string
@@ -21339,24 +21341,26 @@ paths:
       description: >-
         List one page of the org's connected sales receipts: marketplace orders
         (Shopify and Amazon Seller Central, whichever feeds the org has
-        connected) read live from the org's data plane, mapped into the receipt
-        view model, and federated into one list, newest first. Filter by derived
-        `status` (CSV of Placed/Paid/Shipped/Completed/Cancelled), by order date
-        (`orderDateFrom`/`orderDateTo`, inclusive calendar dates), by `source`
-        (CSV of shopify/amazon), by `fulfillmentLocation` (CSV of the display
-        names from list_connected_receipt_locations), and by inclusive
-        `netRevenueMin`/`netRevenueMax` bounds; all apply inside each feed
-        before pagination. Sort with `sort` (orderDate, srNumber, status,
-        source, netRevenue, fulfillmentLocation) and `order`, applied inside
-        each feed and across the merge; status sorts by lifecycle rank. `search`
-        matches the order number, the buyer name (Shopify), and the line SKUs
-        and listing titles. Nothing is stored in Pharus and nothing here touches
-        inventory; the surface is read-only, and rows are addressed by the
-        marketplace's own order id rather than a Pharus UUID (each row's
-        `source` says which feed it came from). `search` matches the order
-        number and, for Shopify rows, the buyer name; page with `limit` (default
-        50, max 200) and `offset`. `configured` is false when the org has no
-        data-plane connection, meaning the surface does not apply rather than
+        connected) served from the rows the sync engine materializes, federated
+        into one list, newest first. Receipts before the org's connected go-live
+        date are stored but not served here (#1252): the date is system-wide, so
+        display and inventory always agree; a null date serves everything.
+        Filter by derived `status` (CSV of
+        Placed/Paid/Shipped/Completed/Cancelled), by order date
+        (`orderDateFrom`/`orderDateTo`, inclusive calendar dates, floored at the
+        go-live date), by `source` (CSV of shopify/amazon), by
+        `fulfillmentLocation` (CSV of the display names from
+        list_connected_receipt_locations), and by inclusive
+        `netRevenueMin`/`netRevenueMax` bounds; all apply in SQL before
+        pagination. Sort with `sort` (orderDate, srNumber, status, source,
+        netRevenue, fulfillmentLocation) and `order`; status sorts by lifecycle
+        rank. `search` matches the order number, the buyer name (Shopify), and
+        the line SKUs and listing titles. The surface is read-only (the sync
+        owns the writes), and rows are addressed by the marketplace's own order
+        id rather than a Pharus UUID (each row's `source` says which feed it
+        came from). Page with `limit` (default 50, max 200) and `offset`;
+        `meta.total` counts the filtered set. `configured` is false when the org
+        has no connected feed, meaning the surface does not apply rather than
         being empty. netRevenue is merchandise net of discounts, excluding
         shipping and tax; dataAsOf is the marketplace-extraction watermark for
         the row.
@@ -21619,18 +21623,24 @@ paths:
       summary: Get connected sales receipt
       description: >-
         Get one connected sales receipt by its external (marketplace) order id,
-        read live from the org's data plane; the id's shape routes the read
-        (Amazon order ids are xxx-xxxxxxx-xxxxxxx, Shopify's plain integers).
-        The detail carries identity with the external ids and a best-effort
-        admin deep link, the derived lifecycle with per-status dates and the
-        marketplace's raw source status alongside, customer identity with the
-        retention join key (Shopify; Amazon anonymizes buyers), destination and
-        carrier, the full buyer-side money picture (list subtotal, discounts
-        with codes, shipping charged, tax, total paid, a to-the-cent
-        reconciliation flag, refunds, and processor fees when they exist), the
-        source's line items exactly as sold (bundle-exploded duplicates
-        included), and refund events with their restock linkage. 404 when the id
-        matches nothing or the org has no data-plane connection.
+        served from the rows the sync engine materializes; the id's shape routes
+        the read (Amazon order ids are xxx-xxxxxxx-xxxxxxx, Shopify's plain
+        integers). A receipt before the org's connected go-live date is not
+        served (404, like the list excluding it): the date is system-wide
+        (#1252). The detail carries identity with the external ids and a
+        best-effort admin deep link, the derived lifecycle with per-status dates
+        and the marketplace's raw source status alongside, customer identity
+        with the retention join key (Shopify; Amazon anonymizes buyers),
+        destination and carrier, the full buyer-side money picture (list
+        subtotal, discounts with codes, shipping charged, tax, total paid, a
+        to-the-cent reconciliation flag, refunds, and processor fees when they
+        exist), the source's line items exactly as sold (bundle-exploded
+        duplicates included), and refund events with their restock linkage. When
+        every line is mapped to a Pharus SKU the response also carries
+        financials (inventory cost, gross profit, margin), computed on read from
+        the costing engine and never stored; financials is null while any line
+        is unmapped. 404 when the id matches nothing or the org has no connected
+        feed.
       parameters:
         - schema:
             type: string
@@ -21927,6 +21937,23 @@ paths:
                         - date
                         - note
                         - restocked
+                  financials:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      inventoryCost:
+                        type: number
+                      grossProfit:
+                        type: number
+                      margin:
+                        type:
+                          - number
+                          - 'null'
+                    required:
+                      - inventoryCost
+                      - grossProfit
+                      - margin
                 required:
                   - id
                   - srNumber
@@ -21953,6 +21980,7 @@ paths:
                   - money
                   - items
                   - refunds
+                  - financials
         '401':
           description: Missing or invalid credentials
           content:
@@ -22164,7 +22192,8 @@ paths:
       summary: List connected location mappings
       description: >-
         The location-mapping worksheet: every fulfillment location the feed's
-        connected receipts reference, keyed by the store's stable identity (the
+        connected receipts reference on or after the connected go-live date (a
+        null date scans everything), keyed by the store's stable identity (the
         Shopify location id, the Amazon fulfillment-channel code) with its
         display name, merged with the stored mappings to Pharus locations (null
         while unmapped). `source` picks the feed, shopify by default. Mapped
@@ -22214,6 +22243,10 @@ paths:
                           required:
                             - id
                             - name
+                        receiptCount:
+                          type:
+                            - number
+                            - 'null'
                       required:
                         - externalKey
                         - externalName
@@ -22463,21 +22496,144 @@ paths:
                       - message
                 required:
                   - error
-  /connected-sku-mappings:
+  /connected-mapping-alerts:
     get:
       tags:
         - SalesReceipts
-      summary: List connected SKU mappings
+      summary: List connected mapping alerts
       description: >-
-        The listing-to-SKU worksheet: every distinct marketplace listing found
-        on the org's connected order lines for one feed (`source`, shopify by
-        default or amazon), read live from the data plane and ordered by units
-        sold, merged with the stored mappings. Listings are identified by their
-        store's stable key, the variant id on Shopify or the seller SKU on
-        Amazon (both travel in variantId). Each row carries the listing's own
-        sku code and titles, how much it sold, and the Pharus SKU it maps to
-        (null when unmapped). `configured` is false when the org has no
-        data-plane connection for that feed.
+        The mapping-blocked summary behind the sales receipts page's alert
+        badges: per feed and kind, how many marketplace listings and fulfillment
+        locations are still unmapped, and how many stored receipt lines (with
+        their unit total) or receipts they hold out of inventory. Scoped to the
+        org's connected-ledger go-live window, so history that would never post
+        is not counted. Map the pending entries in the SKU and location
+        worksheets (list_connected_sku_mappings,
+        list_connected_location_mappings); mapping backfills the ledger
+        immediately.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  skus:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        source:
+                          type: string
+                          enum:
+                            - shopify
+                            - amazon
+                        pendingListings:
+                          type: number
+                        affectedLines:
+                          type: number
+                        affectedUnits:
+                          anyOf:
+                            - type: number
+                            - type: string
+                      required:
+                        - source
+                        - pendingListings
+                        - affectedLines
+                        - affectedUnits
+                  locations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        source:
+                          type: string
+                          enum:
+                            - shopify
+                            - amazon
+                        pendingLocations:
+                          type: number
+                        affectedReceipts:
+                          type: number
+                      required:
+                        - source
+                        - pendingLocations
+                        - affectedReceipts
+                required:
+                  - skus
+                  - locations
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /connected-sync-status:
+    get:
+      tags:
+        - SalesReceipts
+      summary: Get connected sync status
+      description: >-
+        The sync health of one connected feed (`source`, shopify by default or
+        amazon): when it last synced successfully, when it last tried, the
+        stored failure message when the latest run errored (cleared on success),
+        and where the initial history copy stands (done plus the oldest stored
+        order day, or the day the walk has reached mid-copy). Reads the org's
+        own sync bookkeeping; nothing here queries the data plane. `configured`
+        is false when the org has no such feed.
       parameters:
         - schema:
             type: string
@@ -22486,6 +22642,219 @@ paths:
               - amazon
           required: false
           name: source
+          in: query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  configured:
+                    type: boolean
+                  lastSyncedAt:
+                    type:
+                      - string
+                      - 'null'
+                  lastAttemptAt:
+                    type:
+                      - string
+                      - 'null'
+                  lastError:
+                    type:
+                      - string
+                      - 'null'
+                  backfill:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      done:
+                        type: boolean
+                      from:
+                        type:
+                          - string
+                          - 'null'
+                      reached:
+                        type:
+                          - string
+                          - 'null'
+                      error:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - done
+                      - from
+                      - reached
+                      - error
+                required:
+                  - configured
+                  - lastSyncedAt
+                  - lastAttemptAt
+                  - lastError
+                  - backfill
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /connected-sku-mappings:
+    get:
+      tags:
+        - SalesReceipts
+      summary: List connected SKU mappings
+      description: >-
+        The listing-to-SKU worksheet: one page of the distinct marketplace
+        listings found on the org's stored connected order lines on or after the
+        connected go-live date (retired pre-go-live products are not pending
+        work; a null date scans everything) for one feed (`source`, shopify by
+        default or amazon), merged with the stored mappings. Listings are
+        identified by their store's stable key, the variant id on Shopify or the
+        seller SKU on Amazon (both travel in variantId). Each row carries the
+        listing's own sku code and titles, how much it sold, and the Pharus SKU
+        it maps to (null when unmapped). Filter with `search` (case-insensitive
+        substring over the listing sku, titles, and key) and `mapped` (false =
+        still to map, true = already mapped); sort with `sort` (unitsSold,
+        lineCount, listingSku, listingTitle; unitsSold descending by default)
+        and `order`; page with `limit` (default 50, max 200) and `offset`, with
+        `meta.total` counting the filtered set. `configured` is false when the
+        org has no connected feed of that kind.
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - shopify
+              - amazon
+          required: false
+          name: source
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: search
+          in: query
+        - schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+          required: false
+          name: mapped
+          in: query
+        - schema:
+            type: string
+            enum:
+              - unitsSold
+              - lineCount
+              - listingSku
+              - listingTitle
+          required: false
+          name: sort
+          in: query
+        - schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          required: false
+          name: order
+          in: query
+        - schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+          required: false
+          name: limit
+          in: query
+        - schema:
+            type: integer
+            minimum: 0
+          required: false
+          name: offset
           in: query
       responses:
         '200':
@@ -22543,10 +22912,24 @@ paths:
                         - lineCount
                         - unitsSold
                         - sku
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      limit:
+                        type: integer
+                      offset:
+                        type: integer
+                    required:
+                      - total
+                      - limit
+                      - offset
                   configured:
                     type: boolean
                 required:
                   - data
+                  - meta
                   - configured
         '401':
           description: Missing or invalid credentials
@@ -26639,6 +27022,184 @@ paths:
                 required:
                   - uri
                   - connection
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /connections/{provider}/data-status:
+    get:
+      tags:
+        - Connections
+      summary: Get connection data status
+      description: >-
+        Admins and owners only. Where a connected provider's data is, in one
+        vocabulary sourced from the data plane: waiting (connected but the data
+        has not arrived in the warehouse yet; the external connector usually
+        takes hours and can take days), backfill (marketplace feeds only: the
+        platform is copying the store's history into its own tables), synced
+        (marketplace: history copied and periodic syncs healthy; other
+        connectors: the data is available where reporting reads it), or unsynced
+        (marketplace only: a periodic sync failed or went overdue; `detail`
+        carries the reason). 404 for providers with no connection row.
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - shopify
+              - shiphero
+              - amazonSellerCentral
+              - metaAds
+              - googleAds
+              - tiktokAds
+              - quickbooksOnline
+          required: true
+          name: provider
+          in: path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  provider:
+                    type: string
+                    enum:
+                      - shopify
+                      - shiphero
+                      - amazonSellerCentral
+                      - metaAds
+                      - googleAds
+                      - tiktokAds
+                      - quickbooksOnline
+                  phase:
+                    type: string
+                    enum:
+                      - waiting
+                      - backfill
+                      - synced
+                      - unsynced
+                  detail:
+                    type:
+                      - string
+                      - 'null'
+                required:
+                  - provider
+                  - phase
+                  - detail
         '401':
           description: Missing or invalid credentials
           content:
@@ -43740,6 +44301,12 @@ paths:
                                 - FEFO
                                 - LIFO
                                 - WEIGHTED_AVERAGE
+                            timezone:
+                              type:
+                                - string
+                                - 'null'
+                            connectedLedgerFrom:
+                              type: string
                             createdAt:
                               anyOf:
                                 - type: string
@@ -43758,6 +44325,8 @@ paths:
                             - contact
                             - operatingModel
                             - costingMethod
+                            - timezone
+                            - connectedLedgerFrom
                             - createdAt
                             - updatedAt
                       required:
@@ -45472,6 +46041,12 @@ paths:
                           - FEFO
                           - LIFO
                           - WEIGHTED_AVERAGE
+                      timezone:
+                        type:
+                          - string
+                          - 'null'
+                      connectedLedgerFrom:
+                        type: string
                       createdAt:
                         anyOf:
                           - type: string
@@ -45490,6 +46065,8 @@ paths:
                       - contact
                       - operatingModel
                       - costingMethod
+                      - timezone
+                      - connectedLedgerFrom
                       - createdAt
                       - updatedAt
                 required:
@@ -45738,6 +46315,12 @@ paths:
                           - FEFO
                           - LIFO
                           - WEIGHTED_AVERAGE
+                      timezone:
+                        type:
+                          - string
+                          - 'null'
+                      connectedLedgerFrom:
+                        type: string
                       createdAt:
                         anyOf:
                           - type: string
@@ -45756,6 +46339,8 @@ paths:
                       - contact
                       - operatingModel
                       - costingMethod
+                      - timezone
+                      - connectedLedgerFrom
                       - createdAt
                       - updatedAt
                 required:
@@ -45907,6 +46492,14 @@ paths:
                     - FEFO
                     - LIFO
                     - WEIGHTED_AVERAGE
+                timezone:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 64
+                connectedLedgerFrom:
+                  type: string
+                  pattern: ^\d{4}-\d{2}-\d{2}$
       responses:
         '200':
           description: OK
@@ -46024,6 +46617,12 @@ paths:
                           - FEFO
                           - LIFO
                           - WEIGHTED_AVERAGE
+                      timezone:
+                        type:
+                          - string
+                          - 'null'
+                      connectedLedgerFrom:
+                        type: string
                       createdAt:
                         anyOf:
                           - type: string
@@ -46042,6 +46641,8 @@ paths:
                       - contact
                       - operatingModel
                       - costingMethod
+                      - timezone
+                      - connectedLedgerFrom
                       - createdAt
                       - updatedAt
                 required:
