@@ -5097,18 +5097,19 @@ paths:
                       - message
                 required:
                   - error
-  /skus:
+  /products:
     post:
       tags:
         - Products
-      summary: Create SKU
+      summary: Create product
       description: >-
-        Create a SKU (finished-goods product): the entity work orders produce,
-        sales orders sell, and the finished-goods ledger tracks. Requires a SKU
-        type. The code must be unique in the org (409 conflict otherwise).
-        `customFields` carries opaque key/value pairs the platform never
-        interprets (max 50 fields; key <= 64 chars, value <= 512 chars; keys
-        unique case-insensitively). `itemsPerUnit` defaults to 1 when omitted.
+        Create a product (finished-goods product): the entity work orders
+        produce, sales orders sell, and the finished-goods ledger tracks.
+        Requires a product category. The code must be unique in the org (409
+        conflict otherwise). `customFields` carries opaque key/value pairs the
+        platform never interprets (max 50 fields; key <= 64 chars, value <= 512
+        chars; keys unique case-insensitively). `itemsPerUnit` defaults to 1
+        when omitted.
       requestBody:
         content:
           application/json:
@@ -5123,10 +5124,28 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 255
-                typeId:
+                type:
+                  type: string
+                  enum:
+                    - base
+                    - case
+                    - kit
+                  default: base
+                categoryId:
                   type: string
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                baseProductId:
+                  type:
+                    - string
+                    - 'null'
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                baseFactor:
+                  type:
+                    - integer
+                    - 'null'
+                  minimum: 1
                 itemsPerUnit:
                   type: integer
                   minimum: 1
@@ -5160,7 +5179,7 @@ paths:
               required:
                 - code
                 - name
-                - typeId
+                - categoryId
       responses:
         '201':
           description: Created
@@ -5178,6 +5197,12 @@ paths:
                   name:
                     type: string
                   type:
+                    type: string
+                    enum:
+                      - base
+                      - case
+                      - kit
+                  category:
                     type: object
                     properties:
                       id:
@@ -5189,6 +5214,27 @@ paths:
                     required:
                       - id
                       - name
+                  base:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      code:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - code
+                      - name
+                  baseFactor:
+                    type:
+                      - integer
+                      - 'null'
                   itemsPerUnit:
                     type: integer
                   ozPerItem:
@@ -5233,6 +5279,9 @@ paths:
                   - code
                   - name
                   - type
+                  - category
+                  - base
+                  - baseFactor
                   - itemsPerUnit
                   - ozPerItem
                   - qboId
@@ -5300,7 +5349,7 @@ paths:
                 required:
                   - error
         '409':
-          description: A SKU with this code already exists in the org.
+          description: A product with this code already exists in the org.
           content:
             application/json:
               schema:
@@ -5360,18 +5409,19 @@ paths:
     get:
       tags:
         - Products
-      summary: List SKUs
+      summary: List products
       description: >-
-        List one page of the org's SKUs. Every filter is optional and AND-ed:
-        `active`, a CSV `type` id multi-select, inclusive `itemsPerUnitMin/Max`
-        and `totalOzMin/Max` ranges (total oz = oz_per_item * items_per_unit;
-        NULL-oz rows drop out once an oz bound is set), a free-text `search`
-        over the SKU code, name, joined type name, and notes, and a
-        `customFieldKey`/`customFieldValue` lookup. Sort with `sort` (code,
-        name, type, itemsPerUnit, totalOz, createdAt, updatedAt; default code;
-        empty values always last) and `order` (asc/desc); page with `limit`
-        (default 50, max 200) and `offset`. `meta.total` counts the filtered
-        set, so pagers can render page counts under active filters.
+        List one page of the org's products. Every filter is optional and
+        AND-ed: `active`, a CSV `category` id multi-select, inclusive
+        `itemsPerUnitMin/Max` and `totalOzMin/Max` ranges (total oz =
+        oz_per_item * items_per_unit; NULL-oz rows drop out once an oz bound is
+        set), a free-text `search` over the product code, name, joined type
+        name, and notes, and a `customFieldKey`/`customFieldValue` lookup. Sort
+        with `sort` (code, name, type, itemsPerUnit, totalOz, createdAt,
+        updatedAt; default code; empty values always last) and `order`
+        (asc/desc); page with `limit` (default 50, max 200) and `offset`.
+        `meta.total` counts the filtered set, so pagers can render page counts
+        under active filters.
       parameters:
         - schema:
             type: string
@@ -5379,6 +5429,8 @@ paths:
               - code
               - name
               - type
+              - category
+              - baseUnits
               - itemsPerUnit
               - totalOz
               - createdAt
@@ -5421,6 +5473,11 @@ paths:
           name: type
           in: query
         - schema:
+            type: string
+          required: false
+          name: category
+          in: query
+        - schema:
             type: number
           required: false
           name: itemsPerUnitMin
@@ -5429,6 +5486,16 @@ paths:
             type: number
           required: false
           name: itemsPerUnitMax
+          in: query
+        - schema:
+            type: number
+          required: false
+          name: baseUnitsMin
+          in: query
+        - schema:
+            type: number
+          required: false
+          name: baseUnitsMax
           in: query
         - schema:
             type: number
@@ -5477,6 +5544,12 @@ paths:
                         name:
                           type: string
                         type:
+                          type: string
+                          enum:
+                            - base
+                            - case
+                            - kit
+                        category:
                           type: object
                           properties:
                             id:
@@ -5488,6 +5561,27 @@ paths:
                           required:
                             - id
                             - name
+                        base:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - code
+                            - name
+                        baseFactor:
+                          type:
+                            - integer
+                            - 'null'
                         itemsPerUnit:
                           type: integer
                         ozPerItem:
@@ -5532,6 +5626,9 @@ paths:
                         - code
                         - name
                         - type
+                        - category
+                        - base
+                        - baseFactor
                         - itemsPerUnit
                         - ozPerItem
                         - qboId
@@ -5643,15 +5740,15 @@ paths:
                       - message
                 required:
                   - error
-  /skus/{id}:
+  /products/{id}:
     get:
       tags:
         - Products
-      summary: Get SKU detail
+      summary: Get product detail
       description: >-
-        Fetch a single SKU by id: its header fields, pack size (items per unit,
-        oz per item), custom fields, and its SKU type embedded as `type` with id
-        and name.
+        Fetch a single product by id: its header fields, pack size (items per
+        unit, oz per item), custom fields, and its product category embedded as
+        `category` with id and name.
       parameters:
         - schema:
             type: string
@@ -5677,6 +5774,12 @@ paths:
                   name:
                     type: string
                   type:
+                    type: string
+                    enum:
+                      - base
+                      - case
+                      - kit
+                  category:
                     type: object
                     properties:
                       id:
@@ -5688,6 +5791,27 @@ paths:
                     required:
                       - id
                       - name
+                  base:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      code:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - code
+                      - name
+                  baseFactor:
+                    type:
+                      - integer
+                      - 'null'
                   itemsPerUnit:
                     type: integer
                   ozPerItem:
@@ -5732,6 +5856,9 @@ paths:
                   - code
                   - name
                   - type
+                  - category
+                  - base
+                  - baseFactor
                   - itemsPerUnit
                   - ozPerItem
                   - qboId
@@ -5859,13 +5986,13 @@ paths:
     patch:
       tags:
         - Products
-      summary: Update SKU
+      summary: Update product
       description: >-
-        Update a SKU's fields (partial; only send what changes). Set `isActive`
-        false to archive or true to reactivate. Changing the code to one another
-        SKU already uses is rejected with 409 conflict. `customFields`, when
-        sent, replaces the whole set (max 50 fields; key <= 64 chars, value <=
-        512 chars; keys unique case-insensitively).
+        Update a product's fields (partial; only send what changes). Set
+        `isActive` false to archive or true to reactivate. Changing the code to
+        one another product already uses is rejected with 409 conflict.
+        `customFields`, when sent, replaces the whole set (max 50 fields; key <=
+        64 chars, value <= 512 chars; keys unique case-insensitively).
       parameters:
         - schema:
             type: string
@@ -5888,10 +6015,27 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 255
-                typeId:
+                type:
+                  type: string
+                  enum:
+                    - base
+                    - case
+                    - kit
+                categoryId:
                   type: string
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                baseProductId:
+                  type:
+                    - string
+                    - 'null'
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                baseFactor:
+                  type:
+                    - integer
+                    - 'null'
+                  minimum: 1
                 itemsPerUnit:
                   type: integer
                   minimum: 1
@@ -5940,6 +6084,12 @@ paths:
                   name:
                     type: string
                   type:
+                    type: string
+                    enum:
+                      - base
+                      - case
+                      - kit
+                  category:
                     type: object
                     properties:
                       id:
@@ -5951,6 +6101,27 @@ paths:
                     required:
                       - id
                       - name
+                  base:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      code:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - code
+                      - name
+                  baseFactor:
+                    type:
+                      - integer
+                      - 'null'
                   itemsPerUnit:
                     type: integer
                   ozPerItem:
@@ -5995,6 +6166,9 @@ paths:
                   - code
                   - name
                   - type
+                  - category
+                  - base
+                  - baseFactor
                   - itemsPerUnit
                   - ozPerItem
                   - qboId
@@ -6091,7 +6265,7 @@ paths:
                 required:
                   - error
         '409':
-          description: A SKU with this code already exists in the org.
+          description: A product with this code already exists in the org.
           content:
             application/json:
               schema:
@@ -6151,9 +6325,9 @@ paths:
     delete:
       tags:
         - Products
-      summary: Delete SKU
+      summary: Delete product
       description: >-
-        Permanently delete a SKU. Blocked with 409 in_use when a
+        Permanently delete a product. Blocked with 409 in_use when a
         purchase/work/sales-order item, BOM, finished-goods-ledger entry, or
         transfer references it (a blocking transfer surfaces its transferCount
         in the error details); archive it instead (PATCH with isActive=false) to
@@ -6269,7 +6443,7 @@ paths:
                   - error
         '409':
           description: >-
-            The SKU is referenced by an order item, BOM, ledger entry, or
+            The product is referenced by an order item, BOM, ledger entry, or
             transfer and cannot be deleted.
           content:
             application/json:
@@ -6327,14 +6501,15 @@ paths:
                       - message
                 required:
                   - error
-  /sku-types:
+  /product-categories:
     post:
       tags:
         - Products
-      summary: Create SKU type
+      summary: Create product category
       description: >-
-        Create a SKU type, the classification every SKU carries. The name must
-        be unique among the org's SKU types (409 conflict otherwise).
+        Create a product category, the classification every product carries. The
+        name must be unique among the org's product categories (409 conflict
+        otherwise).
       requestBody:
         content:
           application/json:
@@ -6435,7 +6610,7 @@ paths:
                 required:
                   - error
         '409':
-          description: A SKU type with this name already exists in the org.
+          description: A product category with this name already exists in the org.
           content:
             application/json:
               schema:
@@ -6495,10 +6670,11 @@ paths:
     get:
       tags:
         - Products
-      summary: List SKU types
+      summary: List product categories
       description: >-
-        List the org's SKU types in sort order, active and archived alike. Pass
-        a free-text `search` to match names (case-insensitive contains).
+        List the org's product categories in sort order, active and archived
+        alike. Pass a free-text `search` to match names (case-insensitive
+        contains).
       parameters:
         - schema:
             type: string
@@ -6628,16 +6804,17 @@ paths:
                       - message
                 required:
                   - error
-  /sku-types/{id}:
+  /product-categories/{id}:
     patch:
       tags:
         - Products
-      summary: Update SKU type
+      summary: Update product category
       description: >-
-        Update a SKU type's name, sort order, or active flag (partial update,
-        only send what changes). Set isActive false to archive the type or true
-        to reactivate it; there is no separate archive endpoint. Renaming to a
-        name another type already uses is rejected with 409 conflict.
+        Update a product category's name, sort order, or active flag (partial
+        update, only send what changes). Set isActive false to archive the type
+        or true to reactivate it; there is no separate archive endpoint.
+        Renaming to a name another type already uses is rejected with 409
+        conflict.
       parameters:
         - schema:
             type: string
@@ -6777,7 +6954,7 @@ paths:
                 required:
                   - error
         '409':
-          description: A SKU type with this name already exists in the org.
+          description: A product category with this name already exists in the org.
           content:
             application/json:
               schema:
@@ -6837,10 +7014,11 @@ paths:
     delete:
       tags:
         - Products
-      summary: Delete SKU type
+      summary: Delete product category
       description: >-
-        Permanently delete a SKU type. Blocked with 409 in_use while any SKU
-        references it; the error details carry the blocking skuCount.
+        Permanently delete a product category. Blocked with 409 in_use while any
+        product references it; the error details carry the blocking
+        productCount.
       parameters:
         - schema:
             type: string
@@ -6951,7 +7129,7 @@ paths:
                 required:
                   - error
         '409':
-          description: The SKU type is in use by one or more SKUs.
+          description: The product category is in use by one or more products.
           content:
             application/json:
               schema:
@@ -7008,14 +7186,14 @@ paths:
                       - message
                 required:
                   - error
-  /skus/bulk-import:
+  /products/bulk-import:
     post:
       tags:
         - Products
-      summary: Bulk-import SKUs
+      summary: Bulk-import products
       description: >-
-        Create many SKUs in one atomic call from an array of parsed rows (Data
-        page upload), at most 1000 rows per call. The whole batch is one
+        Create many products in one atomic call from an array of parsed rows
+        (Data page upload), at most 1000 rows per call. The whole batch is one
         transaction: the first invalid row (unknown type, or a 409 duplicate
         code) rolls back all of them. Returns the created ids in row order.
       requestBody:
@@ -7037,10 +7215,28 @@ paths:
                         type: string
                         minLength: 1
                         maxLength: 255
-                      typeId:
+                      type:
+                        type: string
+                        enum:
+                          - base
+                          - case
+                          - kit
+                        default: base
+                      categoryId:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      baseProductId:
+                        type:
+                          - string
+                          - 'null'
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      baseFactor:
+                        type:
+                          - integer
+                          - 'null'
+                        minimum: 1
                       itemsPerUnit:
                         type: integer
                         minimum: 1
@@ -7074,7 +7270,7 @@ paths:
                     required:
                       - code
                       - name
-                      - typeId
+                      - categoryId
                   minItems: 1
                   maxItems: 1000
               required:
@@ -7154,7 +7350,7 @@ paths:
                 required:
                   - error
         '409':
-          description: A row's SKU code already exists in the org.
+          description: A row's product code already exists in the org.
           content:
             application/json:
               schema:
@@ -7215,20 +7411,20 @@ paths:
     get:
       tags:
         - BOM
-      summary: List SKUs with BOMs
+      summary: List products with BOMs
       description: >-
-        List one page of the output SKUs that have a BOM defined, each with the
-        count of its input items. Every filter is optional and AND-ed:
-        `containsMaterialId` and `containsSkuId` are CSV id multi-selects (each
-        OR-ed within itself) that keep only the BOMs whose input lines include
-        one of those materials / input SKUs; `search` is a case-insensitive
-        substring matched against the output SKU's code and name and against the
-        input lines' content (the codes and names of input materials and input
-        SKUs). Sort with `sort` (code, name, itemCount; default code ascending;
-        the summary carries no timestamps) and `order` (asc/desc); page with
-        `limit` (default 50, max 200) and `offset`. `meta.total` counts the
-        filtered BOMs (distinct output SKUs), so pagers can render page counts
-        under active filters.
+        List one page of the output products that have a BOM defined, each with
+        the count of its input items. Every filter is optional and AND-ed:
+        `containsMaterialId` and `containsProductId` are CSV id multi-selects
+        (each OR-ed within itself) that keep only the BOMs whose input lines
+        include one of those materials / input products; `search` is a
+        case-insensitive substring matched against the output product's code and
+        name and against the input lines' content (the codes and names of input
+        materials and input products). Sort with `sort` (code, name, itemCount;
+        default code ascending; the summary carries no timestamps) and `order`
+        (asc/desc); page with `limit` (default 50, max 200) and `offset`.
+        `meta.total` counts the filtered BOMs (distinct output products), so
+        pagers can render page counts under active filters.
       parameters:
         - schema:
             type: string
@@ -7268,7 +7464,7 @@ paths:
         - schema:
             type: string
           required: false
-          name: containsSkuId
+          name: containsProductId
           in: query
         - schema:
             type: string
@@ -7288,7 +7484,7 @@ paths:
                     items:
                       type: object
                       properties:
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -7307,7 +7503,7 @@ paths:
                           type: integer
                           minimum: 0
                       required:
-                        - sku
+                        - product
                         - itemCount
                   meta:
                     type: object
@@ -7412,15 +7608,16 @@ paths:
                       - message
                 required:
                   - error
-  /skus/{id}/bom:
+  /products/{id}/bom:
     get:
       tags:
         - BOM
-      summary: Get BOM for a SKU
+      summary: Get BOM for a product
       description: >-
-        Fetch the bill of materials for one output SKU: its input lines, each an
-        input material or input SKU with a quantity. `:id` is the SKU id.
-        Returns 404 when the SKU does not exist or has no BOM defined.
+        Fetch the bill of materials for one output product: its input lines,
+        each an input material or input product with a quantity. `:id` is the
+        product id. Returns 404 when the product does not exist or has no BOM
+        defined.
       parameters:
         - schema:
             type: string
@@ -7437,7 +7634,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -7468,7 +7665,7 @@ paths:
                               type: string
                               enum:
                                 - material
-                                - sku
+                                - product
                             id:
                               type: string
                               pattern: >-
@@ -7491,7 +7688,7 @@ paths:
                         - input
                         - quantity
                 required:
-                  - sku
+                  - product
                   - items
         '401':
           description: Missing or invalid credentials
@@ -7612,15 +7809,15 @@ paths:
     put:
       tags:
         - BOM
-      summary: Set BOM for a SKU
+      summary: Set BOM for a product
       description: >-
-        Create or replace the bill of materials for an output SKU in one
-        idempotent call: the items array sent becomes the SKU's entire
-        composition (a full replace, not a partial merge). `:id` is the SKU id.
-        Each item sets exactly one of materialId or inputSkuId with a positive
-        quantity. Listing the same material or input SKU twice is a 409
-        conflict. Returns 404 if the output SKU or any referenced material or
-        input SKU does not exist.
+        Create or replace the bill of materials for an output product in one
+        idempotent call: the items array sent becomes the product's entire
+        composition (a full replace, not a partial merge). `:id` is the product
+        id. Each item sets exactly one of materialId or inputProductId with a
+        positive quantity. Listing the same material or input product twice is a
+        409 conflict. Returns 404 if the output product or any referenced
+        material or input product does not exist.
       parameters:
         - schema:
             type: string
@@ -7646,7 +7843,7 @@ paths:
                           - 'null'
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      inputSkuId:
+                      inputProductId:
                         type:
                           - string
                           - 'null'
@@ -7669,7 +7866,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -7700,7 +7897,7 @@ paths:
                               type: string
                               enum:
                                 - material
-                                - sku
+                                - product
                             id:
                               type: string
                               pattern: >-
@@ -7723,7 +7920,7 @@ paths:
                         - input
                         - quantity
                 required:
-                  - sku
+                  - product
                   - items
         '401':
           description: Missing or invalid credentials
@@ -7784,7 +7981,7 @@ paths:
                 required:
                   - error
         '404':
-          description: Output SKU or a body-referenced material/input SKU not found
+          description: Output product or a body-referenced material/input product not found
           content:
             application/json:
               schema:
@@ -7814,7 +8011,7 @@ paths:
                   - error
         '409':
           description: >-
-            The same material or input SKU appears more than once in the
+            The same material or input product appears more than once in the
             composition.
           content:
             application/json:
@@ -7877,9 +8074,9 @@ paths:
         - BOM
       summary: Delete BOM
       description: >-
-        Delete a SKU's BOM, removing all its composition lines. `:id` is the SKU
-        id. Existing work orders are unaffected (their inputs are snapshotted at
-        creation). Returns 404 when the SKU has no BOM.
+        Delete a product's BOM, removing all its composition lines. `:id` is the
+        product id. Existing work orders are unaffected (their inputs are
+        snapshotted at creation). Returns 404 when the product has no BOM.
       parameters:
         - schema:
             type: string
@@ -10879,6 +11076,19 @@ paths:
                 eventDate:
                   type: string
                   format: date
+                unitCost:
+                  type: number
+                  exclusiveMinimum: 0
+                lotNumber:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 255
+                expirationDate:
+                  type:
+                    - string
+                    - 'null'
+                  format: date
               required:
                 - materialId
                 - locationId
@@ -12439,18 +12649,18 @@ paths:
         - FinishedGoodsInventory
       summary: Adjust FG inventory
       description: >-
-        Record a manual stock-count correction for a SKU at a location as an
+        Record a manual stock-count correction for a product at a location as an
         ADJUST ledger row. The quantity is signed: positive raises on-hand
         (found stock), negative lowers it (a count entered too high); zero is
         rejected (422). Use disposals for write-offs that carry waste semantics.
-        Returns 404 if the SKU or location does not exist.
+        Returns 404 if the product or location does not exist.
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                skuId:
+                productId:
                   type: string
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -12468,8 +12678,21 @@ paths:
                 eventDate:
                   type: string
                   format: date
+                unitCost:
+                  type: number
+                  exclusiveMinimum: 0
+                lotNumber:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 255
+                expirationDate:
+                  type:
+                    - string
+                    - 'null'
+                  format: date
               required:
-                - skuId
+                - productId
                 - locationId
                 - quantity
       responses:
@@ -12486,7 +12709,7 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   code:
                     type: string
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -12593,7 +12816,7 @@ paths:
                 required:
                   - id
                   - code
-                  - sku
+                  - product
                   - location
                   - eventType
                   - quantity
@@ -12663,7 +12886,7 @@ paths:
                 required:
                   - error
         '404':
-          description: The SKU or location does not exist.
+          description: The product or location does not exist.
           content:
             application/json:
               schema:
@@ -12729,14 +12952,14 @@ paths:
         Write off finished-goods stock (damage, loss, expiry) as a DISPOSE
         ledger row, permanently removing the quantity from stock. The quantity
         is a positive magnitude (zero or negative is rejected, 422). Returns 404
-        if the SKU or location does not exist.
+        if the product or location does not exist.
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                skuId:
+                productId:
                   type: string
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -12756,7 +12979,7 @@ paths:
                   type: string
                   format: date
               required:
-                - skuId
+                - productId
                 - locationId
                 - quantity
       responses:
@@ -12773,7 +12996,7 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   code:
                     type: string
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -12880,7 +13103,7 @@ paths:
                 required:
                   - id
                   - code
-                  - sku
+                  - product
                   - location
                   - eventType
                   - quantity
@@ -12950,7 +13173,7 @@ paths:
                 required:
                   - error
         '404':
-          description: The SKU or location does not exist.
+          description: The product or location does not exist.
           content:
             application/json:
               schema:
@@ -13013,10 +13236,10 @@ paths:
         - FinishedGoodsInventory
       summary: Get FG inventory summary
       description: >-
-        Compute the full inventory position per (SKU, location) from the ledger:
-        on-hand, on-order, allocated, available, in-stock, demand, wasted,
-        in-transit, net position, and `weeklyDemand`, the real outflow of the
-        trailing window divided by its weeks (transfers between your own
+        Compute the full inventory position per (product, location) from the
+        ledger: on-hand, on-order, allocated, available, in-stock, demand,
+        wasted, in-transit, net position, and `weeklyDemand`, the real outflow
+        of the trailing window divided by its weeks (transfers between your own
         locations and disposals are not demand, so they are excluded). The
         window defaults to 4 whole weeks; pass `demandWindowWeeks` (1..52) for a
         steadier, longer-memory rate, e.g. 13 for a trailing quarter. Each row
@@ -13028,18 +13251,18 @@ paths:
         consumption vs order consumption). `inTransitProduction` is the quantity
         on production orders currently in transit toward the location (still
         inside on-order, since their ORDER is active until receipt). Every
-        filter is optional and AND-ed: `skuId` and `locationId` are CSV id
+        filter is optional and AND-ed: `productId` and `locationId` are CSV id
         multi-selects (each OR-ed within itself), and `search` is a
-        case-insensitive substring over the SKU's code and name. Pass
+        case-insensitive substring over the product's code and name. Pass
         `includeOnHandValue=true` to also get `onHandValue`, the costed value of
         the stock on hand under the org's costing method; it replays the ledger
         per row, so leave it off unless you need the money. This is the go-to
-        read for how much of a SKU is on hand and where.
+        read for how much of a product is on hand and where.
       parameters:
         - schema:
             type: string
           required: false
-          name: skuId
+          name: productId
           in: query
         - schema:
             type: string
@@ -13079,7 +13302,7 @@ paths:
                     items:
                       type: object
                       properties:
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -13141,7 +13364,7 @@ paths:
                         onHandValue:
                           type: number
                       required:
-                        - sku
+                        - product
                         - location
                         - onHand
                         - onOrder
@@ -13254,30 +13477,30 @@ paths:
       summary: List FG ledger entries
       description: >-
         List one page of finished-goods ledger entries, each expanded to one
-        line per lot with its derived unit cost and its embedded SKU and
+        line per lot with its derived unit cost and its embedded product and
         location. Every filter is optional and AND-ed: the CSV multi-selects
-        `skuId`, `locationId`, `eventType` and `sourceType` (each OR-ed within
-        itself; `sourceType` is the source-document kind, e.g. `transfer`),
-        `ref` (a single exact match on the row's correlator, e.g. a `TFR-...`
-        transfer code), `lotNumber` (case-insensitive exact), and one inclusive
-        YYYY-MM-DD From/To pair per date field: `eventDateFrom`/`eventDateTo` on
-        the business event date, `expirationFrom`/`expirationTo` on the lot
-        expiration date. `search` is a case-insensitive substring matched
-        against the row code (FIL-...), ref, the SKU's code and name, the
-        location name, the lot number, and notes. Sort with `sort` (code, sku,
-        location, eventDate, quantity, createdAt; default eventDate descending,
-        newest first; the append-only ledger has no updatedAt) and `order`
-        (asc/desc); page with `limit` (default 50, max 200) and `offset`. The
-        page is cut over the stored rows, so a row that splits into per-lot
-        lines can make `data` slightly longer than `limit`; `meta.total` counts
-        the filtered stored rows, so pagers can render page counts under active
-        filters.
+        `productId`, `locationId`, `eventType` and `sourceType` (each OR-ed
+        within itself; `sourceType` is the source-document kind, e.g.
+        `transfer`), `ref` (a single exact match on the row's correlator, e.g. a
+        `TFR-...` transfer code), `lotNumber` (case-insensitive exact), and one
+        inclusive YYYY-MM-DD From/To pair per date field:
+        `eventDateFrom`/`eventDateTo` on the business event date,
+        `expirationFrom`/`expirationTo` on the lot expiration date. `search` is
+        a case-insensitive substring matched against the row code (FIL-...),
+        ref, the product's code and name, the location name, the lot number, and
+        notes. Sort with `sort` (code, product, location, eventDate, quantity,
+        createdAt; default eventDate descending, newest first; the append-only
+        ledger has no updatedAt) and `order` (asc/desc); page with `limit`
+        (default 50, max 200) and `offset`. The page is cut over the stored
+        rows, so a row that splits into per-lot lines can make `data` slightly
+        longer than `limit`; `meta.total` counts the filtered stored rows, so
+        pagers can render page counts under active filters.
       parameters:
         - schema:
             type: string
             enum:
               - code
-              - sku
+              - product
               - location
               - eventDate
               - quantity
@@ -13309,7 +13532,7 @@ paths:
         - schema:
             type: string
           required: false
-          name: skuId
+          name: productId
           in: query
         - schema:
             type: string
@@ -13384,7 +13607,7 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         code:
                           type: string
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -13491,7 +13714,7 @@ paths:
                       required:
                         - id
                         - code
-                        - sku
+                        - product
                         - location
                         - eventType
                         - quantity
@@ -13635,7 +13858,7 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   code:
                     type: string
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -13742,7 +13965,7 @@ paths:
                 required:
                   - id
                   - code
-                  - sku
+                  - product
                   - location
                   - eventType
                   - quantity
@@ -13877,7 +14100,7 @@ paths:
       description: >-
         Create a stock transfer between two different locations, under a
         server-assigned TFR code. The movement is the `items` array: one line
-        per moved material or SKU, each with its own itemKind, itemId and
+        per moved material or product, each with its own itemKind, itemId and
         quantity, so a single transfer can carry raw materials and finished
         goods together and post to both inventory ledgers. At least one line is
         required and the same item may not appear twice. It opens in Planning
@@ -13913,7 +14136,7 @@ paths:
                         type: string
                         enum:
                           - material
-                          - sku
+                          - product
                       itemId:
                         type: string
                         pattern: >-
@@ -14007,7 +14230,7 @@ paths:
                               type: string
                               enum:
                                 - material
-                                - sku
+                                - product
                             id:
                               type: string
                               pattern: >-
@@ -14235,8 +14458,8 @@ paths:
         source and destination locations ({ id, name }) and nests its moved
         `items` (each { id, item: { kind, id, code, name }, quantity }), the
         same shape as the detail. Every filter is optional and AND-ed:
-        `itemKind` (material or sku) and `itemId` both match on the LINES, so
-        they return every transfer carrying such a line and a transfer that
+        `itemKind` (material or product) and `itemId` both match on the LINES,
+        so they return every transfer carrying such a line and a transfer that
         mixes kinds matches either; the CSV multi-selects `status` (Planning, In
         Transit, Completed), `sourceLocationId` and `destinationLocationId`
         (each OR-ed within itself); and the per-status date filters, one
@@ -14290,7 +14513,7 @@ paths:
             type: string
             enum:
               - material
-              - sku
+              - product
           required: false
           name: itemKind
           in: query
@@ -14416,7 +14639,7 @@ paths:
                                     type: string
                                     enum:
                                       - material
-                                      - sku
+                                      - product
                                   id:
                                     type: string
                                     pattern: >-
@@ -14641,7 +14864,7 @@ paths:
                         type: string
                         enum:
                           - material
-                          - sku
+                          - product
                       itemId:
                         type: string
                         pattern: >-
@@ -14737,7 +14960,7 @@ paths:
                               type: string
                               enum:
                                 - material
-                                - sku
+                                - product
                             id:
                               type: string
                               pattern: >-
@@ -15178,7 +15401,7 @@ paths:
                               type: string
                               enum:
                                 - material
-                                - sku
+                                - product
                             id:
                               type: string
                               pattern: >-
@@ -15458,8 +15681,8 @@ paths:
         projecting the DEMAND/ALLOCATE rows into the finished-goods ledger.
         soNumber is optional: omit it to auto-generate the next canonical
         number, or supply your own. Returns 404 if the customer, order channel,
-        fulfillment location, broker, or any referenced SKU does not exist, and
-        409 if the supplied soNumber is already taken.
+        fulfillment location, broker, or any referenced product does not exist,
+        and 409 if the supplied soNumber is already taken.
       requestBody:
         content:
           application/json:
@@ -15590,7 +15813,7 @@ paths:
                   items:
                     type: object
                     properties:
-                      skuId:
+                      productId:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -15601,7 +15824,7 @@ paths:
                         type: number
                         minimum: 0
                     required:
-                      - skuId
+                      - productId
                       - quantity
               required:
                 - customerId
@@ -15814,7 +16037,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -15837,7 +16060,7 @@ paths:
                             - type: number
                       required:
                         - id
-                        - sku
+                        - product
                         - quantity
                         - unitPrice
                 required:
@@ -15918,8 +16141,8 @@ paths:
                   - error
         '404':
           description: >-
-            The customer, channel, location, broker, or a referenced SKU does
-            not exist
+            The customer, channel, location, broker, or a referenced product
+            does not exist
           content:
             application/json:
               schema:
@@ -15949,8 +16172,8 @@ paths:
                   - error
         '409':
           description: >-
-            The supplied soNumber is already taken, or the same SKU appears on
-            more than one line.
+            The supplied soNumber is already taken, or the same product appears
+            on more than one line.
           content:
             application/json:
               schema:
@@ -16017,16 +16240,16 @@ paths:
         dates in statusDates, and the derived financials rollup. Every filter is
         optional and AND-ed: the CSV multi-selects (`status`, `customerId`,
         `channelId`, `fulfillmentLocationId`, `brokerId`; values within one OR
-        together), single-valued `fulfillmentStatus`, `containsSkuId` (orders
-        with a line item for that SKU), and the inclusive From/To calendar-date
-        pairs: `orderDateFrom`/`orderDateTo`,
+        together), single-valued `fulfillmentStatus`, `containsProductId`
+        (orders with a line item for that product), and the inclusive From/To
+        calendar-date pairs: `orderDateFrom`/`orderDateTo`,
         `mustArriveByFrom`/`mustArriveByTo`, plus one pair per statusDates key
         (e.g. `placedFrom`/`placedTo`). `search` is a case-insensitive substring
         over the SO number, customer name, channel name, fulfillment location
-        name, notes, and line-item SKU codes and names. Filter by order value
-        with inclusive `revenueMin`/`revenueMax` (the line-sum revenue). Sort
-        with `sort` (number, customer, channel, fulfillmentLocation, status,
-        orderDate, mustArriveBy, revenue, createdAt, updatedAt; default
+        name, notes, and line-item product codes and names. Filter by order
+        value with inclusive `revenueMin`/`revenueMax` (the line-sum revenue).
+        Sort with `sort` (number, customer, channel, fulfillmentLocation,
+        status, orderDate, mustArriveBy, revenue, createdAt, updatedAt; default
         orderDate descending, newest first; empty values always last) and
         `order` (asc/desc); page with `limit` (default 50, max 200) and
         `offset`. `meta.total` counts the filtered set. The engine-derived
@@ -16110,7 +16333,7 @@ paths:
             pattern: >-
               ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           required: false
-          name: containsSkuId
+          name: containsProductId
           in: query
         - schema:
             type: number
@@ -17206,7 +17429,7 @@ paths:
         (customer, channel, fulfillment location and broker embedded as
         references, the per-status dates in statusDates), the derived financials
         (revenue, inventory cost, gross profit, and margin), and its line items
-        nested under `items`, each with its SKU embedded.
+        nested under `items`, each with its product embedded.
       parameters:
         - schema:
             type: string
@@ -17419,7 +17642,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -17442,7 +17665,7 @@ paths:
                             - type: number
                       required:
                         - id
-                        - sku
+                        - product
                         - quantity
                         - unitPrice
                 required:
@@ -17589,7 +17812,7 @@ paths:
         row creates an order with an auto-generated number, its items, and the
         projected ledger entries for its status. The whole batch rolls back if
         any row fails. Admins and owners only. Returns 404 if a row references a
-        customer, channel, location, broker, or SKU that does not exist.
+        customer, channel, location, broker, or product that does not exist.
       requestBody:
         content:
           application/json:
@@ -17721,7 +17944,7 @@ paths:
                         items:
                           type: object
                           properties:
-                            skuId:
+                            productId:
                               type: string
                               pattern: >-
                                 ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -17732,7 +17955,7 @@ paths:
                               type: number
                               minimum: 0
                           required:
-                            - skuId
+                            - productId
                             - quantity
                     required:
                       - customerId
@@ -17819,8 +18042,8 @@ paths:
                   - error
         '404':
           description: >-
-            A row references a customer, channel, location, broker, or SKU that
-            does not exist
+            A row references a customer, channel, location, broker, or product
+            that does not exist
           content:
             application/json:
               schema:
@@ -17883,17 +18106,18 @@ paths:
         - SalesOrders
       summary: Add item to sales order
       description: >-
-        Add a SKU line item to an existing sales order, named by salesOrderId in
-        the body. Adding to an ordered SO projects the matching DEMAND/ALLOCATE
-        ledger rows for the new line. Returns 404 if the sales order or the SKU
-        does not exist, and 409 if the SKU is already a line on this order.
+        Add a product line item to an existing sales order, named by
+        salesOrderId in the body. Adding to an ordered SO projects the matching
+        DEMAND/ALLOCATE ledger rows for the new line. Returns 404 if the sales
+        order or the product does not exist, and 409 if the product is already a
+        line on this order.
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                skuId:
+                productId:
                   type: string
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -17908,7 +18132,7 @@ paths:
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
               required:
-                - skuId
+                - productId
                 - quantity
                 - salesOrderId
       responses:
@@ -17927,7 +18151,7 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -17951,7 +18175,7 @@ paths:
                 required:
                   - id
                   - salesOrderId
-                  - sku
+                  - product
                   - quantity
                   - unitPrice
         '401':
@@ -18013,7 +18237,7 @@ paths:
                 required:
                   - error
         '404':
-          description: The sales order or the SKU does not exist
+          description: The sales order or the product does not exist
           content:
             application/json:
               schema:
@@ -18042,7 +18266,7 @@ paths:
                 required:
                   - error
         '409':
-          description: The SKU is already a line on this sales order
+          description: The product is already a line on this sales order
           content:
             application/json:
               schema:
@@ -18106,8 +18330,8 @@ paths:
       description: >-
         List sales order line items. Pass salesOrderId to scope the list to one
         order, or omit it to read lines across every order (a flat items view);
-        skuId narrows by the sold SKU. An unknown salesOrderId returns an empty
-        list rather than a 404.
+        productId narrows by the sold product. An unknown salesOrderId returns
+        an empty list rather than a 404.
       parameters:
         - schema:
             type: string
@@ -18121,7 +18345,7 @@ paths:
             pattern: >-
               ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           required: false
-          name: skuId
+          name: productId
           in: query
       responses:
         '200':
@@ -18144,7 +18368,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -18168,7 +18392,7 @@ paths:
                       required:
                         - id
                         - salesOrderId
-                        - sku
+                        - product
                         - quantity
                         - unitPrice
                 required:
@@ -18266,10 +18490,10 @@ paths:
         - SalesOrders
       summary: Update sales order item
       description: >-
-        Update a sales order line item (SKU, quantity, or unit price). A SKU or
-        quantity change re-projects the line's DEMAND/ALLOCATE/CONSUME ledger
-        rows to the order's current status; a price-only change leaves the
-        ledger untouched.
+        Update a sales order line item (product, quantity, or unit price). A
+        product or quantity change re-projects the line's
+        DEMAND/ALLOCATE/CONSUME ledger rows to the order's current status; a
+        price-only change leaves the ledger untouched.
       parameters:
         - schema:
             type: string
@@ -18284,7 +18508,7 @@ paths:
             schema:
               type: object
               properties:
-                skuId:
+                productId:
                   type: string
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -18310,7 +18534,7 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -18334,7 +18558,7 @@ paths:
                 required:
                   - id
                   - salesOrderId
-                  - sku
+                  - product
                   - quantity
                   - unitPrice
         '401':
@@ -18773,8 +18997,8 @@ paths:
         finished-goods ledger; item quantities are decimal cases. srNumber is
         optional: omit it to auto-generate the next canonical number, or supply
         your own. Returns 404 if the order channel, acquisition source,
-        ship-from location, or any referenced SKU does not exist, and 409 if the
-        supplied srNumber is already taken.
+        ship-from location, or any referenced product does not exist, and 409 if
+        the supplied srNumber is already taken.
       requestBody:
         content:
           application/json:
@@ -18876,7 +19100,7 @@ paths:
                   items:
                     type: object
                     properties:
-                      skuId:
+                      productId:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -18887,7 +19111,7 @@ paths:
                         type: number
                         minimum: 0
                     required:
-                      - skuId
+                      - productId
                       - quantity
                   minItems: 1
               required:
@@ -19056,7 +19280,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -19081,7 +19305,7 @@ paths:
                             - type: number
                       required:
                         - id
-                        - sku
+                        - product
                         - quantity
                         - unitPrice
                 required:
@@ -19162,8 +19386,8 @@ paths:
                   - error
         '404':
           description: >-
-            The channel, acquisition source, location, or a referenced SKU does
-            not exist
+            The channel, acquisition source, location, or a referenced product
+            does not exist
           content:
             application/json:
               schema:
@@ -19193,8 +19417,8 @@ paths:
                   - error
         '409':
           description: >-
-            The supplied srNumber is already taken, or the same SKU appears on
-            more than one line.
+            The supplied srNumber is already taken, or the same product appears
+            on more than one line.
           content:
             application/json:
               schema:
@@ -19261,16 +19485,16 @@ paths:
         dates in statusDates, and the derived financials rollup. Every filter is
         optional and AND-ed: the CSV multi-selects (`status`, `channelId`,
         `acquisitionSourceId`, `locationId`; values within one OR together),
-        `containsSkuId` (receipts with a line item for that SKU), and the
-        inclusive From/To calendar-date pairs: `orderDateFrom`/`orderDateTo`
+        `containsProductId` (receipts with a line item for that product), and
+        the inclusive From/To calendar-date pairs: `orderDateFrom`/`orderDateTo`
         plus one pair per statusDates key (e.g. `placedFrom`/`placedTo`).
         `search` is a case-insensitive substring over the SR number, the typed
         customer name and external ref, notes, channel name, acquisition-source
-        name, location name, and line-item SKU codes and names. Sort with `sort`
-        (number, customerName, channel, acquisitionSource, location, status,
-        orderDate, createdAt, updatedAt; default orderDate descending, newest
-        first; empty values always last) and `order` (asc/desc); page with
-        `limit` (default 50, max 200) and `offset`. `meta.total` counts the
+        name, location name, and line-item product codes and names. Sort with
+        `sort` (number, customerName, channel, acquisitionSource, location,
+        status, orderDate, createdAt, updatedAt; default orderDate descending,
+        newest first; empty values always last) and `order` (asc/desc); page
+        with `limit` (default 50, max 200) and `offset`. `meta.total` counts the
         filtered set. The engine-derived financials (inventory cost, gross
         profit, profit and margin) appear on single-order reads only, so pagers
         can render page counts under active filters. Line items are nested per
@@ -19338,7 +19562,7 @@ paths:
             pattern: >-
               ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           required: false
-          name: containsSkuId
+          name: containsProductId
           in: query
         - schema:
             type: number
@@ -20269,7 +20493,7 @@ paths:
         (channel, acquisition source and location embedded as references, the
         per-status dates in statusDates), the derived financials (revenue,
         inventory cost, gross profit, and margin), and its line items nested
-        under `items`, each with its SKU embedded.
+        under `items`, each with its product embedded.
       parameters:
         - schema:
             type: string
@@ -20441,7 +20665,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -20466,7 +20690,7 @@ paths:
                             - type: number
                       required:
                         - id
-                        - sku
+                        - product
                         - quantity
                         - unitPrice
                 required:
@@ -20609,18 +20833,18 @@ paths:
         - SalesReceipts
       summary: Add item to sales receipt
       description: >-
-        Add a SKU line item (quantity in decimal cases, optional per-case price)
-        to an existing sales receipt, named by salesReceiptId in the body,
-        projecting the matching finished-goods ledger rows for the new line.
-        Returns 404 if the sales receipt or the SKU does not exist, and 409 if
-        the SKU is already a line on this receipt.
+        Add a product line item (quantity in decimal cases, optional per-case
+        price) to an existing sales receipt, named by salesReceiptId in the
+        body, projecting the matching finished-goods ledger rows for the new
+        line. Returns 404 if the sales receipt or the product does not exist,
+        and 409 if the product is already a line on this receipt.
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                skuId:
+                productId:
                   type: string
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -20635,7 +20859,7 @@ paths:
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
               required:
-                - skuId
+                - productId
                 - quantity
                 - salesReceiptId
       responses:
@@ -20654,7 +20878,7 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -20680,7 +20904,7 @@ paths:
                 required:
                   - id
                   - salesReceiptId
-                  - sku
+                  - product
                   - quantity
                   - unitPrice
         '401':
@@ -20742,7 +20966,7 @@ paths:
                 required:
                   - error
         '404':
-          description: The sales receipt or the SKU does not exist
+          description: The sales receipt or the product does not exist
           content:
             application/json:
               schema:
@@ -20771,7 +20995,7 @@ paths:
                 required:
                   - error
         '409':
-          description: The SKU is already a line on this sales receipt
+          description: The product is already a line on this sales receipt
           content:
             application/json:
               schema:
@@ -20835,10 +21059,10 @@ paths:
       description: >-
         List MANUAL sales receipt line items. Pass salesReceiptId to scope the
         list to one receipt, or omit it to read lines across every manual
-        receipt (a flat items view); skuId narrows by the sold SKU. Synced
-        marketplace lines are excluded here, exactly like the manual header
-        list: they are served by the connected receipt endpoints. An unknown
-        salesReceiptId returns an empty list rather than a 404.
+        receipt (a flat items view); productId narrows by the sold product.
+        Synced marketplace lines are excluded here, exactly like the manual
+        header list: they are served by the connected receipt endpoints. An
+        unknown salesReceiptId returns an empty list rather than a 404.
       parameters:
         - schema:
             type: string
@@ -20852,7 +21076,7 @@ paths:
             pattern: >-
               ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           required: false
-          name: skuId
+          name: productId
           in: query
       responses:
         '200':
@@ -20875,7 +21099,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -20901,7 +21125,7 @@ paths:
                       required:
                         - id
                         - salesReceiptId
-                        - sku
+                        - product
                         - quantity
                         - unitPrice
                 required:
@@ -20999,8 +21223,8 @@ paths:
         - SalesReceipts
       summary: Update sales receipt item
       description: >-
-        Update a sales receipt line item (SKU, decimal-case quantity, or
-        per-case price). A SKU or quantity change re-projects the line's
+        Update a sales receipt line item (product, decimal-case quantity, or
+        per-case price). A product or quantity change re-projects the line's
         finished-goods ledger rows to the receipt's current status; a price-only
         change leaves the ledger untouched.
       parameters:
@@ -21017,7 +21241,7 @@ paths:
             schema:
               type: object
               properties:
-                skuId:
+                productId:
                   type: string
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -21043,7 +21267,7 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -21069,7 +21293,7 @@ paths:
                 required:
                   - id
                   - salesReceiptId
-                  - sku
+                  - product
                   - quantity
                   - unitPrice
         '401':
@@ -21355,7 +21579,7 @@ paths:
         pagination. Sort with `sort` (orderDate, srNumber, status, source,
         netRevenue, fulfillmentLocation) and `order`; status sorts by lifecycle
         rank. `search` matches the order number, the buyer name (Shopify), and
-        the line SKUs and listing titles. The surface is read-only (the sync
+        the line products and listing titles. The surface is read-only (the sync
         owns the writes), and rows are addressed by the marketplace's own order
         id rather than a Pharus UUID (each row's `source` says which feed it
         came from). Page with `limit` (default 50, max 200) and `offset`;
@@ -21636,7 +21860,7 @@ paths:
         to-the-cent reconciliation flag, refunds, and processor fees when they
         exist), the source's line items exactly as sold (bundle-exploded
         duplicates included), and refund events with their restock linkage. When
-        every line is mapped to a Pharus SKU the response also carries
+        every line is mapped to a Pharus product the response also carries
         financials (inventory cost, gross profit, margin), computed on read from
         the costing engine and never stored; financials is null while any line
         is unmapped. 404 when the id matches nothing or the org has no connected
@@ -21887,7 +22111,7 @@ paths:
                           type: number
                         lineTotal:
                           type: number
-                        sku:
+                        product:
                           type:
                             - object
                             - 'null'
@@ -21914,7 +22138,7 @@ paths:
                         - unitPrice
                         - lineDiscount
                         - lineTotal
-                        - sku
+                        - product
                   refunds:
                     type: array
                     items:
@@ -22507,8 +22731,8 @@ paths:
         locations are still unmapped, and how many stored receipt lines (with
         their unit total) or receipts they hold out of inventory. Scoped to the
         org's connected-ledger go-live window, so history that would never post
-        is not counted. Map the pending entries in the SKU and location
-        worksheets (list_connected_sku_mappings,
+        is not counted. Map the pending entries in the product and location
+        worksheets (list_connected_product_mappings,
         list_connected_location_mappings); mapping backfills the ledger
         immediately.
       responses:
@@ -22519,7 +22743,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  skus:
+                  products:
                     type: array
                     items:
                       type: object
@@ -22561,7 +22785,7 @@ paths:
                         - pendingLocations
                         - affectedReceipts
                 required:
-                  - skus
+                  - products
                   - locations
         '401':
           description: Missing or invalid credentials
@@ -22782,27 +23006,27 @@ paths:
                       - message
                 required:
                   - error
-  /connected-sku-mappings:
+  /connected-product-mappings:
     get:
       tags:
         - SalesReceipts
-      summary: List connected SKU mappings
+      summary: List connected product mappings
       description: >-
-        The listing-to-SKU worksheet: one page of the distinct marketplace
+        The listing-to-product worksheet: one page of the distinct marketplace
         listings found on the org's stored connected order lines on or after the
         connected go-live date (retired pre-go-live products are not pending
         work; a null date scans everything) for one feed (`source`, shopify by
         default or amazon), merged with the stored mappings. Listings are
         identified by their store's stable key, the variant id on Shopify or the
-        seller SKU on Amazon (both travel in variantId). Each row carries the
-        listing's own sku code and titles, how much it sold, and the Pharus SKU
-        it maps to (null when unmapped). Filter with `search` (case-insensitive
-        substring over the listing sku, titles, and key) and `mapped` (false =
-        still to map, true = already mapped); sort with `sort` (unitsSold,
-        lineCount, listingSku, listingTitle; unitsSold descending by default)
-        and `order`; page with `limit` (default 50, max 200) and `offset`, with
-        `meta.total` counting the filtered set. `configured` is false when the
-        org has no connected feed of that kind.
+        seller product on Amazon (both travel in variantId). Each row carries
+        the listing's own product code and titles, how much it sold, and the
+        Pharus product it maps to (null when unmapped). Filter with `search`
+        (case-insensitive substring over the listing product, titles, and key)
+        and `mapped` (false = still to map, true = already mapped); sort with
+        `sort` (unitsSold, lineCount, listingSku, listingTitle; unitsSold
+        descending by default) and `order`; page with `limit` (default 50, max
+        200) and `offset`, with `meta.total` counting the filtered set.
+        `configured` is false when the org has no connected feed of that kind.
       parameters:
         - schema:
             type: string
@@ -22887,7 +23111,7 @@ paths:
                           type: number
                         unitsSold:
                           type: number
-                        sku:
+                        product:
                           type:
                             - object
                             - 'null'
@@ -22911,7 +23135,7 @@ paths:
                         - variantTitle
                         - lineCount
                         - unitsSold
-                        - sku
+                        - product
                   meta:
                     type: object
                     properties:
@@ -23021,14 +23245,15 @@ paths:
     put:
       tags:
         - SalesReceipts
-      summary: Set connected SKU mapping
+      summary: Set connected product mapping
       description: >-
-        Map one marketplace listing to a Pharus SKU, or clear the mapping by
-        passing skuId null. The listing key travels in variantId: the variant id
-        for Shopify listings, the seller SKU for Amazon ones (`source` says
-        which feed, shopify by default). Upserts: re-mapping a listing replaces
-        its previous mapping. The referenced SKU must exist in the org (404
-        otherwise). Mapped SKUs appear on connected receipt detail lines.
+        Map one marketplace listing to a Pharus product, or clear the mapping by
+        passing productId null. The listing key travels in variantId: the
+        variant id for Shopify listings, the seller product for Amazon ones
+        (`source` says which feed, shopify by default). Upserts: re-mapping a
+        listing replaces its previous mapping. The referenced product must exist
+        in the org (404 otherwise). Mapped products appear on connected receipt
+        detail lines.
       requestBody:
         content:
           application/json:
@@ -23054,7 +23279,7 @@ paths:
                     - string
                     - 'null'
                   maxLength: 500
-                skuId:
+                productId:
                   type:
                     - string
                     - 'null'
@@ -23062,7 +23287,7 @@ paths:
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
               required:
                 - variantId
-                - skuId
+                - productId
       responses:
         '200':
           description: OK
@@ -23073,7 +23298,7 @@ paths:
                 properties:
                   variantId:
                     type: string
-                  sku:
+                  product:
                     type:
                       - object
                       - 'null'
@@ -23092,7 +23317,7 @@ paths:
                       - name
                 required:
                   - variantId
-                  - sku
+                  - product
         '401':
           description: Missing or invalid credentials
           content:
@@ -23390,7 +23615,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -23412,7 +23637,7 @@ paths:
                       required:
                         - id
                         - salesReceiptItemId
-                        - sku
+                        - product
                         - quantity
                 required:
                   - id
@@ -23582,13 +23807,13 @@ paths:
         embedded as { id, number }, the restock location as a reference, and the
         per-status dates in statusDates. Every filter is optional and AND-ed:
         the CSV multi-selects (`status`, `salesReceiptId`, `locationId`; values
-        within one OR together), `containsSkuId` (returns with a line whose
-        receipt line references that SKU), and the inclusive From/To
+        within one OR together), `containsProductId` (returns with a line whose
+        receipt line references that product), and the inclusive From/To
         calendar-date pairs: `returnDateFrom`/`returnDateTo` plus one pair per
         statusDates key (e.g. `placedFrom`/`placedTo`). `search` is a
         case-insensitive substring over the return number, the originating
         receipt's number, customer name and external ref, notes, and line-item
-        SKU codes and names. Sort with `sort` (number, receiptNumber,
+        product codes and names. Sort with `sort` (number, receiptNumber,
         customerName, restockLocation, status, returnDate, createdAt, updatedAt;
         default returnDate descending, newest first; empty values always last)
         and `order` (asc/desc); page with `limit` (default 50, max 200) and
@@ -23651,7 +23876,7 @@ paths:
             pattern: >-
               ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           required: false
-          name: containsSkuId
+          name: containsProductId
           in: query
         - schema:
             type: string
@@ -24435,7 +24660,7 @@ paths:
         Get one sales return as a composite: the header at the top level (the
         originating receipt embedded as { id, number }, the restock location as
         a reference, the per-status dates in statusDates) and its line items
-        nested under `items`, each carrying the SKU joined through the
+        nested under `items`, each carrying the product joined through the
         originating receipt line.
       parameters:
         - schema:
@@ -24555,7 +24780,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -24577,7 +24802,7 @@ paths:
                       required:
                         - id
                         - salesReceiptItemId
-                        - sku
+                        - product
                         - quantity
                 required:
                   - id
@@ -24761,7 +24986,7 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -24784,7 +25009,7 @@ paths:
                   - id
                   - salesReturnId
                   - salesReceiptItemId
-                  - sku
+                  - product
                   - quantity
         '401':
           description: Missing or invalid credentials
@@ -24936,9 +25161,9 @@ paths:
         - SalesReturns
       summary: List sales return items
       description: >-
-        List sales return line items, each carrying the SKU joined through the
-        originating receipt line. Pass salesReturnId to scope the list to one
-        return, or omit it to read lines across every return; an unknown
+        List sales return line items, each carrying the product joined through
+        the originating receipt line. Pass salesReturnId to scope the list to
+        one return, or omit it to read lines across every return; an unknown
         salesReturnId returns an empty list rather than a 404.
       parameters:
         - schema:
@@ -24973,7 +25198,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -24996,7 +25221,7 @@ paths:
                         - id
                         - salesReturnId
                         - salesReceiptItemId
-                        - sku
+                        - product
                         - quantity
                 required:
                   - data
@@ -25134,7 +25359,7 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -25157,7 +25382,7 @@ paths:
                   - id
                   - salesReturnId
                   - salesReceiptItemId
-                  - sku
+                  - product
                   - quantity
         '401':
           description: Missing or invalid credentials
@@ -27476,20 +27701,20 @@ paths:
       summary: Create PO
       description: >-
         Create a purchase order header and its line items in one call. The order
-        targets either materials or finished-goods SKUs (targetType), and each
-        line names exactly one materialId or skuId to match. It opens in the
-        given status, stamping the matching per-status date (override via the
-        optional statusDates object, keyed by camelCase status name) and
+        targets either materials or finished-goods products (targetType), and
+        each line names exactly one materialId or productId to match. It opens
+        in the given status, stamping the matching per-status date (override via
+        the optional statusDates object, keyed by camelCase status name) and
         projecting one ORDER ledger event per line for any ordered status
         (Planning has no inventory effect). poNumber is optional: omit it to
         auto-generate the next canonical number, or supply your own. The 201 is
         the same composite the detail serves: the header's fields at top level
         (vendor and ship-to location embedded as { id, name }, the per-status
         timestamps grouped in statusDates), the nested items (each line's
-        material or SKU as { id, code, name }), and receipts (empty on create).
-        Returns 404 if the vendor, ship-to location, or any referenced material
-        or SKU does not exist, and 409 if the supplied poNumber is already
-        taken.
+        material or product as { id, code, name }), and receipts (empty on
+        create). Returns 404 if the vendor, ship-to location, or any referenced
+        material or product does not exist, and 409 if the supplied poNumber is
+        already taken.
       requestBody:
         content:
           application/json:
@@ -27603,7 +27828,7 @@ paths:
                           - 'null'
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      skuId:
+                      productId:
                         type:
                           - string
                           - 'null'
@@ -27787,7 +28012,7 @@ paths:
                             - id
                             - code
                             - name
-                        sku:
+                        product:
                           type:
                             - object
                             - 'null'
@@ -27815,7 +28040,7 @@ paths:
                       required:
                         - id
                         - material
-                        - sku
+                        - product
                         - quantity
                         - unitCost
                   receipts:
@@ -27865,7 +28090,7 @@ paths:
                                   - id
                                   - code
                                   - name
-                              sku:
+                              product:
                                 type:
                                   - object
                                   - 'null'
@@ -27906,7 +28131,7 @@ paths:
                             required:
                               - id
                               - material
-                              - sku
+                              - product
                               - quantity
                               - unitCost
                               - lotNumber
@@ -27995,8 +28220,8 @@ paths:
                   - error
         '404':
           description: >-
-            The vendor, ship-to location, or a referenced material or SKU does
-            not exist
+            The vendor, ship-to location, or a referenced material or product
+            does not exist
           content:
             application/json:
               schema:
@@ -28095,15 +28320,15 @@ paths:
         computed in plain SQL from the order itself. Every filter is optional
         and AND-ed: the CSV multi-selects `status`, `vendorId`, and
         `shipToLocationId` (values OR within each), `targetType`,
-        `containsMaterialId` / `containsSkuId` (only orders with a line for that
-        material / SKU), and inclusive From/To calendar-day pairs on the
-        document dates (`orderDateFrom`/`orderDateTo`,
+        `containsMaterialId` / `containsProductId` (only orders with a line for
+        that material / product), and inclusive From/To calendar-day pairs on
+        the document dates (`orderDateFrom`/`orderDateTo`,
         `shipDateFrom`/`shipDateTo`,
         `expectedDeliveryFrom`/`expectedDeliveryTo`) plus one pair per status
         key (planning, placed, inTransit, partial, received, completed,
         cancelled). `search` is a case-insensitive substring over the PO number,
         the vendor and ship-to location names, notes, and the line items'
-        material/SKU codes and names. Filter by total cost with inclusive
+        material/product codes and names. Filter by total cost with inclusive
         `costMin`/`costMax`. Sort with `sort` (number, vendor, shipTo, status,
         orderDate, shipDate, expectedDeliveryDate, totalCost, createdAt,
         updatedAt; default orderDate descending; empty values always last) and
@@ -28184,7 +28409,7 @@ paths:
             pattern: >-
               ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           required: false
-          name: containsSkuId
+          name: containsProductId
           in: query
         - schema:
             type: number
@@ -29165,7 +29390,7 @@ paths:
         `statusDates`, its line items nested under `items`, and its receipts
         under `receipts`, each receipt nesting its own received lines under
         `items`. The vendor and ship-to location are embedded { id, name }
-        references and each line's material or SKU an { id, code, name }
+        references and each line's material or product an { id, code, name }
         reference; nested rows omit the redundant purchaseOrderId / receiptId
         back-references.
       parameters:
@@ -29341,7 +29566,7 @@ paths:
                             - id
                             - code
                             - name
-                        sku:
+                        product:
                           type:
                             - object
                             - 'null'
@@ -29369,7 +29594,7 @@ paths:
                       required:
                         - id
                         - material
-                        - sku
+                        - product
                         - quantity
                         - unitCost
                   receipts:
@@ -29419,7 +29644,7 @@ paths:
                                   - id
                                   - code
                                   - name
-                              sku:
+                              product:
                                 type:
                                   - object
                                   - 'null'
@@ -29460,7 +29685,7 @@ paths:
                             required:
                               - id
                               - material
-                              - sku
+                              - product
                               - quantity
                               - unitCost
                               - lotNumber
@@ -29615,7 +29840,7 @@ paths:
         Each row creates a PO with an auto-generated number, its line items, and
         the projected ORDER events for its status. The whole batch rolls back if
         any row fails. Admins and owners only. Returns 404 if a row references a
-        vendor, material, or SKU that does not exist.
+        vendor, material, or product that does not exist.
       requestBody:
         content:
           application/json:
@@ -29730,7 +29955,7 @@ paths:
                                 - 'null'
                               pattern: >-
                                 ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                            skuId:
+                            productId:
                               type:
                                 - string
                                 - 'null'
@@ -29826,7 +30051,7 @@ paths:
                 required:
                   - error
         '404':
-          description: A row references a vendor, material, or SKU that does not exist
+          description: A row references a vendor, material, or product that does not exist
           content:
             application/json:
               schema:
@@ -29890,11 +30115,11 @@ paths:
       summary: Add item to PO
       description: >-
         Add a line item to an existing purchase order, named by purchaseOrderId
-        in the body. The line names exactly one materialId or skuId, matching
-        the order's target. Adding to an ordered PO projects a matching ORDER
-        ledger event for the new line. Returns 404 if the purchase order or the
-        referenced material or SKU does not exist, and 409 once any receipt
-        exists against the PO: received orders lock their line items.
+        in the body. The line names exactly one materialId or productId,
+        matching the order's target. Adding to an ordered PO projects a matching
+        ORDER ledger event for the new line. Returns 404 if the purchase order
+        or the referenced material or product does not exist, and 409 once any
+        receipt exists against the PO: received orders lock their line items.
       requestBody:
         content:
           application/json:
@@ -29907,7 +30132,7 @@ paths:
                     - 'null'
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                skuId:
+                productId:
                   type:
                     - string
                     - 'null'
@@ -29959,7 +30184,7 @@ paths:
                       - id
                       - code
                       - name
-                  sku:
+                  product:
                     type:
                       - object
                       - 'null'
@@ -29988,7 +30213,7 @@ paths:
                   - id
                   - purchaseOrderId
                   - material
-                  - sku
+                  - product
                   - quantity
                   - unitCost
         '401':
@@ -30050,7 +30275,9 @@ paths:
                 required:
                   - error
         '404':
-          description: The purchase order or the referenced material or SKU does not exist
+          description: >-
+            The purchase order or the referenced material or product does not
+            exist
           content:
             application/json:
               schema:
@@ -30141,11 +30368,12 @@ paths:
         - PurchaseOrders
       summary: List PO items
       description: >-
-        List purchase order line items, each with its material or SKU embedded
-        as an { id, code, name } reference. Pass purchaseOrderId to scope the
-        list to one order, or omit it to read lines across every order (a flat
-        items view); materialId / skuId narrow by the referenced catalog row. An
-        unknown filter id returns an empty list rather than a 404.
+        List purchase order line items, each with its material or product
+        embedded as an { id, code, name } reference. Pass purchaseOrderId to
+        scope the list to one order, or omit it to read lines across every order
+        (a flat items view); materialId / productId narrow by the referenced
+        catalog row. An unknown filter id returns an empty list rather than a
+        404.
       parameters:
         - schema:
             type: string
@@ -30166,7 +30394,7 @@ paths:
             pattern: >-
               ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           required: false
-          name: skuId
+          name: productId
           in: query
       responses:
         '200':
@@ -30206,7 +30434,7 @@ paths:
                             - id
                             - code
                             - name
-                        sku:
+                        product:
                           type:
                             - object
                             - 'null'
@@ -30235,7 +30463,7 @@ paths:
                         - id
                         - purchaseOrderId
                         - material
-                        - sku
+                        - product
                         - quantity
                         - unitCost
                 required:
@@ -30334,11 +30562,11 @@ paths:
       summary: Update PO item
       description: >-
         Update a purchase order line item: its quantity, unit cost, or the
-        referenced material or SKU. A quantity or target change re-projects the
-        line's ORDER ledger event. Unit cost accepts up to 6 decimals. Returns
-        404 if a newly referenced material or SKU does not exist, and 409 once
-        any receipt exists against the PO: received orders lock their line
-        items.
+        referenced material or product. A quantity or target change re-projects
+        the line's ORDER ledger event. Unit cost accepts up to 6 decimals.
+        Returns 404 if a newly referenced material or product does not exist,
+        and 409 once any receipt exists against the PO: received orders lock
+        their line items.
       parameters:
         - schema:
             type: string
@@ -30359,7 +30587,7 @@ paths:
                     - 'null'
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                skuId:
+                productId:
                   type:
                     - string
                     - 'null'
@@ -30404,7 +30632,7 @@ paths:
                       - id
                       - code
                       - name
-                  sku:
+                  product:
                     type:
                       - object
                       - 'null'
@@ -30433,7 +30661,7 @@ paths:
                   - id
                   - purchaseOrderId
                   - material
-                  - sku
+                  - product
                   - quantity
                   - unitCost
         '401':
@@ -30769,10 +30997,10 @@ paths:
         it to Partial. Unit costs accept up to 6 decimals and feed the costing
         engine, which reads them live off the receipt lines. The 201 is
         two-keyed: the created receipt with its lines nested under items (each
-        line's material or SKU embedded), and the updated purchase order header
-        in flat wire shape. Returns 404 if the purchase order or a referenced
-        material or SKU does not exist, and 409 while it is not open for
-        receiving (Planning, Completed, or Cancelled).
+        line's material or product embedded), and the updated purchase order
+        header in flat wire shape. Returns 404 if the purchase order or a
+        referenced material or product does not exist, and 409 while it is not
+        open for receiving (Planning, Completed, or Cancelled).
       requestBody:
         content:
           application/json:
@@ -30797,7 +31025,7 @@ paths:
                           - 'null'
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                      skuId:
+                      productId:
                         type:
                           - string
                           - 'null'
@@ -30881,7 +31109,7 @@ paths:
                                 - id
                                 - code
                                 - name
-                            sku:
+                            product:
                               type:
                                 - object
                                 - 'null'
@@ -30922,7 +31150,7 @@ paths:
                           required:
                             - id
                             - material
-                            - sku
+                            - product
                             - quantity
                             - unitCost
                             - lotNumber
@@ -31146,7 +31374,9 @@ paths:
                 required:
                   - error
         '404':
-          description: The purchase order or a referenced material or SKU does not exist
+          description: >-
+            The purchase order or a referenced material or product does not
+            exist
           content:
             application/json:
               schema:
@@ -31739,9 +31969,9 @@ paths:
       description: >-
         Get one goods receipt: the receipt header's fields at top level (no
         wrapper, purchaseOrderId included as the parent correlation) with its
-        received line items nested under `items`, each line's material or SKU
-        embedded as an { id, code, name } reference (the nested lines omit the
-        redundant receiptId back-reference).
+        received line items nested under `items`, each line's material or
+        product embedded as an { id, code, name } reference (the nested lines
+        omit the redundant receiptId back-reference).
       parameters:
         - schema:
             type: string
@@ -31804,7 +32034,7 @@ paths:
                             - id
                             - code
                             - name
-                        sku:
+                        product:
                           type:
                             - object
                             - 'null'
@@ -31845,7 +32075,7 @@ paths:
                       required:
                         - id
                         - material
-                        - sku
+                        - product
                         - quantity
                         - unitCost
                         - lotNumber
@@ -32047,7 +32277,7 @@ paths:
                       - id
                       - code
                       - name
-                  sku:
+                  product:
                     type:
                       - object
                       - 'null'
@@ -32089,7 +32319,7 @@ paths:
                   - id
                   - receiptId
                   - material
-                  - sku
+                  - product
                   - quantity
                   - unitCost
                   - lotNumber
@@ -33015,19 +33245,20 @@ paths:
       summary: Create WO
       description: >-
         Create a work order to make finished goods in-house: the header, its
-        output-SKU line items, and a recipe snapshot of each SKU's BOM inputs
-        copied at creation time (later BOM edits do not change an existing WO).
-        It opens in the given status, stamping the matching per-status date
-        (override via the optional statusDates object, keyed by camelCase status
-        name) and projecting the commitment ledger events. woNumber is optional:
-        omit it to auto-generate the next canonical number, or supply your own.
-        The 201 is the same composite the detail serves: the header's fields at
-        top level (the work-site location embedded as { id, name }, the
-        per-status timestamps grouped in statusDates), the nested items (each
-        output SKU embedded, its snapshotted recipe inputs nested one level
-        deeper with their material or component SKU embedded), and receipts
-        (empty on create). Returns 404 if the work-site location or any output
-        SKU does not exist, and 409 if the supplied woNumber is already taken.
+        output-product line items, and a recipe snapshot of each product's BOM
+        inputs copied at creation time (later BOM edits do not change an
+        existing WO). It opens in the given status, stamping the matching
+        per-status date (override via the optional statusDates object, keyed by
+        camelCase status name) and projecting the commitment ledger events.
+        woNumber is optional: omit it to auto-generate the next canonical
+        number, or supply your own. The 201 is the same composite the detail
+        serves: the header's fields at top level (the work-site location
+        embedded as { id, name }, the per-status timestamps grouped in
+        statusDates), the nested items (each output product embedded, its
+        snapshotted recipe inputs nested one level deeper with their material or
+        component product embedded), and receipts (empty on create). Returns 404
+        if the work-site location or any output product does not exist, and 409
+        if the supplied woNumber is already taken.
       requestBody:
         content:
           application/json:
@@ -33119,7 +33350,7 @@ paths:
                   items:
                     type: object
                     properties:
-                      skuId:
+                      productId:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -33130,7 +33361,7 @@ paths:
                         type: number
                         minimum: 0
                     required:
-                      - skuId
+                      - productId
                       - quantity
               required:
                 - status
@@ -33261,7 +33492,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -33310,7 +33541,7 @@ paths:
                                   - id
                                   - code
                                   - name
-                              inputSku:
+                              inputProduct:
                                 type:
                                   - object
                                   - 'null'
@@ -33334,11 +33565,11 @@ paths:
                             required:
                               - id
                               - material
-                              - inputSku
+                              - inputProduct
                               - quantity
                       required:
                         - id
-                        - sku
+                        - product
                         - quantity
                         - conversionCost
                         - inputs
@@ -33367,7 +33598,7 @@ paths:
                                 type: string
                                 pattern: >-
                                   ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                              sku:
+                              product:
                                 type: object
                                 properties:
                                   id:
@@ -33405,7 +33636,7 @@ paths:
                                     format: date-time
                             required:
                               - id
-                              - sku
+                              - product
                               - quantity
                               - conversionCost
                               - lotNumber
@@ -33489,7 +33720,7 @@ paths:
                 required:
                   - error
         '404':
-          description: The work-site location or a referenced output SKU does not exist
+          description: The work-site location or a referenced output product does not exist
           content:
             application/json:
               schema:
@@ -33519,7 +33750,7 @@ paths:
                   - error
         '409':
           description: >-
-            The supplied woNumber is already taken, or the same output SKU
+            The supplied woNumber is already taken, or the same output product
             appears on more than one line.
           content:
             application/json:
@@ -33588,19 +33819,20 @@ paths:
         operational costs in `financials` (the engine-derived
         goodsCost/totalCost appear on single-order reads only). Every filter is
         optional and AND-ed: the CSV multi-selects `status` and `workSiteId`
-        (values OR within each), `containsSkuId` (only orders with an output
-        line for that SKU), and inclusive From/To calendar-day pairs on the
+        (values OR within each), `containsProductId` (only orders with an output
+        line for that product), and inclusive From/To calendar-day pairs on the
         document dates (`orderDateFrom`/`orderDateTo`,
         `expectedDeliveryFrom`/`expectedDeliveryTo`) plus one pair per status
         key (planning, placed, production, partial, received, completed,
         cancelled). `search` is a case-insensitive substring over the WO number,
-        the work-site name, notes, and the output SKUs' codes and names. Sort
-        with `sort` (number, workSite, status, orderDate, expectedDeliveryDate,
-        createdAt, updatedAt; default orderDate descending; empty values always
-        last) and `order` (asc/desc); page with `limit` (default 50, max 200)
-        and `offset`. `meta.total` counts the filtered set, so pagers can render
-        page counts under active filters. Line items, recipe inputs, and
-        receipts are fetched per order through the detail endpoint.
+        the work-site name, notes, and the output products' codes and names.
+        Sort with `sort` (number, workSite, status, orderDate,
+        expectedDeliveryDate, createdAt, updatedAt; default orderDate
+        descending; empty values always last) and `order` (asc/desc); page with
+        `limit` (default 50, max 200) and `offset`. `meta.total` counts the
+        filtered set, so pagers can render page counts under active filters.
+        Line items, recipe inputs, and receipts are fetched per order through
+        the detail endpoint.
       parameters:
         - schema:
             type: string
@@ -33651,7 +33883,7 @@ paths:
             pattern: >-
               ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           required: false
-          name: containsSkuId
+          name: containsProductId
           in: query
         - schema:
             type: string
@@ -34530,13 +34762,13 @@ paths:
         Get one work order as a composite: the header's fields at top level (no
         wrapper), including the derived financials (operational costs plus goods
         and total cost) and the per-status timestamps grouped in `statusDates`,
-        its output-SKU line items nested under `items`, and its receipts under
-        `receipts`, each receipt nesting its own produced lines under `items`.
-        The work-site location is an embedded { id, name } reference; each
-        output line's SKU and each recipe input's material or component SKU is
-        an { id, code, name } reference, with the recipe inputs snapshotted from
-        the BOM nested under each item's `inputs`. Nested rows omit the
-        redundant workOrderId / receiptId back-references.
+        its output-product line items nested under `items`, and its receipts
+        under `receipts`, each receipt nesting its own produced lines under
+        `items`. The work-site location is an embedded { id, name } reference;
+        each output line's product and each recipe input's material or component
+        product is an { id, code, name } reference, with the recipe inputs
+        snapshotted from the BOM nested under each item's `inputs`. Nested rows
+        omit the redundant workOrderId / receiptId back-references.
       parameters:
         - schema:
             type: string
@@ -34670,7 +34902,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -34719,7 +34951,7 @@ paths:
                                   - id
                                   - code
                                   - name
-                              inputSku:
+                              inputProduct:
                                 type:
                                   - object
                                   - 'null'
@@ -34743,11 +34975,11 @@ paths:
                             required:
                               - id
                               - material
-                              - inputSku
+                              - inputProduct
                               - quantity
                       required:
                         - id
-                        - sku
+                        - product
                         - quantity
                         - conversionCost
                         - inputs
@@ -34776,7 +35008,7 @@ paths:
                                 type: string
                                 pattern: >-
                                   ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                              sku:
+                              product:
                                 type: object
                                 properties:
                                   id:
@@ -34814,7 +35046,7 @@ paths:
                                     format: date-time
                             required:
                               - id
-                              - sku
+                              - product
                               - quantity
                               - conversionCost
                               - lotNumber
@@ -34965,7 +35197,7 @@ paths:
         row creates a WO with an auto-generated number, its items, the recipe
         snapshots, and the projected commitment events for its status. The whole
         batch rolls back if any row fails. Admins and owners only. Returns 404
-        if a row references a work-site location or output SKU that does not
+        if a row references a work-site location or output product that does not
         exist.
       requestBody:
         content:
@@ -35059,7 +35291,7 @@ paths:
                         items:
                           type: object
                           properties:
-                            skuId:
+                            productId:
                               type: string
                               pattern: >-
                                 ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -35070,7 +35302,7 @@ paths:
                               type: number
                               minimum: 0
                           required:
-                            - skuId
+                            - productId
                             - quantity
                     required:
                       - status
@@ -35154,8 +35386,8 @@ paths:
                   - error
         '404':
           description: >-
-            A row references a work-site location or output SKU that does not
-            exist
+            A row references a work-site location or output product that does
+            not exist
           content:
             application/json:
               schema:
@@ -35218,14 +35450,14 @@ paths:
         - WorkOrders
       summary: Add item to WO
       description: >-
-        Add an output SKU to an existing work order, named by workOrderId in the
-        body, and snapshot its BOM inputs at add time. Adding to an ordered WO
-        projects the new line's commitment ledger events. conversionCost accepts
-        up to 6 decimals. The response is the line in wire shape: its output SKU
-        embedded and its snapshotted recipe inputs nested (each input's material
-        or component SKU embedded). Returns 404 if the work order does not
-        exist, and 409 if a receipt already exists against the WO
-        (invalid_transition; its items are locked) or the SKU is already an
+        Add an output product to an existing work order, named by workOrderId in
+        the body, and snapshot its BOM inputs at add time. Adding to an ordered
+        WO projects the new line's commitment ledger events. conversionCost
+        accepts up to 6 decimals. The response is the line in wire shape: its
+        output product embedded and its snapshotted recipe inputs nested (each
+        input's material or component product embedded). Returns 404 if the work
+        order does not exist, and 409 if a receipt already exists against the WO
+        (invalid_transition; its items are locked) or the product is already an
         output line on this WO (conflict).
       requestBody:
         content:
@@ -35233,7 +35465,7 @@ paths:
             schema:
               type: object
               properties:
-                skuId:
+                productId:
                   type: string
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -35248,7 +35480,7 @@ paths:
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
               required:
-                - skuId
+                - productId
                 - quantity
                 - workOrderId
       responses:
@@ -35267,7 +35499,7 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -35316,7 +35548,7 @@ paths:
                             - id
                             - code
                             - name
-                        inputSku:
+                        inputProduct:
                           type:
                             - object
                             - 'null'
@@ -35340,12 +35572,12 @@ paths:
                       required:
                         - id
                         - material
-                        - inputSku
+                        - inputProduct
                         - quantity
                 required:
                   - id
                   - workOrderId
-                  - sku
+                  - product
                   - quantity
                   - conversionCost
                   - inputs
@@ -35438,8 +35670,8 @@ paths:
                   - error
         '409':
           description: >-
-            A receipt exists (items are locked) or the SKU is already a line on
-            this WO
+            A receipt exists (items are locked) or the product is already a line
+            on this WO
           content:
             application/json:
               schema:
@@ -35501,13 +35733,13 @@ paths:
         - WorkOrders
       summary: List WO items
       description: >-
-        List work order output line items, each with its produced SKU embedded
-        as an { id, code, name } reference and its snapshotted recipe inputs
-        nested under `inputs` (each input's material or component SKU embedded).
-        Pass workOrderId to scope the list to one order, or omit it to read
-        lines across every order (a flat items view); skuId narrows by the
-        produced SKU. An unknown workOrderId returns an empty list rather than a
-        404.
+        List work order output line items, each with its produced product
+        embedded as an { id, code, name } reference and its snapshotted recipe
+        inputs nested under `inputs` (each input's material or component product
+        embedded). Pass workOrderId to scope the list to one order, or omit it
+        to read lines across every order (a flat items view); productId narrows
+        by the produced product. An unknown workOrderId returns an empty list
+        rather than a 404.
       parameters:
         - schema:
             type: string
@@ -35521,7 +35753,7 @@ paths:
             pattern: >-
               ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           required: false
-          name: skuId
+          name: productId
           in: query
       responses:
         '200':
@@ -35544,7 +35776,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -35593,7 +35825,7 @@ paths:
                                   - id
                                   - code
                                   - name
-                              inputSku:
+                              inputProduct:
                                 type:
                                   - object
                                   - 'null'
@@ -35617,12 +35849,12 @@ paths:
                             required:
                               - id
                               - material
-                              - inputSku
+                              - inputProduct
                               - quantity
                       required:
                         - id
                         - workOrderId
-                        - sku
+                        - product
                         - quantity
                         - conversionCost
                         - inputs
@@ -35724,7 +35956,7 @@ paths:
         Update an output line's quantity or conversion cost (up to 6 decimals).
         A quantity change re-scales the item's snapshotted BOM inputs
         proportionally and re-projects the line's commitment ledger events. The
-        response is the line in wire shape: its output SKU embedded and its
+        response is the line in wire shape: its output product embedded and its
         recipe inputs nested. Returns 409 invalid_transition once any receipt
         exists against the WO: its line items are locked.
       parameters:
@@ -35763,7 +35995,7 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -35812,7 +36044,7 @@ paths:
                             - id
                             - code
                             - name
-                        inputSku:
+                        inputProduct:
                           type:
                             - object
                             - 'null'
@@ -35836,12 +36068,12 @@ paths:
                       required:
                         - id
                         - material
-                        - inputSku
+                        - inputProduct
                         - quantity
                 required:
                   - id
                   - workOrderId
-                  - sku
+                  - product
                   - quantity
                   - conversionCost
                   - inputs
@@ -35995,10 +36227,10 @@ paths:
         - WorkOrders
       summary: Remove WO item
       description: >-
-        Remove an output SKU line from a work order, unwinding the commitment
-        ledger events it had projected; its snapshotted recipe inputs cascade
-        away. Returns 409 invalid_transition once any receipt exists against the
-        WO: its line items are locked.
+        Remove an output product line from a work order, unwinding the
+        commitment ledger events it had projected; its snapshotted recipe inputs
+        cascade away. Returns 409 invalid_transition once any receipt exists
+        against the WO: its line items are locked.
       parameters:
         - schema:
             type: string
@@ -36174,17 +36406,17 @@ paths:
       description: >-
         Record production received against a work order, named by workOrderId in
         the body: writes the receipt and its produced lines, then BOTH ledger
-        legs, a RECEIVE row per produced SKU on the finished-goods ledger and a
-        CONSUME row per snapshotted input (materials and any component SKUs) on
-        their ledgers, all tagged ref = the WO number, and advances the WO to
-        Partial (receiving against a Received WO reopens it). conversionCost
-        feeds the costing engine, which reads it live off the lines, never
-        rounded. The 201 is two-keyed: the created receipt with its produced
-        lines nested under items (each line's SKU embedded), and the updated
-        work order header in flat wire shape. Returns 404 if the work order does
-        not exist, and 409 invalid_transition if it is already in a terminal
-        state (Completed or Cancelled) or still in Planning/Placed (receiving
-        opens in Production).
+        legs, a RECEIVE row per produced product on the finished-goods ledger
+        and a CONSUME row per snapshotted input (materials and any component
+        products) on their ledgers, all tagged ref = the WO number, and advances
+        the WO to Partial (receiving against a Received WO reopens it).
+        conversionCost feeds the costing engine, which reads it live off the
+        lines, never rounded. The 201 is two-keyed: the created receipt with its
+        produced lines nested under items (each line's product embedded), and
+        the updated work order header in flat wire shape. Returns 404 if the
+        work order does not exist, and 409 invalid_transition if it is already
+        in a terminal state (Completed or Cancelled) or still in Planning/Placed
+        (receiving opens in Production).
       requestBody:
         content:
           application/json:
@@ -36203,7 +36435,7 @@ paths:
                   items:
                     type: object
                     properties:
-                      skuId:
+                      productId:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -36221,7 +36453,7 @@ paths:
                           - 'null'
                         format: date
                     required:
-                      - skuId
+                      - productId
                       - quantity
               required:
                 - workOrderId
@@ -36261,7 +36493,7 @@ paths:
                               type: string
                               pattern: >-
                                 ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                            sku:
+                            product:
                               type: object
                               properties:
                                 id:
@@ -36299,7 +36531,7 @@ paths:
                                   format: date-time
                           required:
                             - id
-                            - sku
+                            - product
                             - quantity
                             - conversionCost
                             - lotNumber
@@ -37072,8 +37304,8 @@ paths:
       description: >-
         Get one production receipt: the receipt header's fields at top level (no
         wrapper, workOrderId included as the parent correlation) with its
-        produced line items nested under `items`, each line's SKU embedded as an
-        { id, code, name } reference (the nested lines omit the redundant
+        produced line items nested under `items`, each line's product embedded
+        as an { id, code, name } reference (the nested lines omit the redundant
         receiptId back-reference).
       parameters:
         - schema:
@@ -37115,7 +37347,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -37153,7 +37385,7 @@ paths:
                               format: date-time
                       required:
                         - id
-                        - sku
+                        - product
                         - quantity
                         - conversionCost
                         - lotNumber
@@ -37292,8 +37524,8 @@ paths:
         same recipe formula; lot number and expiration date update the RECEIVE
         row. Conversion cost (up to 6 decimals) is read live by the costing
         engine, never stored. The response is the line in wire shape, its
-        produced SKU embedded. Returns 409 invalid_transition if the work order
-        is already Completed.
+        produced product embedded. Returns 409 invalid_transition if the work
+        order is already Completed.
       parameters:
         - schema:
             type: string
@@ -37340,7 +37572,7 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -37379,7 +37611,7 @@ paths:
                 required:
                   - id
                   - receiptId
-                  - sku
+                  - product
                   - quantity
                   - conversionCost
                   - lotNumber
@@ -37620,20 +37852,21 @@ paths:
       summary: Create production order
       description: >-
         Create a production order for subcontracted (toll) manufacturing: the
-        header, its output-SKU line items (each with an optional per-unit
-        production cost, up to 6 decimals), and a recipe snapshot of each SKU's
-        BOM exploded to raw materials at creation time (later BOM edits do not
-        change an existing order). It opens in the given status, stamping the
-        matching per-status date (override via the optional statusDates object,
-        keyed by camelCase status name) and projecting the commitment ledger
-        events. prodNumber is optional: omit it to auto-generate the next
-        canonical number, or supply your own. The 201 is the same composite the
-        detail serves: the header's fields at top level (the location embedded
-        as { id, name }, the per-status timestamps grouped in statusDates), the
-        nested items (each output SKU embedded, its snapshotted recipe inputs
-        nested one level deeper with their material embedded), and receipts
-        (empty on create). Returns 404 if the location or any output SKU does
-        not exist, and 409 if the supplied prodNumber is already taken.
+        header, its output-product line items (each with an optional per-unit
+        production cost, up to 6 decimals), and a recipe snapshot of each
+        product's BOM exploded to raw materials at creation time (later BOM
+        edits do not change an existing order). It opens in the given status,
+        stamping the matching per-status date (override via the optional
+        statusDates object, keyed by camelCase status name) and projecting the
+        commitment ledger events. prodNumber is optional: omit it to
+        auto-generate the next canonical number, or supply your own. The 201 is
+        the same composite the detail serves: the header's fields at top level
+        (the location embedded as { id, name }, the per-status timestamps
+        grouped in statusDates), the nested items (each output product embedded,
+        its snapshotted recipe inputs nested one level deeper with their
+        material embedded), and receipts (empty on create). Returns 404 if the
+        location or any output product does not exist, and 409 if the supplied
+        prodNumber is already taken.
       requestBody:
         content:
           application/json:
@@ -37731,7 +37964,7 @@ paths:
                   items:
                     type: object
                     properties:
-                      skuId:
+                      productId:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -37744,7 +37977,7 @@ paths:
                           - 'null'
                         minimum: 0
                     required:
-                      - skuId
+                      - productId
                       - quantity
               required:
                 - status
@@ -37881,7 +38114,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -37939,7 +38172,7 @@ paths:
                               - quantity
                       required:
                         - id
-                        - sku
+                        - product
                         - quantity
                         - productionCost
                         - inputs
@@ -37968,7 +38201,7 @@ paths:
                                 type: string
                                 pattern: >-
                                   ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                              sku:
+                              product:
                                 type: object
                                 properties:
                                   id:
@@ -38006,7 +38239,7 @@ paths:
                                     format: date-time
                             required:
                               - id
-                              - sku
+                              - product
                               - quantity
                               - productionCost
                               - lotNumber
@@ -38090,7 +38323,7 @@ paths:
                 required:
                   - error
         '404':
-          description: The location or a referenced output SKU does not exist
+          description: The location or a referenced output product does not exist
           content:
             application/json:
               schema:
@@ -38120,7 +38353,7 @@ paths:
                   - error
         '409':
           description: >-
-            The supplied prodNumber is already taken, or the same output SKU
+            The supplied prodNumber is already taken, or the same output product
             appears on more than one line.
           content:
             application/json:
@@ -38189,14 +38422,14 @@ paths:
         `financials` (the engine-derived goodsCost/totalCost appear on
         single-order reads only). Every filter is optional and AND-ed: the CSV
         multi-selects `status` and `locationId` (values OR within each),
-        `containsSkuId` (only orders with an output line for that SKU), and
-        inclusive From/To calendar-day pairs on the document dates
+        `containsProductId` (only orders with an output line for that product),
+        and inclusive From/To calendar-day pairs on the document dates
         (`orderDateFrom`/`orderDateTo`,
         `expectedDeliveryFrom`/`expectedDeliveryTo`) plus one pair per status
         key (planning, placed, production, inTransit, partial, received,
         completed, cancelled). `search` is a case-insensitive substring over the
-        order number, the location name, notes, and the output SKUs' codes and
-        names. Sort with `sort` (number, location, status, orderDate,
+        order number, the location name, notes, and the output products' codes
+        and names. Sort with `sort` (number, location, status, orderDate,
         expectedDeliveryDate, createdAt, updatedAt; default orderDate
         descending; empty values always last) and `order` (asc/desc); page with
         `limit` (default 50, max 200) and `offset`. `meta.total` counts the
@@ -38253,7 +38486,7 @@ paths:
             pattern: >-
               ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           required: false
-          name: containsSkuId
+          name: containsProductId
           in: query
         - schema:
             type: string
@@ -39161,13 +39394,13 @@ paths:
         Get one production order as a composite: the header's fields at top
         level (no wrapper), including the derived financials (operational costs
         plus goods and total cost) and the per-status timestamps grouped in
-        `statusDates`, its output-SKU line items nested under `items`, and its
-        receipts under `receipts`, each receipt nesting its own produced lines
-        under `items`. The location is an embedded { id, name } reference; each
-        output line's SKU and each recipe input's material is an { id, code,
-        name } reference, with the recipe inputs snapshotted from the exploded
-        BOM nested under each item's `inputs`. Nested rows omit the redundant
-        productionOrderId / receiptId back-references.
+        `statusDates`, its output-product line items nested under `items`, and
+        its receipts under `receipts`, each receipt nesting its own produced
+        lines under `items`. The location is an embedded { id, name } reference;
+        each output line's product and each recipe input's material is an { id,
+        code, name } reference, with the recipe inputs snapshotted from the
+        exploded BOM nested under each item's `inputs`. Nested rows omit the
+        redundant productionOrderId / receiptId back-references.
       parameters:
         - schema:
             type: string
@@ -39307,7 +39540,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -39365,7 +39598,7 @@ paths:
                               - quantity
                       required:
                         - id
-                        - sku
+                        - product
                         - quantity
                         - productionCost
                         - inputs
@@ -39394,7 +39627,7 @@ paths:
                                 type: string
                                 pattern: >-
                                   ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                              sku:
+                              product:
                                 type: object
                                 properties:
                                   id:
@@ -39432,7 +39665,7 @@ paths:
                                     format: date-time
                             required:
                               - id
-                              - sku
+                              - product
                               - quantity
                               - productionCost
                               - lotNumber
@@ -39583,8 +39816,8 @@ paths:
         Each row creates an order with an auto-generated number, its items, the
         recipe snapshots, and the projected commitment events for its status.
         The whole batch rolls back if any row fails. Admins and owners only.
-        Returns 404 if a row references a location or output SKU that does not
-        exist.
+        Returns 404 if a row references a location or output product that does
+        not exist.
       requestBody:
         content:
           application/json:
@@ -39683,7 +39916,7 @@ paths:
                         items:
                           type: object
                           properties:
-                            skuId:
+                            productId:
                               type: string
                               pattern: >-
                                 ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -39696,7 +39929,7 @@ paths:
                                 - 'null'
                               minimum: 0
                           required:
-                            - skuId
+                            - productId
                             - quantity
                     required:
                       - status
@@ -39779,7 +40012,7 @@ paths:
                 required:
                   - error
         '404':
-          description: A row references a location or output SKU that does not exist
+          description: A row references a location or output product that does not exist
           content:
             application/json:
               schema:
@@ -39842,23 +40075,24 @@ paths:
         - ProductionOrders
       summary: Add item to production order
       description: >-
-        Add an output SKU to an existing production order, named by
+        Add an output product to an existing production order, named by
         productionOrderId in the body, and snapshot its exploded BOM (raw
         materials) at add time. Adding to an ordered order projects the new
         line's commitment ledger events. productionCost is optional here and
         accepts up to 6 decimals (it can be set later, but must be present to
-        receive). The response is the line in wire shape: its output SKU
+        receive). The response is the line in wire shape: its output product
         embedded and its snapshotted recipe inputs nested (each input's material
         embedded). Returns 404 if the production order does not exist, and 409
         if a receipt already exists against the order (invalid_transition; its
-        items are locked) or the SKU is already an output line on it (conflict).
+        items are locked) or the product is already an output line on it
+        (conflict).
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                skuId:
+                productId:
                   type: string
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -39875,7 +40109,7 @@ paths:
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
               required:
-                - skuId
+                - productId
                 - quantity
                 - productionOrderId
       responses:
@@ -39894,7 +40128,7 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -39953,7 +40187,7 @@ paths:
                 required:
                   - id
                   - productionOrderId
-                  - sku
+                  - product
                   - quantity
                   - productionCost
                   - inputs
@@ -40046,8 +40280,8 @@ paths:
                   - error
         '409':
           description: >-
-            A receipt exists (items are locked) or the SKU is already a line on
-            this order
+            A receipt exists (items are locked) or the product is already a line
+            on this order
           content:
             application/json:
               schema:
@@ -40109,13 +40343,13 @@ paths:
         - ProductionOrders
       summary: List production order items
       description: >-
-        List production order output line items, each with its produced SKU
+        List production order output line items, each with its produced product
         embedded as an { id, code, name } reference and its snapshotted recipe
         inputs nested under `inputs` (each input's material embedded). Pass
         productionOrderId to scope the list to one order, or omit it to read
-        lines across every order (a flat items view); skuId narrows by the
-        produced SKU. An unknown productionOrderId returns an empty list rather
-        than a 404.
+        lines across every order (a flat items view); productId narrows by the
+        produced product. An unknown productionOrderId returns an empty list
+        rather than a 404.
       parameters:
         - schema:
             type: string
@@ -40129,7 +40363,7 @@ paths:
             pattern: >-
               ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
           required: false
-          name: skuId
+          name: productId
           in: query
       responses:
         '200':
@@ -40152,7 +40386,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -40211,7 +40445,7 @@ paths:
                       required:
                         - id
                         - productionOrderId
-                        - sku
+                        - product
                         - quantity
                         - productionCost
                         - inputs
@@ -40316,8 +40550,8 @@ paths:
         ledger events. The per-unit production cost, by contrast, stays editable
         for the WHOLE lifecycle: even after a receipt exists and even once the
         order is Completed, so a cost-only edit never trips the receipt lock.
-        The response is the line in wire shape: its output SKU embedded and its
-        recipe inputs nested. Returns 409 invalid_transition on a quantity
+        The response is the line in wire shape: its output product embedded and
+        its recipe inputs nested. Returns 409 invalid_transition on a quantity
         change once any receipt exists against the order.
       parameters:
         - schema:
@@ -40357,7 +40591,7 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -40416,7 +40650,7 @@ paths:
                 required:
                   - id
                   - productionOrderId
-                  - sku
+                  - product
                   - quantity
                   - productionCost
                   - inputs
@@ -40572,7 +40806,7 @@ paths:
         - ProductionOrders
       summary: Remove production order item
       description: >-
-        Remove an output SKU line from a production order, unwinding the
+        Remove an output product line from a production order, unwinding the
         commitment ledger events it had projected; its snapshotted recipe inputs
         cascade away. Returns 409 invalid_transition once any receipt exists
         against the order: its line items are locked.
@@ -40751,20 +40985,20 @@ paths:
       description: >-
         Record production received back from the subcontractor against an order,
         named by productionOrderId in the body: writes the receipt and its
-        produced lines, then BOTH ledger legs, a RECEIVE row per produced SKU on
-        the finished-goods ledger and a CONSUME row per snapshotted exploded-BOM
-        material on the materials ledger, all tagged ref = the order number, and
-        advances the order to Partial (receiving against a Received order
-        reopens it). The produced unit cost (materials plus the per-unit
-        production cost) is derived on read by the costing engine off the line,
-        never rounded and never stored. The 201 is two-keyed: the created
-        receipt with its produced lines nested under items (each line's SKU
-        embedded), and the updated production order header in flat wire shape.
-        Returns 404 if the production order does not exist, 422 if a produced
-        SKU's per-unit production cost is still unset (it must be set to
-        receive), and 409 invalid_transition if the order is already terminal
-        (Completed or Cancelled) or still in Planning/Placed (receiving opens in
-        Production).
+        produced lines, then BOTH ledger legs, a RECEIVE row per produced
+        product on the finished-goods ledger and a CONSUME row per snapshotted
+        exploded-BOM material on the materials ledger, all tagged ref = the
+        order number, and advances the order to Partial (receiving against a
+        Received order reopens it). The produced unit cost (materials plus the
+        per-unit production cost) is derived on read by the costing engine off
+        the line, never rounded and never stored. The 201 is two-keyed: the
+        created receipt with its produced lines nested under items (each line's
+        product embedded), and the updated production order header in flat wire
+        shape. Returns 404 if the production order does not exist, 422 if a
+        produced product's per-unit production cost is still unset (it must be
+        set to receive), and 409 invalid_transition if the order is already
+        terminal (Completed or Cancelled) or still in Planning/Placed (receiving
+        opens in Production).
       requestBody:
         content:
           application/json:
@@ -40783,7 +41017,7 @@ paths:
                   items:
                     type: object
                     properties:
-                      skuId:
+                      productId:
                         type: string
                         pattern: >-
                           ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
@@ -40801,7 +41035,7 @@ paths:
                           - 'null'
                         format: date
                     required:
-                      - skuId
+                      - productId
                       - quantity
               required:
                 - productionOrderId
@@ -40841,7 +41075,7 @@ paths:
                               type: string
                               pattern: >-
                                 ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                            sku:
+                            product:
                               type: object
                               properties:
                                 id:
@@ -40879,7 +41113,7 @@ paths:
                                   format: date-time
                           required:
                             - id
-                            - sku
+                            - product
                             - quantity
                             - productionCost
                             - lotNumber
@@ -41657,8 +41891,8 @@ paths:
       description: >-
         Get one production receipt: the receipt header's fields at top level (no
         wrapper, productionOrderId included as the parent correlation) with its
-        produced line items nested under `items`, each line's SKU embedded as an
-        { id, code, name } reference (the nested lines omit the redundant
+        produced line items nested under `items`, each line's product embedded
+        as an { id, code, name } reference (the nested lines omit the redundant
         receiptId back-reference).
       parameters:
         - schema:
@@ -41700,7 +41934,7 @@ paths:
                           type: string
                           pattern: >-
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                        sku:
+                        product:
                           type: object
                           properties:
                             id:
@@ -41738,7 +41972,7 @@ paths:
                               format: date-time
                       required:
                         - id
-                        - sku
+                        - product
                         - quantity
                         - productionCost
                         - lotNumber
@@ -41877,8 +42111,8 @@ paths:
         the same recipe formula; lot number and expiration date update the
         RECEIVE row. Production cost (up to 6 decimals) is read live by the
         costing engine, never stored. The response is the line in wire shape,
-        its produced SKU embedded. Returns 409 invalid_transition if the order
-        is already Completed.
+        its produced product embedded. Returns 409 invalid_transition if the
+        order is already Completed.
       parameters:
         - schema:
             type: string
@@ -41925,7 +42159,7 @@ paths:
                     type: string
                     pattern: >-
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
-                  sku:
+                  product:
                     type: object
                     properties:
                       id:
@@ -41964,7 +42198,7 @@ paths:
                 required:
                   - id
                   - receiptId
-                  - sku
+                  - product
                   - quantity
                   - productionCost
                   - lotNumber
