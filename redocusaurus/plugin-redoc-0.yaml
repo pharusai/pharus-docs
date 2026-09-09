@@ -11193,6 +11193,9 @@ paths:
                       - production_order_receipt
                       - transfer
                       - return_item
+                      - conversion_input
+                      - conversion_output
+                      - conversion_consumed
                       - null
                   lotNumber:
                     type:
@@ -11480,6 +11483,9 @@ paths:
                       - production_order_receipt
                       - transfer
                       - return_item
+                      - conversion_input
+                      - conversion_output
+                      - conversion_consumed
                       - null
                   lotNumber:
                     type:
@@ -12244,6 +12250,9 @@ paths:
                             - production_order_receipt
                             - transfer
                             - return_item
+                            - conversion_input
+                            - conversion_output
+                            - conversion_consumed
                             - null
                         lotNumber:
                           type:
@@ -12495,6 +12504,9 @@ paths:
                       - production_order_receipt
                       - transfer
                       - return_item
+                      - conversion_input
+                      - conversion_output
+                      - conversion_consumed
                       - null
                   lotNumber:
                     type:
@@ -12795,6 +12807,9 @@ paths:
                       - production_order_receipt
                       - transfer
                       - return_item
+                      - conversion_input
+                      - conversion_output
+                      - conversion_consumed
                       - null
                   lotNumber:
                     type:
@@ -13082,6 +13097,9 @@ paths:
                       - production_order_receipt
                       - transfer
                       - return_item
+                      - conversion_input
+                      - conversion_output
+                      - conversion_consumed
                       - null
                   lotNumber:
                     type:
@@ -13693,6 +13711,9 @@ paths:
                             - production_order_receipt
                             - transfer
                             - return_item
+                            - conversion_input
+                            - conversion_output
+                            - conversion_consumed
                             - null
                         lotNumber:
                           type:
@@ -13944,6 +13965,9 @@ paths:
                       - production_order_receipt
                       - transfer
                       - return_item
+                      - conversion_input
+                      - conversion_output
+                      - conversion_consumed
                       - null
                   lotNumber:
                     type:
@@ -15643,6 +15667,1646 @@ paths:
                   - error
         '403':
           description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /conversions:
+    post:
+      tags:
+        - Conversions
+      summary: Create conversion
+      description: >-
+        Create a conversion at one location under a server-assigned CNV code:
+        one `input` (a product and a quantity) and one `output` (a product only,
+        from the input's family: the same product, its base product, or a case
+        that packs the same base). The output's quantity is derived through the
+        case factors and is never sent; converting eaches into cases must fill
+        whole cases (422 otherwise, "N eaches do not fill whole cases of M").
+        The materials consumed are derived from the output's exploded bill of
+        materials minus the input's; `extraMaterials` adds units on top of that,
+        each restricted to the output's own bill of materials (422 "material X
+        is not part of the output's bill of materials" otherwise), and the same
+        material may not repeat among them (409). `waste` on the response
+        reports the input's materials the output does not keep, plus the extras;
+        it is informational, not costed. There is no status: the conversion is
+        the record of a fact, so its ledger rows write immediately on create,
+        one per line: CONSUME for the input, RECEIVE for the output, CONSUME on
+        the materials ledger for every consumed line. The output receives at the
+        cost of what the conversion consumed: the value drawn for the input plus
+        the value of the consumed materials, spread over the output quantity.
+        `conversionDate` defaults to today and may be any day in the past; it is
+        the business date of every row. Nothing checks stock on hand. Kits are
+        rejected. Returns 404 if the input product, the output product, an extra
+        material, or the location does not exist.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                locationId:
+                  type: string
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                input:
+                  type: object
+                  properties:
+                    productId:
+                      type: string
+                      pattern: >-
+                        ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                    quantity:
+                      type: number
+                      exclusiveMinimum: 0
+                  required:
+                    - productId
+                    - quantity
+                output:
+                  type: object
+                  properties:
+                    productId:
+                      type: string
+                      pattern: >-
+                        ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  required:
+                    - productId
+                extraMaterials:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      materialId:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      quantity:
+                        type: number
+                        exclusiveMinimum: 0
+                    required:
+                      - materialId
+                      - quantity
+                conversionDate:
+                  type: string
+                  format: date
+                notes:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 2000
+              required:
+                - locationId
+                - input
+                - output
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  code:
+                    type: string
+                  location:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  input:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      product:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          code:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                          - id
+                          - code
+                          - name
+                      quantity:
+                        anyOf:
+                          - type: string
+                          - type: number
+                    required:
+                      - id
+                      - product
+                      - quantity
+                  output:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      product:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          code:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                          - id
+                          - code
+                          - name
+                      quantity:
+                        anyOf:
+                          - type: string
+                          - type: number
+                    required:
+                      - id
+                      - product
+                      - quantity
+                  consumed:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        material:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - code
+                            - name
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        derived:
+                          type: boolean
+                      required:
+                        - id
+                        - material
+                        - quantity
+                        - derived
+                  waste:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        material:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - code
+                            - name
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                      required:
+                        - material
+                        - quantity
+                  conversionDate:
+                    type: string
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  updatedAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                required:
+                  - id
+                  - code
+                  - location
+                  - input
+                  - output
+                  - consumed
+                  - waste
+                  - conversionDate
+                  - notes
+                  - createdAt
+                  - updatedAt
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: >-
+            The input product, the output product, an extra material or the
+            location does not exist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '409':
+          description: The same material repeats among extraMaterials (`conflict`).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    get:
+      tags:
+        - Conversions
+      summary: List conversions
+      description: >-
+        List conversions, newest first by default, each with its embedded
+        `location` ({ id, name }), its `input` and `output` (each a product
+        resolved to { id, code, name } plus a quantity, the output's derived
+        through the case factors), its `consumed` materials (resolved to { id,
+        code, name }, flagged `derived` when the bill-of-materials diff wrote
+        the line, `false` for a caller-added extra), its `waste` (materials the
+        output does not keep from the input, plus the extras, unpriced), and
+        `conversionDate`. Filters AND together: `locationId` is a CSV
+        multi-select, `productId` matches the input or the output, `materialId`
+        matches a consumed line, `dateFrom`/`dateTo` bound the conversion date,
+        `search` substring-matches the code, the location name, the input or
+        output's item code or name, and notes. Sort with `sort` (number,
+        location, date, createdAt, updatedAt) and `order`; page with `limit`
+        (default 50, max 200) and `offset`; `meta.total` counts the filtered
+        documents.
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - number
+              - location
+              - date
+              - createdAt
+              - updatedAt
+          required: false
+          name: sort
+          in: query
+        - schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          required: false
+          name: order
+          in: query
+        - schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+          required: false
+          name: limit
+          in: query
+        - schema:
+            type: integer
+            minimum: 0
+          required: false
+          name: offset
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: locationId
+          in: query
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: false
+          name: productId
+          in: query
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: false
+          name: materialId
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: search
+          in: query
+        - schema:
+            type: string
+            pattern: ^\d{4}-\d{2}-\d{2}$
+          required: false
+          name: dateFrom
+          in: query
+        - schema:
+            type: string
+            pattern: ^\d{4}-\d{2}-\d{2}$
+          required: false
+          name: dateTo
+          in: query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        code:
+                          type: string
+                        location:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - name
+                        input:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            product:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  pattern: >-
+                                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                code:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                                - id
+                                - code
+                                - name
+                            quantity:
+                              anyOf:
+                                - type: string
+                                - type: number
+                          required:
+                            - id
+                            - product
+                            - quantity
+                        output:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            product:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  pattern: >-
+                                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                code:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                                - id
+                                - code
+                                - name
+                            quantity:
+                              anyOf:
+                                - type: string
+                                - type: number
+                          required:
+                            - id
+                            - product
+                            - quantity
+                        consumed:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                pattern: >-
+                                  ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                              material:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                    pattern: >-
+                                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                  code:
+                                    type: string
+                                  name:
+                                    type: string
+                                required:
+                                  - id
+                                  - code
+                                  - name
+                              quantity:
+                                anyOf:
+                                  - type: string
+                                  - type: number
+                              derived:
+                                type: boolean
+                            required:
+                              - id
+                              - material
+                              - quantity
+                              - derived
+                        waste:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              material:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                    pattern: >-
+                                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                  code:
+                                    type: string
+                                  name:
+                                    type: string
+                                required:
+                                  - id
+                                  - code
+                                  - name
+                              quantity:
+                                anyOf:
+                                  - type: string
+                                  - type: number
+                            required:
+                              - material
+                              - quantity
+                        conversionDate:
+                          type: string
+                        notes:
+                          type:
+                            - string
+                            - 'null'
+                        createdAt:
+                          anyOf:
+                            - type: string
+                            - type: string
+                              format: date-time
+                        updatedAt:
+                          anyOf:
+                            - type: string
+                            - type: string
+                              format: date-time
+                      required:
+                        - id
+                        - code
+                        - location
+                        - input
+                        - output
+                        - consumed
+                        - waste
+                        - conversionDate
+                        - notes
+                        - createdAt
+                        - updatedAt
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      limit:
+                        type: integer
+                      offset:
+                        type: integer
+                    required:
+                      - total
+                      - limit
+                      - offset
+                required:
+                  - data
+                  - meta
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /conversions/{id}:
+    patch:
+      tags:
+        - Conversions
+      summary: Update conversion
+      description: >-
+        Update a conversion; everything is editable at any time, there is no
+        status. A sent `input` or `output` replaces its side; an omitted one is
+        what is stored. Changing either side re-derives the output's quantity
+        through the case factors and rebuilds the consumed materials from the
+        new bill-of-materials diff; `extraMaterials`, if sent, replaces the
+        extras (each still restricted to the output's bill of materials, 422 and
+        409 as on create), and an existing extra whose material left the new
+        output's bill of materials is dropped automatically. An edited line
+        rewrites its existing ledger row in place (item, quantity, location,
+        conversion date, or notes), the derived materials are rewritten
+        wholesale to match the new diff. A changed `conversionDate` re-dates
+        every row the conversion owns, in place; the only undo is delete.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                locationId:
+                  type: string
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                conversionDate:
+                  type: string
+                  format: date
+                input:
+                  type: object
+                  properties:
+                    productId:
+                      type: string
+                      pattern: >-
+                        ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                    quantity:
+                      type: number
+                      exclusiveMinimum: 0
+                  required:
+                    - productId
+                    - quantity
+                output:
+                  type: object
+                  properties:
+                    productId:
+                      type: string
+                      pattern: >-
+                        ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  required:
+                    - productId
+                extraMaterials:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      materialId:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      quantity:
+                        type: number
+                        exclusiveMinimum: 0
+                    required:
+                      - materialId
+                      - quantity
+                notes:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 2000
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  code:
+                    type: string
+                  location:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  input:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      product:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          code:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                          - id
+                          - code
+                          - name
+                      quantity:
+                        anyOf:
+                          - type: string
+                          - type: number
+                    required:
+                      - id
+                      - product
+                      - quantity
+                  output:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      product:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          code:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                          - id
+                          - code
+                          - name
+                      quantity:
+                        anyOf:
+                          - type: string
+                          - type: number
+                    required:
+                      - id
+                      - product
+                      - quantity
+                  consumed:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        material:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - code
+                            - name
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        derived:
+                          type: boolean
+                      required:
+                        - id
+                        - material
+                        - quantity
+                        - derived
+                  waste:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        material:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - code
+                            - name
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                      required:
+                        - material
+                        - quantity
+                  conversionDate:
+                    type: string
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  updatedAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                required:
+                  - id
+                  - code
+                  - location
+                  - input
+                  - output
+                  - consumed
+                  - waste
+                  - conversionDate
+                  - notes
+                  - createdAt
+                  - updatedAt
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '409':
+          description: The same material repeats among extraMaterials (`conflict`).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    delete:
+      tags:
+        - Conversions
+      summary: Delete conversion
+      description: >-
+        Permanently delete a conversion, together with every ledger row its
+        lines wrote. On-hand recomputes live from the remaining rows. There is
+        no status and no undo other than delete.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                required:
+                  - deletedId
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    get:
+      tags:
+        - Conversions
+      summary: Get conversion detail
+      description: >-
+        Fetch one conversion by id: its location reference, its `input` and
+        `output` pair, the `consumed` materials (flagged `derived` when the
+        bill-of-materials diff wrote them), the computed `waste`, and
+        `conversionDate`. Same shape as a list row.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  code:
+                    type: string
+                  location:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  input:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      product:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          code:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                          - id
+                          - code
+                          - name
+                      quantity:
+                        anyOf:
+                          - type: string
+                          - type: number
+                    required:
+                      - id
+                      - product
+                      - quantity
+                  output:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      product:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          code:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                          - id
+                          - code
+                          - name
+                      quantity:
+                        anyOf:
+                          - type: string
+                          - type: number
+                    required:
+                      - id
+                      - product
+                      - quantity
+                  consumed:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        material:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - code
+                            - name
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        derived:
+                          type: boolean
+                      required:
+                        - id
+                        - material
+                        - quantity
+                        - derived
+                  waste:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        material:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - code
+                            - name
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                      required:
+                        - material
+                        - quantity
+                  conversionDate:
+                    type: string
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  updatedAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                required:
+                  - id
+                  - code
+                  - location
+                  - input
+                  - output
+                  - consumed
+                  - waste
+                  - conversionDate
+                  - notes
+                  - createdAt
+                  - updatedAt
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -22128,6 +23792,10 @@ paths:
                             - id
                             - code
                             - name
+                        unitsPerListing:
+                          type: integer
+                        productUnits:
+                          type: number
                       required:
                         - externalLineId
                         - variantId
@@ -22139,6 +23807,8 @@ paths:
                         - lineDiscount
                         - lineTotal
                         - product
+                        - unitsPerListing
+                        - productUnits
                   refunds:
                     type: array
                     items:
@@ -23019,8 +24689,9 @@ paths:
         default or amazon), merged with the stored mappings. Listings are
         identified by their store's stable key, the variant id on Shopify or the
         seller product on Amazon (both travel in variantId). Each row carries
-        the listing's own product code and titles, how much it sold, and the
-        Pharus product it maps to (null when unmapped). Filter with `search`
+        the listing's own product code and titles, how much it sold, the Pharus
+        product it maps to (null when unmapped), and `unitsPerListing`, the
+        mapping's factor (1 when unmapped). Filter with `search`
         (case-insensitive substring over the listing product, titles, and key)
         and `mapped` (false = still to map, true = already mapped); sort with
         `sort` (unitsSold, lineCount, listingSku, listingTitle; unitsSold
@@ -23128,6 +24799,8 @@ paths:
                             - id
                             - code
                             - name
+                        unitsPerListing:
+                          type: integer
                       required:
                         - variantId
                         - listingSku
@@ -23136,6 +24809,7 @@ paths:
                         - lineCount
                         - unitsSold
                         - product
+                        - unitsPerListing
                   meta:
                     type: object
                     properties:
@@ -23250,10 +24924,15 @@ paths:
         Map one marketplace listing to a Pharus product, or clear the mapping by
         passing productId null. The listing key travels in variantId: the
         variant id for Shopify listings, the seller product for Amazon ones
-        (`source` says which feed, shopify by default). Upserts: re-mapping a
-        listing replaces its previous mapping. The referenced product must exist
-        in the org (404 otherwise). Mapped products appear on connected receipt
-        detail lines.
+        (`source` says which feed, shopify by default). Pass `unitsPerListing`
+        (a whole number from 1 to 100000) when the listing is a multiple of the
+        product, for example 8 for an 8-pack listing of a single unit product;
+        it is ignored when productId is null. Omitting it keeps an existing
+        mapping's factor and defaults to 1 for a new mapping, so a save that
+        only changes the product never resets the listing's factor. Upserts:
+        re-mapping a listing replaces its previous mapping. The referenced
+        product must exist in the org (404 otherwise). Mapped products appear on
+        connected receipt detail lines.
       requestBody:
         content:
           application/json:
@@ -23285,6 +24964,10 @@ paths:
                     - 'null'
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                unitsPerListing:
+                  type: integer
+                  minimum: 1
+                  maximum: 100000
               required:
                 - variantId
                 - productId
@@ -23315,9 +24998,12 @@ paths:
                       - id
                       - code
                       - name
+                  unitsPerListing:
+                    type: integer
                 required:
                   - variantId
                   - product
+                  - unitsPerListing
         '401':
           description: Missing or invalid credentials
           content:
