@@ -4394,8 +4394,8 @@ paths:
         - Materials
       summary: List material types
       description: >-
-        List the org's material types in sort order, active and archived alike.
-        Pass a free-text `search` to match names (case-insensitive contains).
+        List the org's material types by name, active and archived alike. Pass a
+        free-text `search` to match names (case-insensitive contains).
       parameters:
         - schema:
             type: string
@@ -6672,9 +6672,8 @@ paths:
         - Products
       summary: List product categories
       description: >-
-        List the org's product categories in sort order, active and archived
-        alike. Pass a free-text `search` to match names (case-insensitive
-        contains).
+        List the org's product categories by name, active and archived alike.
+        Pass a free-text `search` to match names (case-insensitive contains).
       parameters:
         - schema:
             type: string
@@ -27503,10 +27502,10 @@ paths:
         - OrderChannels
       summary: List order channels
       description: >-
-        List all order channels in sort order, both active and deactivated (each
-        row carries an isActive flag). A channel id from here feeds the
-        channelId on sales orders and sales receipts. Pass a free-text `search`
-        to match names (case-insensitive contains).
+        List all order channels by name, both active and deactivated (each row
+        carries an isActive flag). A channel id from here feeds the channelId on
+        sales orders and sales receipts. Pass a free-text `search` to match
+        names (case-insensitive contains).
       parameters:
         - schema:
             type: string
@@ -28191,8 +28190,8 @@ paths:
         - AcquisitionSources
       summary: List acquisition sources
       description: >-
-        List all acquisition sources in sort order, both active and deactivated
-        (each row carries an isActive flag). A source id from here feeds the
+        List all acquisition sources by name, both active and deactivated (each
+        row carries an isActive flag). A source id from here feeds the
         acquisitionSourceId required on sales receipts. Pass a free-text
         `search` to match names (case-insensitive contains).
       parameters:
@@ -45945,6 +45944,10 @@ paths:
                     type:
                       - string
                       - 'null'
+                  avatarUrl:
+                    type:
+                      - string
+                      - 'null'
                   isActive:
                     type: boolean
                   createdAt:
@@ -45961,6 +45964,7 @@ paths:
                   - id
                   - email
                   - displayName
+                  - avatarUrl
                   - isActive
                   - createdAt
                   - updatedAt
@@ -46081,6 +46085,10 @@ paths:
                         type:
                           - string
                           - 'null'
+                      avatarUrl:
+                        type:
+                          - string
+                          - 'null'
                       isActive:
                         type: boolean
                       createdAt:
@@ -46097,6 +46105,7 @@ paths:
                       - id
                       - email
                       - displayName
+                      - avatarUrl
                       - isActive
                       - createdAt
                       - updatedAt
@@ -46227,6 +46236,27 @@ paths:
                                 - 'null'
                             connectedLedgerFrom:
                               type: string
+                            hiddenPages:
+                              type: array
+                              items:
+                                type: string
+                                enum:
+                                  - sales-orders
+                                  - customers
+                                  - sales-receipts
+                                  - sales-returns
+                                  - work-orders
+                                  - production-orders
+                                  - bom
+                                  - inventory
+                                  - transfers
+                                  - conversions
+                                  - purchase-orders
+                                  - vendors
+                                  - products
+                                  - materials
+                                  - facilities
+                                  - contacts
                             createdAt:
                               anyOf:
                                 - type: string
@@ -46247,6 +46277,7 @@ paths:
                             - costingMethod
                             - timezone
                             - connectedLedgerFrom
+                            - hiddenPages
                             - createdAt
                             - updatedAt
                       required:
@@ -46350,10 +46381,12 @@ paths:
         - Platform
       summary: Update user
       description: >-
-        Updates the authenticated user's own profile. Only displayName is
-        editable; email is owned by the Firebase identity. An empty patch is a
-        no-op that returns the current record. Control plane: requires a
-        Firebase session, PATs are rejected.
+        Updates the authenticated user's own profile. Only displayName and
+        avatarUrl are editable; email is owned by the Firebase identity.
+        avatarUrl carries the profile image as a data URI (the client downscales
+        it to 512px on the long side before sending, SVG untouched) and a null
+        clears it. An empty patch is a no-op that returns the current record.
+        Control plane: requires a Firebase session, PATs are rejected.
       requestBody:
         content:
           application/json:
@@ -46365,6 +46398,11 @@ paths:
                     - string
                     - 'null'
                   maxLength: 255
+                avatarUrl:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 900000
       responses:
         '200':
           description: OK
@@ -46380,6 +46418,10 @@ paths:
                   email:
                     type: string
                   displayName:
+                    type:
+                      - string
+                      - 'null'
+                  avatarUrl:
                     type:
                       - string
                       - 'null'
@@ -46399,6 +46441,7 @@ paths:
                   - id
                   - email
                   - displayName
+                  - avatarUrl
                   - isActive
                   - createdAt
                   - updatedAt
@@ -47967,6 +48010,27 @@ paths:
                           - 'null'
                       connectedLedgerFrom:
                         type: string
+                      hiddenPages:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - sales-orders
+                            - customers
+                            - sales-receipts
+                            - sales-returns
+                            - work-orders
+                            - production-orders
+                            - bom
+                            - inventory
+                            - transfers
+                            - conversions
+                            - purchase-orders
+                            - vendors
+                            - products
+                            - materials
+                            - facilities
+                            - contacts
                       createdAt:
                         anyOf:
                           - type: string
@@ -47987,6 +48051,7 @@ paths:
                       - costingMethod
                       - timezone
                       - connectedLedgerFrom
+                      - hiddenPages
                       - createdAt
                       - updatedAt
                 required:
@@ -48241,6 +48306,27 @@ paths:
                           - 'null'
                       connectedLedgerFrom:
                         type: string
+                      hiddenPages:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - sales-orders
+                            - customers
+                            - sales-receipts
+                            - sales-returns
+                            - work-orders
+                            - production-orders
+                            - bom
+                            - inventory
+                            - transfers
+                            - conversions
+                            - purchase-orders
+                            - vendors
+                            - products
+                            - materials
+                            - facilities
+                            - contacts
                       createdAt:
                         anyOf:
                           - type: string
@@ -48261,6 +48347,7 @@ paths:
                       - costingMethod
                       - timezone
                       - connectedLedgerFrom
+                      - hiddenPages
                       - createdAt
                       - updatedAt
                 required:
@@ -48330,9 +48417,13 @@ paths:
       summary: Update current organization
       description: >-
         Updates org identity (name) and/or settings (legal identity, contact,
-        logoUrl, operating model, costing method) atomically. The slug is
-        immutable after creation: warehouse datasets are named by it. Owner
-        only. Control plane: requires a Firebase session, PATs are rejected.
+        logoUrl, operating model, costing method) atomically. `hiddenPages`
+        replaces the whole list of sidebar entries the organization hides from
+        its menu: an empty list shows everything, omitting it leaves the stored
+        list alone, and hiding is navigation only (a hidden page keeps its route
+        and its API). The slug is immutable after creation: warehouse datasets
+        are named by it. Owner only. Control plane: requires a Firebase session,
+        PATs are rejected.
       requestBody:
         content:
           application/json:
@@ -48420,6 +48511,28 @@ paths:
                 connectedLedgerFrom:
                   type: string
                   pattern: ^\d{4}-\d{2}-\d{2}$
+                hiddenPages:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - sales-orders
+                      - customers
+                      - sales-receipts
+                      - sales-returns
+                      - work-orders
+                      - production-orders
+                      - bom
+                      - inventory
+                      - transfers
+                      - conversions
+                      - purchase-orders
+                      - vendors
+                      - products
+                      - materials
+                      - facilities
+                      - contacts
+                  maxItems: 16
       responses:
         '200':
           description: OK
@@ -48543,6 +48656,27 @@ paths:
                           - 'null'
                       connectedLedgerFrom:
                         type: string
+                      hiddenPages:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - sales-orders
+                            - customers
+                            - sales-receipts
+                            - sales-returns
+                            - work-orders
+                            - production-orders
+                            - bom
+                            - inventory
+                            - transfers
+                            - conversions
+                            - purchase-orders
+                            - vendors
+                            - products
+                            - materials
+                            - facilities
+                            - contacts
                       createdAt:
                         anyOf:
                           - type: string
@@ -48563,6 +48697,7 @@ paths:
                       - costingMethod
                       - timezone
                       - connectedLedgerFrom
+                      - hiddenPages
                       - createdAt
                       - updatedAt
                 required:
@@ -48799,10 +48934,15 @@ paths:
                                 - 'null'
                             email:
                               type: string
+                            avatarUrl:
+                              type:
+                                - string
+                                - 'null'
                           required:
                             - id
                             - name
                             - email
+                            - avatarUrl
                         role:
                           type: string
                           enum:
@@ -52061,8 +52201,8 @@ paths:
         - Customers
       summary: List customer types
       description: >-
-        List the org's customer types in sort order, active and archived alike.
-        Pass a free-text `search` to match names (case-insensitive contains).
+        List the org's customer types by name, active and archived alike. Pass a
+        free-text `search` to match names (case-insensitive contains).
       parameters:
         - schema:
             type: string
@@ -52743,9 +52883,8 @@ paths:
         - Customers
       summary: List customer segments
       description: >-
-        List the org's customer segments in sort order, active and archived
-        alike. Pass a free-text `search` to match names (case-insensitive
-        contains).
+        List the org's customer segments by name, active and archived alike.
+        Pass a free-text `search` to match names (case-insensitive contains).
       parameters:
         - schema:
             type: string
@@ -53672,7 +53811,7 @@ paths:
         - Brokers
       summary: List brokers
       description: >-
-        List the org's brokers in sort order, active and archived alike. Pass a
+        List the org's brokers by name, active and archived alike. Pass a
         free-text `search` to match broker names (case-insensitive contains);
         omit it to return the whole list.
       parameters:
