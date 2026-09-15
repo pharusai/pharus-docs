@@ -127,8 +127,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   address:
                     type:
                       - object
@@ -193,7 +191,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - address
                   - notes
                   - isActive
@@ -417,8 +414,6 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         name:
                           type: string
-                        sortOrder:
-                          type: integer
                         address:
                           type:
                             - object
@@ -483,7 +478,6 @@ paths:
                       required:
                         - id
                         - name
-                        - sortOrder
                         - address
                         - notes
                         - isActive
@@ -670,9 +664,6 @@ paths:
                     required:
                       - key
                       - value
-                sortOrder:
-                  type: integer
-                  minimum: 0
                 isActive:
                   type: boolean
       responses:
@@ -689,8 +680,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   address:
                     type:
                       - object
@@ -755,7 +744,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - address
                   - notes
                   - isActive
@@ -1117,8 +1105,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   address:
                     type:
                       - object
@@ -1319,7 +1305,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - address
                   - notes
                   - isActive
@@ -4258,8 +4243,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   isActive:
                     type: boolean
                   createdAt:
@@ -4270,7 +4253,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - isActive
                   - createdAt
         '401':
@@ -4421,8 +4403,6 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         name:
                           type: string
-                        sortOrder:
-                          type: integer
                         isActive:
                           type: boolean
                         createdAt:
@@ -4433,7 +4413,6 @@ paths:
                       required:
                         - id
                         - name
-                        - sortOrder
                         - isActive
                         - createdAt
                 required:
@@ -4554,8 +4533,6 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 100
-                sortOrder:
-                  type: integer
                 isActive:
                   type: boolean
       responses:
@@ -4572,8 +4549,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   isActive:
                     type: boolean
                   createdAt:
@@ -4584,7 +4559,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - isActive
                   - createdAt
         '401':
@@ -6536,8 +6510,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   isActive:
                     type: boolean
                   createdAt:
@@ -6548,7 +6520,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - isActive
                   - createdAt
         '401':
@@ -6699,8 +6670,6 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         name:
                           type: string
-                        sortOrder:
-                          type: integer
                         isActive:
                           type: boolean
                         createdAt:
@@ -6711,7 +6680,6 @@ paths:
                       required:
                         - id
                         - name
-                        - sortOrder
                         - isActive
                         - createdAt
                 required:
@@ -6832,8 +6800,6 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 100
-                sortOrder:
-                  type: integer
                 isActive:
                   type: boolean
       responses:
@@ -6850,8 +6816,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   isActive:
                     type: boolean
                   createdAt:
@@ -6862,7 +6826,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - isActive
                   - createdAt
         '401':
@@ -11213,6 +11176,33 @@ paths:
                     type: integer
                   lotLineCount:
                     type: integer
+                  balance:
+                    type:
+                      - number
+                      - 'null'
+                  document:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      kind:
+                        type: string
+                        enum:
+                          - purchase_order
+                          - sales_order
+                          - sales_receipt
+                          - sales_return
+                          - work_order
+                          - production_order
+                          - transfer
+                          - conversion
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                    required:
+                      - kind
+                      - id
                 required:
                   - id
                   - code
@@ -11503,6 +11493,33 @@ paths:
                     type: integer
                   lotLineCount:
                     type: integer
+                  balance:
+                    type:
+                      - number
+                      - 'null'
+                  document:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      kind:
+                        type: string
+                        enum:
+                          - purchase_order
+                          - sales_order
+                          - sales_receipt
+                          - sales_return
+                          - work_order
+                          - production_order
+                          - transfer
+                          - conversion
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                    required:
+                      - kind
+                      - id
                 required:
                   - id
                   - code
@@ -11659,8 +11676,14 @@ paths:
         case-insensitive substring over the material's code and name. Pass
         `includeOnHandValue=true` to also get `onHandValue`, the costed value of
         the stock on hand under the org's costing method; it replays the ledger
-        per row, so leave it off unless you need the money. This is the go-to
-        read for how much of X is on hand and where.
+        per row, so leave it off unless you need the money. The same flag adds
+        `unbackedQuantity`, the units the cost layers hold beyond the ledger's
+        on-hand (stock consumed before it was received, whose later receipt left
+        value nothing ever draws; 0 on a healthy row), `unbackedValue`, those
+        units at the layers' average cost (an estimate, the engine knows how
+        many units are phantom, not which ones), and `firstShortfallDate`, the
+        business day the ledger first went short at that location. This is the
+        go-to read for how much of X is on hand and where.
       parameters:
         - schema:
             type: string
@@ -11766,6 +11789,14 @@ paths:
                           type: string
                         onHandValue:
                           type: number
+                        unbackedQuantity:
+                          type: number
+                        unbackedValue:
+                          type: number
+                        firstShortfallDate:
+                          type:
+                            - string
+                            - 'null'
                       required:
                         - material
                         - location
@@ -12050,7 +12081,16 @@ paths:
         `offset`. The page is cut over the stored rows, so a row that splits
         into per-lot lines can make `data` slightly longer than `limit`;
         `meta.total` counts the filtered stored rows, so pagers can render page
-        counts under active filters.
+        counts under active filters. Each stock row also carries `balance`, the
+        on-hand quantity at its location right after the row, computed over the
+        item's full history in costing order (event date, then insertion order)
+        regardless of paging or sort; a negative balance is a consumption that
+        drew stock the location did not hold at that moment, which is where
+        value gets stranded. Planning rows (ORDER, DEMAND, ALLOCATE, SETTLE_*)
+        carry null. Each row also names the `document` that wrote it ({ kind, id
+        }: purchase_order, sales_order, sales_receipt, sales_return, work_order,
+        production_order, transfer or conversion), null on manual rows, so the
+        receipt or order behind a row can be opened directly.
       parameters:
         - schema:
             type: string
@@ -12270,6 +12310,33 @@ paths:
                           type: integer
                         lotLineCount:
                           type: integer
+                        balance:
+                          type:
+                            - number
+                            - 'null'
+                        document:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            kind:
+                              type: string
+                              enum:
+                                - purchase_order
+                                - sales_order
+                                - sales_receipt
+                                - sales_return
+                                - work_order
+                                - production_order
+                                - transfer
+                                - conversion
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          required:
+                            - kind
+                            - id
                       required:
                         - id
                         - code
@@ -12524,6 +12591,33 @@ paths:
                     type: integer
                   lotLineCount:
                     type: integer
+                  balance:
+                    type:
+                      - number
+                      - 'null'
+                  document:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      kind:
+                        type: string
+                        enum:
+                          - purchase_order
+                          - sales_order
+                          - sales_receipt
+                          - sales_return
+                          - work_order
+                          - production_order
+                          - transfer
+                          - conversion
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                    required:
+                      - kind
+                      - id
                 required:
                   - id
                   - code
@@ -12827,6 +12921,33 @@ paths:
                     type: integer
                   lotLineCount:
                     type: integer
+                  balance:
+                    type:
+                      - number
+                      - 'null'
+                  document:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      kind:
+                        type: string
+                        enum:
+                          - purchase_order
+                          - sales_order
+                          - sales_receipt
+                          - sales_return
+                          - work_order
+                          - production_order
+                          - transfer
+                          - conversion
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                    required:
+                      - kind
+                      - id
                 required:
                   - id
                   - code
@@ -13117,6 +13238,33 @@ paths:
                     type: integer
                   lotLineCount:
                     type: integer
+                  balance:
+                    type:
+                      - number
+                      - 'null'
+                  document:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      kind:
+                        type: string
+                        enum:
+                          - purchase_order
+                          - sales_order
+                          - sales_receipt
+                          - sales_return
+                          - work_order
+                          - production_order
+                          - transfer
+                          - conversion
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                    required:
+                      - kind
+                      - id
                 required:
                   - id
                   - code
@@ -13273,8 +13421,14 @@ paths:
         case-insensitive substring over the product's code and name. Pass
         `includeOnHandValue=true` to also get `onHandValue`, the costed value of
         the stock on hand under the org's costing method; it replays the ledger
-        per row, so leave it off unless you need the money. This is the go-to
-        read for how much of a product is on hand and where.
+        per row, so leave it off unless you need the money. The same flag adds
+        `unbackedQuantity`, the units the cost layers hold beyond the ledger's
+        on-hand (stock consumed before it was received, whose later receipt left
+        value nothing ever draws; 0 on a healthy row), `unbackedValue`, those
+        units at the layers' average cost (an estimate, the engine knows how
+        many units are phantom, not which ones), and `firstShortfallDate`, the
+        business day the ledger first went short at that location. This is the
+        go-to read for how much of a product is on hand and where.
       parameters:
         - schema:
             type: string
@@ -13380,6 +13534,14 @@ paths:
                           type: string
                         onHandValue:
                           type: number
+                        unbackedQuantity:
+                          type: number
+                        unbackedValue:
+                          type: number
+                        firstShortfallDate:
+                          type:
+                            - string
+                            - 'null'
                       required:
                         - product
                         - location
@@ -13511,7 +13673,17 @@ paths:
         (default 50, max 200) and `offset`. The page is cut over the stored
         rows, so a row that splits into per-lot lines can make `data` slightly
         longer than `limit`; `meta.total` counts the filtered stored rows, so
-        pagers can render page counts under active filters.
+        pagers can render page counts under active filters. Each stock row also
+        carries `balance`, the on-hand quantity at its location right after the
+        row, computed over the item's full history in costing order (event date,
+        then insertion order) regardless of paging or sort; a negative balance
+        is a consumption that drew stock the location did not hold at that
+        moment, which is where value gets stranded. Planning rows (ORDER,
+        DEMAND, ALLOCATE, SETTLE_*) carry null. Each row also names the
+        `document` that wrote it ({ kind, id }: purchase_order, sales_order,
+        sales_receipt, sales_return, work_order, production_order, transfer or
+        conversion), null on manual rows, so the receipt or order behind a row
+        can be opened directly.
       parameters:
         - schema:
             type: string
@@ -13731,6 +13903,33 @@ paths:
                           type: integer
                         lotLineCount:
                           type: integer
+                        balance:
+                          type:
+                            - number
+                            - 'null'
+                        document:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            kind:
+                              type: string
+                              enum:
+                                - purchase_order
+                                - sales_order
+                                - sales_receipt
+                                - sales_return
+                                - work_order
+                                - production_order
+                                - transfer
+                                - conversion
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          required:
+                            - kind
+                            - id
                       required:
                         - id
                         - code
@@ -13985,6 +14184,33 @@ paths:
                     type: integer
                   lotLineCount:
                     type: integer
+                  balance:
+                    type:
+                      - number
+                      - 'null'
+                  document:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      kind:
+                        type: string
+                        enum:
+                          - purchase_order
+                          - sales_order
+                          - sales_receipt
+                          - sales_return
+                          - work_order
+                          - production_order
+                          - transfer
+                          - conversion
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                    required:
+                      - kind
+                      - id
                 required:
                   - id
                   - code
@@ -15711,14 +15937,29 @@ paths:
         is not part of the output's bill of materials" otherwise), and the same
         material may not repeat among them (409). `waste` on the response
         reports the input's materials the output does not keep, plus the extras;
-        it is informational, not costed. There is no status: the conversion is
-        the record of a fact, so its ledger rows write immediately on create,
-        one per line: CONSUME for the input, RECEIVE for the output, CONSUME on
-        the materials ledger for every consumed line. The output receives at the
-        cost of what the conversion consumed: the value drawn for the input plus
-        the value of the consumed materials, spread over the output quantity.
-        `conversionDate` defaults to today and may be any day in the past; it is
-        the business date of every row. Nothing checks stock on hand. Kits are
+        it is informational, not costed. The conversion opens in `status`
+        (Planning by default; any stage but Partial, which is reached by
+        receiving and is refused with 422), its stage dates stamped for the
+        opening stage and back-datable through `statusDates`. Planning posts
+        nothing. Placed puts the output on order (ORDER), reserves the input
+        (ALLOCATE, never DEMAND: the goods exist) and demands the consumed
+        materials (DEMAND); Production reserves the materials (ALLOCATE); the
+        stock moves as it is received, one reception at a time through POST
+        /conversion-receipts, each a whole multiple of `step` (the output units
+        that use up whole units of the input); Received settles whatever is
+        still open. A conversion opened straight in Received or Completed is the
+        record of a repack already done: it gets one reception for its full
+        output on the received date. The response is the detail: the document
+        with its `step`, its `received` total and its `receptions`.
+        `conversionCost` is the cost of converting one unit of output (the
+        co-packer's fee or the labor), zero by default; each reception snapshots
+        the value in force when it is recorded, and its output receives at the
+        cost of what that reception consumed (the value drawn for the input plus
+        the value of the consumed materials, spread over the units received)
+        plus that snapshot per unit, minus the loss (what the reception threw
+        away, valued from the order that built its input; nothing when the input
+        was not built in Pharus). `conversionDate` is the document's business
+        date and defaults to today. Nothing checks stock on hand. Kits are
         rejected. Returns 404 if the input product, the output product, an extra
         material, or the location does not exist.
       requestBody:
@@ -15731,6 +15972,54 @@ paths:
                   type: string
                   pattern: >-
                     ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                status:
+                  type: string
+                  enum:
+                    - Planning
+                    - Placed
+                    - Production
+                    - Partial
+                    - Received
+                    - Completed
+                    - Cancelled
+                statusDates:
+                  type: object
+                  properties:
+                    planning:
+                      type:
+                        - string
+                        - 'null'
+                      format: date
+                    placed:
+                      type:
+                        - string
+                        - 'null'
+                      format: date
+                    production:
+                      type:
+                        - string
+                        - 'null'
+                      format: date
+                    partial:
+                      type:
+                        - string
+                        - 'null'
+                      format: date
+                    received:
+                      type:
+                        - string
+                        - 'null'
+                      format: date
+                    completed:
+                      type:
+                        - string
+                        - 'null'
+                      format: date
+                    cancelled:
+                      type:
+                        - string
+                        - 'null'
+                      format: date
                 input:
                   type: object
                   properties:
@@ -15771,6 +16060,9 @@ paths:
                 conversionDate:
                   type: string
                   format: date
+                conversionCost:
+                  type: number
+                  minimum: 0
                 notes:
                   type:
                     - string
@@ -15794,6 +16086,16 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   code:
                     type: string
+                  status:
+                    type: string
+                    enum:
+                      - Planning
+                      - Placed
+                      - Production
+                      - Partial
+                      - Received
+                      - Completed
+                      - Cancelled
                   location:
                     type: object
                     properties:
@@ -15930,6 +16232,53 @@ paths:
                         - quantity
                   conversionDate:
                     type: string
+                  statusDates:
+                    type: object
+                    properties:
+                      planning:
+                        type:
+                          - string
+                          - 'null'
+                      placed:
+                        type:
+                          - string
+                          - 'null'
+                      production:
+                        type:
+                          - string
+                          - 'null'
+                      partial:
+                        type:
+                          - string
+                          - 'null'
+                      received:
+                        type:
+                          - string
+                          - 'null'
+                      completed:
+                        type:
+                          - string
+                          - 'null'
+                      cancelled:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - planning
+                      - placed
+                      - production
+                      - partial
+                      - received
+                      - completed
+                      - cancelled
+                  step:
+                    type: number
+                  received:
+                    type: number
+                  conversionCost:
+                    anyOf:
+                      - type: string
+                      - type: number
                   notes:
                     type:
                       - string
@@ -15944,18 +16293,149 @@ paths:
                       - type: string
                       - type: string
                         format: date-time
+                  receptions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        receptionDate:
+                          type: string
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        conversionCost:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        lotNumber:
+                          type:
+                            - string
+                            - 'null'
+                        expirationDate:
+                          type:
+                            - string
+                            - 'null'
+                        notes:
+                          type:
+                            - string
+                            - 'null'
+                        createdAt:
+                          anyOf:
+                            - type: string
+                            - type: string
+                              format: date-time
+                        loss:
+                          type: object
+                          properties:
+                            lines:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  material:
+                                    type: object
+                                    properties:
+                                      id:
+                                        type: string
+                                        pattern: >-
+                                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                      code:
+                                        type: string
+                                      name:
+                                        type: string
+                                    required:
+                                      - id
+                                      - code
+                                      - name
+                                  quantity:
+                                    type: number
+                                  unitCost:
+                                    type: number
+                                  value:
+                                    type: number
+                                required:
+                                  - material
+                                  - quantity
+                                  - unitCost
+                                  - value
+                            total:
+                              type: number
+                          required:
+                            - lines
+                            - total
+                      required:
+                        - id
+                        - receptionDate
+                        - quantity
+                        - conversionCost
+                        - lotNumber
+                        - expirationDate
+                        - notes
+                        - createdAt
+                        - loss
+                  loss:
+                    type: object
+                    properties:
+                      lines:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            material:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  pattern: >-
+                                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                code:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                                - id
+                                - code
+                                - name
+                            quantity:
+                              type: number
+                            unitCost:
+                              type: number
+                            value:
+                              type: number
+                          required:
+                            - material
+                            - quantity
+                            - unitCost
+                            - value
+                      total:
+                        type: number
+                    required:
+                      - lines
+                      - total
                 required:
                   - id
                   - code
+                  - status
                   - location
                   - input
                   - output
                   - consumed
                   - waste
                   - conversionDate
+                  - statusDates
+                  - step
+                  - received
+                  - conversionCost
                   - notes
                   - createdAt
                   - updatedAt
+                  - receptions
+                  - loss
         '401':
           description: Missing or invalid credentials
           content:
@@ -16108,26 +16588,31 @@ paths:
         - Conversions
       summary: List conversions
       description: >-
-        List conversions, newest first by default, each with its embedded
-        `location` ({ id, name }), its `input` and `output` (each a product
-        resolved to { id, code, name } plus a quantity, the output's derived
-        through the case factors), its `consumed` materials (resolved to { id,
-        code, name }, flagged `derived` when the bill-of-materials diff wrote
-        the line, `false` for a caller-added extra), its `waste` (materials the
-        output does not keep from the input, plus the extras, unpriced), and
-        `conversionDate`. Filters AND together: `locationId` is a CSV
-        multi-select, `productId` matches the input or the output, `materialId`
-        matches a consumed line, `dateFrom`/`dateTo` bound the conversion date,
-        `search` substring-matches the code, the location name, the input or
-        output's item code or name, and notes. Sort with `sort` (number,
-        location, date, createdAt, updatedAt) and `order`; page with `limit`
-        (default 50, max 200) and `offset`; `meta.total` counts the filtered
-        documents.
+        List conversions, newest first by default, each with its `status`, its
+        `statusDates` (the seven stage dates keyed planning, placed, production,
+        partial, received, completed, cancelled), its embedded `location` ({ id,
+        name }), its `input` and `output` (each a product resolved to { id,
+        code, name } plus a quantity, the output's derived through the case
+        factors), its `consumed` materials (resolved to { id, code, name },
+        flagged `derived` when the bill-of-materials diff wrote the line,
+        `false` for a caller-added extra), its `waste` (materials the output
+        does not keep from the input, plus the extras, unpriced),
+        `conversionDate`, `step` (the output units a reception must be a
+        multiple of), `received` (output units received so far) and
+        `conversionCost` (per output unit). Filters AND together: `status` and
+        `locationId` are CSV multi-selects, `productId` matches the input or the
+        output, `materialId` matches a consumed line, `dateFrom`/`dateTo` bound
+        the conversion date, `search` substring-matches the code, the location
+        name, the input or output's item code or name, and notes. Sort with
+        `sort` (number, status in lifecycle order, location, date, createdAt,
+        updatedAt) and `order`; page with `limit` (default 50, max 200) and
+        `offset`; `meta.total` counts the filtered documents.
       parameters:
         - schema:
             type: string
             enum:
               - number
+              - status
               - location
               - date
               - createdAt
@@ -16155,6 +16640,11 @@ paths:
             minimum: 0
           required: false
           name: offset
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: status
           in: query
         - schema:
             type: string
@@ -16211,6 +16701,16 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         code:
                           type: string
+                        status:
+                          type: string
+                          enum:
+                            - Planning
+                            - Placed
+                            - Production
+                            - Partial
+                            - Received
+                            - Completed
+                            - Cancelled
                         location:
                           type: object
                           properties:
@@ -16347,6 +16847,53 @@ paths:
                               - quantity
                         conversionDate:
                           type: string
+                        statusDates:
+                          type: object
+                          properties:
+                            planning:
+                              type:
+                                - string
+                                - 'null'
+                            placed:
+                              type:
+                                - string
+                                - 'null'
+                            production:
+                              type:
+                                - string
+                                - 'null'
+                            partial:
+                              type:
+                                - string
+                                - 'null'
+                            received:
+                              type:
+                                - string
+                                - 'null'
+                            completed:
+                              type:
+                                - string
+                                - 'null'
+                            cancelled:
+                              type:
+                                - string
+                                - 'null'
+                          required:
+                            - planning
+                            - placed
+                            - production
+                            - partial
+                            - received
+                            - completed
+                            - cancelled
+                        step:
+                          type: number
+                        received:
+                          type: number
+                        conversionCost:
+                          anyOf:
+                            - type: string
+                            - type: number
                         notes:
                           type:
                             - string
@@ -16364,12 +16911,17 @@ paths:
                       required:
                         - id
                         - code
+                        - status
                         - location
                         - input
                         - output
                         - consumed
                         - waste
                         - conversionDate
+                        - statusDates
+                        - step
+                        - received
+                        - conversionCost
                         - notes
                         - createdAt
                         - updatedAt
@@ -16482,18 +17034,35 @@ paths:
         - Conversions
       summary: Update conversion
       description: >-
-        Update a conversion; everything is editable at any time, there is no
-        status. A sent `input` or `output` replaces its side; an omitted one is
-        what is stored. Changing either side re-derives the output's quantity
-        through the case factors and rebuilds the consumed materials from the
-        new bill-of-materials diff; `extraMaterials`, if sent, replaces the
-        extras (each still restricted to the output's bill of materials, 422 and
-        409 as on create), and an existing extra whose material left the new
-        output's bill of materials is dropped automatically. An edited line
-        rewrites its existing ledger row in place (item, quantity, location,
-        conversion date, or notes), the derived materials are rewritten
-        wholesale to match the new diff. A changed `conversionDate` re-dates
-        every row the conversion owns, in place; the only undo is delete.
+        Update a conversion. A `status` move rides here and is guarded by the
+        state machine: Planning, Placed and Production move freely among
+        themselves and to Cancelled; Partial is reached by the first reception
+        (never a manual target) and goes to Received, the manual close; Received
+        reopens to Partial or goes on to Completed; Completed steps back to
+        Received; Cancelled reactivates to Planning, Placed or Production (409
+        `invalid_transition` on any other move). Each stage stamps its own date;
+        `statusDates` merges per key over the auto-stamp and may back-date a
+        stage, kept in lifecycle order (422 otherwise); editing the placed or
+        production date re-dates the rows that stage posted, editing the
+        received date re-dates the settle (the movement rows carry their
+        reception's date). Advancing posts the stage's commitments, stepping
+        back reverses them; entering Received settles, reopening unsettles;
+        Cancelled reverses whatever is open. The location is editable only in
+        Planning (409 `invalid_transition` afterwards: the commitments sit at
+        it). The `input`, `output` and `extraMaterials` are editable until a
+        reception exists (409 `invalid_transition` afterwards: the stock has
+        started to move against them; delete the receptions to change them).
+        While editable, a sent input or output replaces its side, an omitted one
+        is what is stored, and changing either side re-derives the output's
+        quantity through the case factors and rebuilds the consumed materials
+        from the new bill-of-materials diff; `extraMaterials`, if sent, replaces
+        the extras (each still restricted to the output's bill of materials, 422
+        and 409 as on create), and an existing extra whose material left the new
+        output's bill of materials is dropped automatically. `conversionDate`,
+        `conversionCost` and `notes` are editable in any status; a new
+        conversion cost applies to receptions recorded after it, since each
+        reception snapshots the value. The response is the detail with the
+        receptions nested.
       parameters:
         - schema:
             type: string
@@ -16508,6 +17077,54 @@ paths:
             schema:
               type: object
               properties:
+                status:
+                  type: string
+                  enum:
+                    - Planning
+                    - Placed
+                    - Production
+                    - Partial
+                    - Received
+                    - Completed
+                    - Cancelled
+                statusDates:
+                  type: object
+                  properties:
+                    planning:
+                      type:
+                        - string
+                        - 'null'
+                      format: date
+                    placed:
+                      type:
+                        - string
+                        - 'null'
+                      format: date
+                    production:
+                      type:
+                        - string
+                        - 'null'
+                      format: date
+                    partial:
+                      type:
+                        - string
+                        - 'null'
+                      format: date
+                    received:
+                      type:
+                        - string
+                        - 'null'
+                      format: date
+                    completed:
+                      type:
+                        - string
+                        - 'null'
+                      format: date
+                    cancelled:
+                      type:
+                        - string
+                        - 'null'
+                      format: date
                 locationId:
                   type: string
                   pattern: >-
@@ -16515,6 +17132,9 @@ paths:
                 conversionDate:
                   type: string
                   format: date
+                conversionCost:
+                  type: number
+                  minimum: 0
                 input:
                   type: object
                   properties:
@@ -16571,6 +17191,16 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   code:
                     type: string
+                  status:
+                    type: string
+                    enum:
+                      - Planning
+                      - Placed
+                      - Production
+                      - Partial
+                      - Received
+                      - Completed
+                      - Cancelled
                   location:
                     type: object
                     properties:
@@ -16707,6 +17337,53 @@ paths:
                         - quantity
                   conversionDate:
                     type: string
+                  statusDates:
+                    type: object
+                    properties:
+                      planning:
+                        type:
+                          - string
+                          - 'null'
+                      placed:
+                        type:
+                          - string
+                          - 'null'
+                      production:
+                        type:
+                          - string
+                          - 'null'
+                      partial:
+                        type:
+                          - string
+                          - 'null'
+                      received:
+                        type:
+                          - string
+                          - 'null'
+                      completed:
+                        type:
+                          - string
+                          - 'null'
+                      cancelled:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - planning
+                      - placed
+                      - production
+                      - partial
+                      - received
+                      - completed
+                      - cancelled
+                  step:
+                    type: number
+                  received:
+                    type: number
+                  conversionCost:
+                    anyOf:
+                      - type: string
+                      - type: number
                   notes:
                     type:
                       - string
@@ -16721,18 +17398,149 @@ paths:
                       - type: string
                       - type: string
                         format: date-time
+                  receptions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        receptionDate:
+                          type: string
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        conversionCost:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        lotNumber:
+                          type:
+                            - string
+                            - 'null'
+                        expirationDate:
+                          type:
+                            - string
+                            - 'null'
+                        notes:
+                          type:
+                            - string
+                            - 'null'
+                        createdAt:
+                          anyOf:
+                            - type: string
+                            - type: string
+                              format: date-time
+                        loss:
+                          type: object
+                          properties:
+                            lines:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  material:
+                                    type: object
+                                    properties:
+                                      id:
+                                        type: string
+                                        pattern: >-
+                                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                      code:
+                                        type: string
+                                      name:
+                                        type: string
+                                    required:
+                                      - id
+                                      - code
+                                      - name
+                                  quantity:
+                                    type: number
+                                  unitCost:
+                                    type: number
+                                  value:
+                                    type: number
+                                required:
+                                  - material
+                                  - quantity
+                                  - unitCost
+                                  - value
+                            total:
+                              type: number
+                          required:
+                            - lines
+                            - total
+                      required:
+                        - id
+                        - receptionDate
+                        - quantity
+                        - conversionCost
+                        - lotNumber
+                        - expirationDate
+                        - notes
+                        - createdAt
+                        - loss
+                  loss:
+                    type: object
+                    properties:
+                      lines:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            material:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  pattern: >-
+                                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                code:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                                - id
+                                - code
+                                - name
+                            quantity:
+                              type: number
+                            unitCost:
+                              type: number
+                            value:
+                              type: number
+                          required:
+                            - material
+                            - quantity
+                            - unitCost
+                            - value
+                      total:
+                        type: number
+                    required:
+                      - lines
+                      - total
                 required:
                   - id
                   - code
+                  - status
                   - location
                   - input
                   - output
                   - consumed
                   - waste
                   - conversionDate
+                  - statusDates
+                  - step
+                  - received
+                  - conversionCost
                   - notes
                   - createdAt
                   - updatedAt
+                  - receptions
+                  - loss
         '401':
           description: Missing or invalid credentials
           content:
@@ -16821,7 +17629,10 @@ paths:
                 required:
                   - error
         '409':
-          description: The same material repeats among extraMaterials (`conflict`).
+          description: >-
+            A status move the state machine forbids, a locked field sent after
+            its stage (`invalid_transition`), or the same material repeating
+            among extraMaterials (`conflict`).
           content:
             application/json:
               schema:
@@ -16883,9 +17694,12 @@ paths:
         - Conversions
       summary: Delete conversion
       description: >-
-        Permanently delete a conversion, together with every ledger row its
-        lines wrote. On-hand recomputes live from the remaining rows. There is
-        no status and no undo other than delete.
+        Permanently delete a conversion that has no receptions, together with
+        every ledger row it wrote: the commitments, their reversals and the
+        settle rows. A conversion with receptions is refused with 409
+        `conflict`: its stock has moved, so delete the receptions first (each
+        takes its own rows with it). The open figures recompute live from the
+        remaining rows.
       parameters:
         - schema:
             type: string
@@ -16995,6 +17809,35 @@ paths:
                       - message
                 required:
                   - error
+        '409':
+          description: The conversion has receptions (`conflict`); delete them first.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
         '422':
           description: Validation failed
           content:
@@ -17029,10 +17872,17 @@ paths:
         - Conversions
       summary: Get conversion detail
       description: >-
-        Fetch one conversion by id: its location reference, its `input` and
-        `output` pair, the `consumed` materials (flagged `derived` when the
-        bill-of-materials diff wrote them), the computed `waste`, and
-        `conversionDate`. Same shape as a list row.
+        Fetch one conversion by id: a list row plus its `receptions`, oldest
+        first, each with its date, quantity (output units), lot, expiration,
+        notes and `loss`, and the conversion's `loss` summed over them. The loss
+        is what a reception threw away, valued from the order that built its
+        input: costing the reception's input consume gives the received layers
+        it drew from, each layer's origin is the receipt line of the order that
+        built the case, and that order's consumed lines give the wasted
+        material's unit cost; per material it reports the quantity wasted, that
+        unit cost and the value, plus a total. An input that was not built in
+        Pharus (bought, adjusted in) books no loss and keeps its whole value in
+        the output. Computed on read, never stored, never a ledger row.
       parameters:
         - schema:
             type: string
@@ -17055,6 +17905,16 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   code:
                     type: string
+                  status:
+                    type: string
+                    enum:
+                      - Planning
+                      - Placed
+                      - Production
+                      - Partial
+                      - Received
+                      - Completed
+                      - Cancelled
                   location:
                     type: object
                     properties:
@@ -17191,6 +18051,53 @@ paths:
                         - quantity
                   conversionDate:
                     type: string
+                  statusDates:
+                    type: object
+                    properties:
+                      planning:
+                        type:
+                          - string
+                          - 'null'
+                      placed:
+                        type:
+                          - string
+                          - 'null'
+                      production:
+                        type:
+                          - string
+                          - 'null'
+                      partial:
+                        type:
+                          - string
+                          - 'null'
+                      received:
+                        type:
+                          - string
+                          - 'null'
+                      completed:
+                        type:
+                          - string
+                          - 'null'
+                      cancelled:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - planning
+                      - placed
+                      - production
+                      - partial
+                      - received
+                      - completed
+                      - cancelled
+                  step:
+                    type: number
+                  received:
+                    type: number
+                  conversionCost:
+                    anyOf:
+                      - type: string
+                      - type: number
                   notes:
                     type:
                       - string
@@ -17205,18 +18112,1673 @@ paths:
                       - type: string
                       - type: string
                         format: date-time
+                  receptions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        receptionDate:
+                          type: string
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        conversionCost:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        lotNumber:
+                          type:
+                            - string
+                            - 'null'
+                        expirationDate:
+                          type:
+                            - string
+                            - 'null'
+                        notes:
+                          type:
+                            - string
+                            - 'null'
+                        createdAt:
+                          anyOf:
+                            - type: string
+                            - type: string
+                              format: date-time
+                        loss:
+                          type: object
+                          properties:
+                            lines:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  material:
+                                    type: object
+                                    properties:
+                                      id:
+                                        type: string
+                                        pattern: >-
+                                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                      code:
+                                        type: string
+                                      name:
+                                        type: string
+                                    required:
+                                      - id
+                                      - code
+                                      - name
+                                  quantity:
+                                    type: number
+                                  unitCost:
+                                    type: number
+                                  value:
+                                    type: number
+                                required:
+                                  - material
+                                  - quantity
+                                  - unitCost
+                                  - value
+                            total:
+                              type: number
+                          required:
+                            - lines
+                            - total
+                      required:
+                        - id
+                        - receptionDate
+                        - quantity
+                        - conversionCost
+                        - lotNumber
+                        - expirationDate
+                        - notes
+                        - createdAt
+                        - loss
+                  loss:
+                    type: object
+                    properties:
+                      lines:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            material:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  pattern: >-
+                                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                code:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                                - id
+                                - code
+                                - name
+                            quantity:
+                              type: number
+                            unitCost:
+                              type: number
+                            value:
+                              type: number
+                          required:
+                            - material
+                            - quantity
+                            - unitCost
+                            - value
+                      total:
+                        type: number
+                    required:
+                      - lines
+                      - total
                 required:
                   - id
                   - code
+                  - status
                   - location
                   - input
                   - output
                   - consumed
                   - waste
                   - conversionDate
+                  - statusDates
+                  - step
+                  - received
+                  - conversionCost
                   - notes
                   - createdAt
                   - updatedAt
+                  - receptions
+                  - loss
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /conversion-status-types:
+    get:
+      tags:
+        - Conversions
+      summary: List conversion status types
+      description: >-
+        List the conversion status vocabulary (Planning, Placed, Production,
+        Partial, Received, Completed, Cancelled) as a plain string array, for
+        populating status pickers. Partial is reached by receiving, never set by
+        hand.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                required:
+                  - data
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /conversion-receipts:
+    post:
+      tags:
+        - Conversions
+      summary: Create reception against conversion
+      description: >-
+        Record output that came back from a conversion, named by conversionId in
+        the body. `quantity` is in output units and must be a whole multiple of
+        the conversion's `step`, the output units that use up whole units of the
+        input (cases of 12 to eaches: 12 at a time; eaches to cases: one case;
+        cases of 8 to cases of 12: two cases of 12, the whole conversion; a
+        repouch: one) so every reception moves real cases and boxes, never
+        fractions (422 otherwise, naming the step). The reception writes its own
+        rows, keyed by its id: a CONSUME of the input for the input units it
+        used up, a CONSUME on the materials ledger per consumed material scaled
+        by received over planned, and a RECEIVE of the output carrying the lot
+        and expiration, all at the conversion's location on `receptionDate`
+        (defaults to today). It snapshots the conversion's `conversionCost` per
+        unit unless the body sends its own; the costing engine adds it per unit
+        received on top of what the reception consumed. The first reception
+        moves the conversion to Partial; receiving against a Received conversion
+        reopens it to Partial and removes its settle; Received itself is never
+        derived from the quantities and over-receipt is allowed in steps.
+        Refused with 409 `invalid_transition` from Planning, Placed, Completed
+        or Cancelled (receiving opens in Production). The 201 is two-keyed: the
+        reception, and the conversion detail it landed on.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                conversionId:
+                  type: string
+                  pattern: >-
+                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                receptionDate:
+                  type: string
+                  format: date
+                quantity:
+                  type: number
+                  exclusiveMinimum: 0
+                conversionCost:
+                  type: number
+                  minimum: 0
+                lotNumber:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 255
+                expirationDate:
+                  type:
+                    - string
+                    - 'null'
+                  format: date
+                notes:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 2000
+              required:
+                - conversionId
+                - quantity
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reception:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      conversionId:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      receptionDate:
+                        type: string
+                      quantity:
+                        anyOf:
+                          - type: string
+                          - type: number
+                      conversionCost:
+                        anyOf:
+                          - type: string
+                          - type: number
+                      lotNumber:
+                        type:
+                          - string
+                          - 'null'
+                      expirationDate:
+                        type:
+                          - string
+                          - 'null'
+                      notes:
+                        type:
+                          - string
+                          - 'null'
+                      createdAt:
+                        anyOf:
+                          - type: string
+                          - type: string
+                            format: date-time
+                    required:
+                      - id
+                      - conversionId
+                      - receptionDate
+                      - quantity
+                      - conversionCost
+                      - lotNumber
+                      - expirationDate
+                      - notes
+                      - createdAt
+                  conversion:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      code:
+                        type: string
+                      status:
+                        type: string
+                        enum:
+                          - Planning
+                          - Placed
+                          - Production
+                          - Partial
+                          - Received
+                          - Completed
+                          - Cancelled
+                      location:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          name:
+                            type: string
+                        required:
+                          - id
+                          - name
+                      input:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          product:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                pattern: >-
+                                  ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                              code:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                              - id
+                              - code
+                              - name
+                          quantity:
+                            anyOf:
+                              - type: string
+                              - type: number
+                        required:
+                          - id
+                          - product
+                          - quantity
+                      output:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          product:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                pattern: >-
+                                  ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                              code:
+                                type: string
+                              name:
+                                type: string
+                            required:
+                              - id
+                              - code
+                              - name
+                          quantity:
+                            anyOf:
+                              - type: string
+                              - type: number
+                        required:
+                          - id
+                          - product
+                          - quantity
+                      consumed:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            material:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  pattern: >-
+                                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                code:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                                - id
+                                - code
+                                - name
+                            quantity:
+                              anyOf:
+                                - type: string
+                                - type: number
+                            derived:
+                              type: boolean
+                          required:
+                            - id
+                            - material
+                            - quantity
+                            - derived
+                      waste:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            material:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  pattern: >-
+                                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                code:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                                - id
+                                - code
+                                - name
+                            quantity:
+                              anyOf:
+                                - type: string
+                                - type: number
+                          required:
+                            - material
+                            - quantity
+                      conversionDate:
+                        type: string
+                      statusDates:
+                        type: object
+                        properties:
+                          planning:
+                            type:
+                              - string
+                              - 'null'
+                          placed:
+                            type:
+                              - string
+                              - 'null'
+                          production:
+                            type:
+                              - string
+                              - 'null'
+                          partial:
+                            type:
+                              - string
+                              - 'null'
+                          received:
+                            type:
+                              - string
+                              - 'null'
+                          completed:
+                            type:
+                              - string
+                              - 'null'
+                          cancelled:
+                            type:
+                              - string
+                              - 'null'
+                        required:
+                          - planning
+                          - placed
+                          - production
+                          - partial
+                          - received
+                          - completed
+                          - cancelled
+                      step:
+                        type: number
+                      received:
+                        type: number
+                      conversionCost:
+                        anyOf:
+                          - type: string
+                          - type: number
+                      notes:
+                        type:
+                          - string
+                          - 'null'
+                      createdAt:
+                        anyOf:
+                          - type: string
+                          - type: string
+                            format: date-time
+                      updatedAt:
+                        anyOf:
+                          - type: string
+                          - type: string
+                            format: date-time
+                      receptions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            receptionDate:
+                              type: string
+                            quantity:
+                              anyOf:
+                                - type: string
+                                - type: number
+                            conversionCost:
+                              anyOf:
+                                - type: string
+                                - type: number
+                            lotNumber:
+                              type:
+                                - string
+                                - 'null'
+                            expirationDate:
+                              type:
+                                - string
+                                - 'null'
+                            notes:
+                              type:
+                                - string
+                                - 'null'
+                            createdAt:
+                              anyOf:
+                                - type: string
+                                - type: string
+                                  format: date-time
+                            loss:
+                              type: object
+                              properties:
+                                lines:
+                                  type: array
+                                  items:
+                                    type: object
+                                    properties:
+                                      material:
+                                        type: object
+                                        properties:
+                                          id:
+                                            type: string
+                                            pattern: >-
+                                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                          code:
+                                            type: string
+                                          name:
+                                            type: string
+                                        required:
+                                          - id
+                                          - code
+                                          - name
+                                      quantity:
+                                        type: number
+                                      unitCost:
+                                        type: number
+                                      value:
+                                        type: number
+                                    required:
+                                      - material
+                                      - quantity
+                                      - unitCost
+                                      - value
+                                total:
+                                  type: number
+                              required:
+                                - lines
+                                - total
+                          required:
+                            - id
+                            - receptionDate
+                            - quantity
+                            - conversionCost
+                            - lotNumber
+                            - expirationDate
+                            - notes
+                            - createdAt
+                            - loss
+                      loss:
+                        type: object
+                        properties:
+                          lines:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                material:
+                                  type: object
+                                  properties:
+                                    id:
+                                      type: string
+                                      pattern: >-
+                                        ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                    code:
+                                      type: string
+                                    name:
+                                      type: string
+                                  required:
+                                    - id
+                                    - code
+                                    - name
+                                quantity:
+                                  type: number
+                                unitCost:
+                                  type: number
+                                value:
+                                  type: number
+                              required:
+                                - material
+                                - quantity
+                                - unitCost
+                                - value
+                          total:
+                            type: number
+                        required:
+                          - lines
+                          - total
+                    required:
+                      - id
+                      - code
+                      - status
+                      - location
+                      - input
+                      - output
+                      - consumed
+                      - waste
+                      - conversionDate
+                      - statusDates
+                      - step
+                      - received
+                      - conversionCost
+                      - notes
+                      - createdAt
+                      - updatedAt
+                      - receptions
+                      - loss
+                required:
+                  - reception
+                  - conversion
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: The conversion does not exist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '409':
+          description: The conversion is not open for receiving (`invalid_transition`)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    get:
+      tags:
+        - Conversions
+      summary: List conversion receptions
+      description: >-
+        List receptions, oldest first, each with its conversionId, date,
+        quantity (output units), lot, expiration and notes. Pass conversionId to
+        scope the list to one conversion.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: false
+          name: conversionId
+          in: query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        conversionId:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        receptionDate:
+                          type: string
+                        quantity:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        conversionCost:
+                          anyOf:
+                            - type: string
+                            - type: number
+                        lotNumber:
+                          type:
+                            - string
+                            - 'null'
+                        expirationDate:
+                          type:
+                            - string
+                            - 'null'
+                        notes:
+                          type:
+                            - string
+                            - 'null'
+                        createdAt:
+                          anyOf:
+                            - type: string
+                            - type: string
+                              format: date-time
+                      required:
+                        - id
+                        - conversionId
+                        - receptionDate
+                        - quantity
+                        - conversionCost
+                        - lotNumber
+                        - expirationDate
+                        - notes
+                        - createdAt
+                required:
+                  - data
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /conversion-receipts/{id}:
+    patch:
+      tags:
+        - Conversions
+      summary: Update conversion reception
+      description: >-
+        Edit a reception in place: a new `quantity` (still a multiple of the
+        step, 422 otherwise) rescales its input CONSUME, its materials CONSUMEs
+        and its output RECEIVE; a new `receptionDate` moves every row it owns
+        and re-derives the conversion's partial date without touching the
+        status; lot and expiration land on the RECEIVE; notes on every row;
+        `conversionCost` is read live by the costing engine and touches no row.
+        The row count never changes. Returns 409 `invalid_transition` while the
+        conversion is Completed: reopen it first.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                receptionDate:
+                  type: string
+                  format: date
+                quantity:
+                  type: number
+                  exclusiveMinimum: 0
+                conversionCost:
+                  type: number
+                  minimum: 0
+                lotNumber:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 255
+                expirationDate:
+                  type:
+                    - string
+                    - 'null'
+                  format: date
+                notes:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 2000
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  conversionId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  receptionDate:
+                    type: string
+                  quantity:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  conversionCost:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                required:
+                  - id
+                  - conversionId
+                  - receptionDate
+                  - quantity
+                  - conversionCost
+                  - lotNumber
+                  - expirationDate
+                  - notes
+                  - createdAt
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '409':
+          description: The conversion is Completed, so its receptions are locked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    delete:
+      tags:
+        - Conversions
+      summary: Delete conversion reception
+      description: >-
+        Delete a reception and the ledger rows it wrote, as if that output never
+        came back. The conversion's status follows the surviving receptions:
+        Partial while any remain, Production when none do; deleting a reception
+        from a Received conversion reopens it and removes its settle. Returns
+        409 `invalid_transition` while the conversion is Completed: reopen it
+        first.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                required:
+                  - deletedId
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '409':
+          description: The conversion is Completed, so its receptions are locked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    get:
+      tags:
+        - Conversions
+      summary: Get conversion reception
+      description: >-
+        Fetch one reception by id: its conversionId, date, quantity (output
+        units), lot, expiration, notes and `loss` (what it threw away, valued
+        from the order that built its input; see the conversion detail).
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  conversionId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  receptionDate:
+                    type: string
+                  quantity:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  conversionCost:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  loss:
+                    type: object
+                    properties:
+                      lines:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            material:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  pattern: >-
+                                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                code:
+                                  type: string
+                                name:
+                                  type: string
+                              required:
+                                - id
+                                - code
+                                - name
+                            quantity:
+                              type: number
+                            unitCost:
+                              type: number
+                            value:
+                              type: number
+                          required:
+                            - material
+                            - quantity
+                            - unitCost
+                            - value
+                      total:
+                        type: number
+                    required:
+                      - lines
+                      - total
+                required:
+                  - id
+                  - conversionId
+                  - receptionDate
+                  - quantity
+                  - conversionCost
+                  - lotNumber
+                  - expirationDate
+                  - notes
+                  - createdAt
+                  - loss
         '401':
           description: Missing or invalid credentials
           content:
@@ -27366,8 +29928,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   isActive:
                     type: boolean
                   createdAt:
@@ -27378,7 +29938,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - isActive
                   - createdAt
         '401':
@@ -27531,8 +30090,6 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         name:
                           type: string
-                        sortOrder:
-                          type: integer
                         isActive:
                           type: boolean
                         createdAt:
@@ -27543,7 +30100,6 @@ paths:
                       required:
                         - id
                         - name
-                        - sortOrder
                         - isActive
                         - createdAt
                 required:
@@ -27663,8 +30219,6 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 100
-                sortOrder:
-                  type: integer
                 isActive:
                   type: boolean
       responses:
@@ -27681,8 +30235,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   isActive:
                     type: boolean
                   createdAt:
@@ -27693,7 +30245,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - isActive
                   - createdAt
         '401':
@@ -28054,8 +30605,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   isActive:
                     type: boolean
                   createdAt:
@@ -28066,7 +30615,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - isActive
                   - createdAt
         '401':
@@ -28219,8 +30767,6 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         name:
                           type: string
-                        sortOrder:
-                          type: integer
                         isActive:
                           type: boolean
                         createdAt:
@@ -28231,7 +30777,6 @@ paths:
                       required:
                         - id
                         - name
-                        - sortOrder
                         - isActive
                         - createdAt
                 required:
@@ -28351,8 +30896,6 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 100
-                sortOrder:
-                  type: integer
                 isActive:
                   type: boolean
       responses:
@@ -28369,8 +30912,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   isActive:
                     type: boolean
                   createdAt:
@@ -28381,7 +30922,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - isActive
                   - createdAt
         '401':
@@ -45736,13 +48276,15 @@ paths:
       summary: Get committed outbound report
       description: >-
         Cash committed to inbound goods across open purchase orders (Placed, In
-        Transit, Partial), work orders (Placed, Production, Partial) and
-        production orders (those plus In Transit), plus how much of it is
-        expected to land within horizonDays (default 14, bounded 1..90).
-        Committed means remainders clamped at zero: a purchase order's expected
-        total minus what has been received, and a work or production order's
-        unconsumed input quantities valued at the engine's current unit cost
-        plus its stored fees. Orders already past their expected delivery date
+        Transit, Partial), work orders (Placed, Production, Partial), production
+        orders (those plus In Transit) and conversions (Placed, Production,
+        Partial), plus how much of it is expected to land within horizonDays
+        (default 14, bounded 1..90). Committed means remainders clamped at zero:
+        a purchase order's expected total minus what has been received, a work
+        or production order's unconsumed input quantities valued at the engine's
+        current unit cost plus its stored fees, and a conversion's input product
+        and consumed materials not yet used up, valued the same way with no fees
+        and no expected date. Orders already past their expected delivery date
         count as arriving soon.
       parameters:
         - schema:
@@ -45801,6 +48343,19 @@ paths:
                       - count
                       - committed
                       - arrivingSoon
+                  conversions:
+                    type: object
+                    properties:
+                      count:
+                        type: number
+                      committed:
+                        type: number
+                      arrivingSoon:
+                        type: number
+                    required:
+                      - count
+                      - committed
+                      - arrivingSoon
                   total:
                     type: object
                     properties:
@@ -45816,6 +48371,7 @@ paths:
                   - purchaseOrders
                   - workOrders
                   - productionOrders
+                  - conversions
                   - total
         '401':
           description: Missing or invalid credentials
@@ -52065,8 +54621,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   isActive:
                     type: boolean
                   createdAt:
@@ -52077,7 +54631,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - isActive
                   - createdAt
         '401':
@@ -52228,8 +54781,6 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         name:
                           type: string
-                        sortOrder:
-                          type: integer
                         isActive:
                           type: boolean
                         createdAt:
@@ -52240,7 +54791,6 @@ paths:
                       required:
                         - id
                         - name
-                        - sortOrder
                         - isActive
                         - createdAt
                 required:
@@ -52359,8 +54909,6 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 100
-                sortOrder:
-                  type: integer
                 isActive:
                   type: boolean
       responses:
@@ -52377,8 +54925,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   isActive:
                     type: boolean
                   createdAt:
@@ -52389,7 +54935,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - isActive
                   - createdAt
         '401':
@@ -52747,8 +55292,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   isActive:
                     type: boolean
                   createdAt:
@@ -52759,7 +55302,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - isActive
                   - createdAt
         '401':
@@ -52910,8 +55452,6 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         name:
                           type: string
-                        sortOrder:
-                          type: integer
                         isActive:
                           type: boolean
                         createdAt:
@@ -52922,7 +55462,6 @@ paths:
                       required:
                         - id
                         - name
-                        - sortOrder
                         - isActive
                         - createdAt
                 required:
@@ -53041,8 +55580,6 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 100
-                sortOrder:
-                  type: integer
                 isActive:
                   type: boolean
       responses:
@@ -53059,8 +55596,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   isActive:
                     type: boolean
                   createdAt:
@@ -53071,7 +55606,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - isActive
                   - createdAt
         '401':
@@ -53675,8 +56209,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   isActive:
                     type: boolean
                   createdAt:
@@ -53687,7 +56219,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - isActive
                   - createdAt
         '401':
@@ -53839,8 +56370,6 @@ paths:
                             ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                         name:
                           type: string
-                        sortOrder:
-                          type: integer
                         isActive:
                           type: boolean
                         createdAt:
@@ -53851,7 +56380,6 @@ paths:
                       required:
                         - id
                         - name
-                        - sortOrder
                         - isActive
                         - createdAt
                 required:
@@ -53971,8 +56499,6 @@ paths:
                   type: string
                   minLength: 1
                   maxLength: 100
-                sortOrder:
-                  type: integer
                 isActive:
                   type: boolean
       responses:
@@ -53989,8 +56515,6 @@ paths:
                       ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
                   name:
                     type: string
-                  sortOrder:
-                    type: integer
                   isActive:
                     type: boolean
                   createdAt:
@@ -54001,7 +56525,6 @@ paths:
                 required:
                   - id
                   - name
-                  - sortOrder
                   - isActive
                   - createdAt
         '401':
