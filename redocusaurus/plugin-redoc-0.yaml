@@ -29053,20 +29053,22 @@ paths:
         (`orderDateFrom`/`orderDateTo`, inclusive calendar dates, floored at the
         go-live date), by `source` (CSV of shopify/amazon), by
         `fulfillmentLocation` (CSV of the display names from
-        list_connected_receipt_locations), and by inclusive
-        `netRevenueMin`/`netRevenueMax` bounds; all apply in SQL before
-        pagination. Sort with `sort` (orderDate, srNumber, status, source,
-        netRevenue, fulfillmentLocation) and `order`; status sorts by lifecycle
-        rank. `search` matches the order number, the buyer name (Shopify), and
-        the line products and listing titles. The surface is read-only (the sync
-        owns the writes), and rows are addressed by the marketplace's own order
-        id rather than a Pharus UUID (each row's `source` says which feed it
-        came from). Page with `limit` (default 50, max 200) and `offset`;
-        `meta.total` counts the filtered set. `configured` is false when the org
-        has no connected feed, meaning the surface does not apply rather than
-        being empty. netRevenue is merchandise net of discounts, excluding
-        shipping and tax; dataAsOf is the marketplace-extraction watermark for
-        the row.
+        list_connected_receipt_locations), by inclusive
+        `netRevenueMin`/`netRevenueMax` bounds, and by `isSample` (true for only
+        the free samples sent through Samples, which carry the org's sample tag
+        and stay out of revenue and order counts; false to leave them out); all
+        apply in SQL before pagination. Sort with `sort` (orderDate, srNumber,
+        status, source, netRevenue, fulfillmentLocation) and `order`; status
+        sorts by lifecycle rank. `search` matches the order number, the buyer
+        name (Shopify), and the line products and listing titles. The surface is
+        read-only (the sync owns the writes), and rows are addressed by the
+        marketplace's own order id rather than a Pharus UUID (each row's
+        `source` says which feed it came from). Page with `limit` (default 50,
+        max 200) and `offset`; `meta.total` counts the filtered set.
+        `configured` is false when the org has no connected feed, meaning the
+        surface does not apply rather than being empty. netRevenue is
+        merchandise net of discounts, excluding shipping and tax; dataAsOf is
+        the marketplace-extraction watermark for the row.
       parameters:
         - schema:
             type: string
@@ -29097,6 +29099,14 @@ paths:
             type: number
           required: false
           name: netRevenueMax
+          in: query
+        - schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+          required: false
+          name: isSample
           in: query
         - schema:
             type: string
@@ -29207,6 +29217,8 @@ paths:
                           type:
                             - string
                             - 'null'
+                        isSample:
+                          type: boolean
                       required:
                         - id
                         - srNumber
@@ -29219,6 +29231,7 @@ paths:
                         - location
                         - netRevenue
                         - dataAsOf
+                        - isSample
                   meta:
                     type: object
                     properties:
@@ -29467,6 +29480,8 @@ paths:
                     type: boolean
                   isRecurring:
                     type: boolean
+                  isSample:
+                    type: boolean
                   destination:
                     type:
                       - object
@@ -29705,6 +29720,7 @@ paths:
                   - customer
                   - isSubscription
                   - isRecurring
+                  - isSample
                   - destination
                   - shippingMethod
                   - carrier
@@ -33255,6 +33271,3428 @@ paths:
                       - message
                 required:
                   - error
+  /sample-requests:
+    post:
+      tags:
+        - Samples
+      summary: Create sample request
+      description: >-
+        Submit a request for free product: purpose, dates, the recipient and
+        their address, the lines (each a Shopify listing mapped to a product,
+        with a quantity counted in that listing), an optional delivery option
+        and notes. It gets the org's next number (prefix plus counter). When the
+        org requires approval it waits for an approver, unless the requester is
+        one, in which case it is approved by them at once. When it does not
+        wait, Pharus creates it in the org's Shopify store right away as a draft
+        or an order (per the settings) with a 100% discount, tagged with the
+        org's sample tag and the request number. Returns 422 if a listing is not
+        mapped or the delivery option is unknown, 409 if the store's write
+        access is not connected, and 502 if Shopify refuses; in both of those
+        cases nothing is saved.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                purpose:
+                  type: string
+                  minLength: 1
+                  maxLength: 300
+                eventDate:
+                  type:
+                    - string
+                    - 'null'
+                  pattern: ^\d{4}-\d{2}-\d{2}$
+                neededBy:
+                  type: string
+                  pattern: ^\d{4}-\d{2}-\d{2}$
+                recipient:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      minLength: 1
+                      maxLength: 200
+                    company:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 200
+                    phone:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 50
+                    residential:
+                      type: boolean
+                    address:
+                      type: object
+                      properties:
+                        line1:
+                          type: string
+                          minLength: 1
+                          maxLength: 300
+                        line2:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 300
+                        city:
+                          type: string
+                          minLength: 1
+                          maxLength: 120
+                        state:
+                          type: string
+                          minLength: 1
+                          maxLength: 60
+                        postalCode:
+                          type: string
+                          minLength: 1
+                          maxLength: 20
+                      required:
+                        - line1
+                        - city
+                        - state
+                        - postalCode
+                  required:
+                    - name
+                    - address
+                delivery:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 100
+                liftGate:
+                  type: boolean
+                notes:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 2000
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      variantId:
+                        type: string
+                        minLength: 1
+                        maxLength: 64
+                      quantity:
+                        type: integer
+                        minimum: 1
+                        maximum: 100000
+                    required:
+                      - variantId
+                      - quantity
+                  minItems: 1
+                  maxItems: 100
+              required:
+                - purpose
+                - neededBy
+                - recipient
+                - items
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  number:
+                    type: string
+                  purpose:
+                    type: string
+                  eventDate:
+                    type:
+                      - string
+                      - 'null'
+                  neededBy:
+                    type: string
+                  recipient:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      company:
+                        type:
+                          - string
+                          - 'null'
+                      phone:
+                        type:
+                          - string
+                          - 'null'
+                      residential:
+                        type: boolean
+                      address:
+                        type: object
+                        properties:
+                          line1:
+                            type: string
+                          line2:
+                            type:
+                              - string
+                              - 'null'
+                          city:
+                            type: string
+                          state:
+                            type: string
+                          postalCode:
+                            type: string
+                          country:
+                            type: string
+                        required:
+                          - line1
+                          - line2
+                          - city
+                          - state
+                          - postalCode
+                          - country
+                    required:
+                      - name
+                      - company
+                      - phone
+                      - residential
+                      - address
+                  delivery:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      label:
+                        type: string
+                      rateName:
+                        type: string
+                    required:
+                      - label
+                      - rateName
+                  liftGate:
+                    type: boolean
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  requestedBy:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  status:
+                    type: string
+                    enum:
+                      - Waiting
+                      - Approved
+                      - Rejected
+                      - Sent
+                  decision:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      by:
+                        type:
+                          - object
+                          - 'null'
+                        properties:
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          name:
+                            type: string
+                        required:
+                          - id
+                          - name
+                      at:
+                        type: string
+                      reason:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - by
+                      - at
+                      - reason
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                        quantity:
+                          type: integer
+                      required:
+                        - label
+                        - quantity
+                  shopify:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      createdAs:
+                        type: string
+                        enum:
+                          - draft
+                          - order
+                      shopDomain:
+                        type:
+                          - string
+                          - 'null'
+                      draftOrderId:
+                        type:
+                          - string
+                          - 'null'
+                      orderId:
+                        type:
+                          - string
+                          - 'null'
+                      createdAt:
+                        type: string
+                      adminUrl:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - createdAs
+                      - shopDomain
+                      - draftOrderId
+                      - orderId
+                      - createdAt
+                      - adminUrl
+                  viewer:
+                    type: object
+                    properties:
+                      canEdit:
+                        type: boolean
+                      canDelete:
+                        type: boolean
+                      canDecide:
+                        type: boolean
+                    required:
+                      - canEdit
+                      - canDelete
+                      - canDecide
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        variantId:
+                          type: string
+                        listingTitle:
+                          type:
+                            - string
+                            - 'null'
+                        listingSku:
+                          type:
+                            - string
+                            - 'null'
+                        product:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - code
+                            - name
+                        quantity:
+                          type: integer
+                      required:
+                        - id
+                        - variantId
+                        - listingTitle
+                        - listingSku
+                        - product
+                        - quantity
+                required:
+                  - id
+                  - number
+                  - purpose
+                  - eventDate
+                  - neededBy
+                  - recipient
+                  - delivery
+                  - liftGate
+                  - notes
+                  - requestedBy
+                  - status
+                  - decision
+                  - lines
+                  - shopify
+                  - viewer
+                  - createdAt
+                  - updatedAt
+                  - items
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '409':
+          description: >-
+            Shopify write access is not connected for this organization, so the
+            request cannot be sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '502':
+          description: Shopify refused the draft or order, or could not be reached
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    get:
+      tags:
+        - Samples
+      summary: List sample requests
+      description: >-
+        List one page of the org's sample requests, every requester's. Each row
+        carries its status (Waiting, Approved, Rejected, or Sent when the org
+        does not require approval), the decision, its lines in short under
+        `lines` (each listing as the form names it and its quantity), the
+        Shopify link once created, and `viewer`, what the caller may do with it.
+        Filters AND together: `status` and `requestedById` (user ids) take
+        comma-separated values, and the inclusive From/To date pairs
+        `requestedFrom`/`requestedTo` and `neededByFrom`/`neededByTo`. `search`
+        matches the number, purpose, recipient name and company, city and notes.
+        Sort with `sort` (number, requested, requestedBy, purpose, neededBy,
+        status; default requested, newest first) and `order`; page with `limit`
+        (default 50, max 200) and `offset`. The full lines are on the detail
+        endpoint.
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - number
+              - requested
+              - requestedBy
+              - purpose
+              - neededBy
+              - status
+          required: false
+          name: sort
+          in: query
+        - schema:
+            type: string
+            enum:
+              - asc
+              - desc
+          required: false
+          name: order
+          in: query
+        - schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+          required: false
+          name: limit
+          in: query
+        - schema:
+            type: integer
+            minimum: 0
+          required: false
+          name: offset
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: status
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: requestedById
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: search
+          in: query
+        - schema:
+            type: string
+            pattern: ^\d{4}-\d{2}-\d{2}$
+          required: false
+          name: requestedFrom
+          in: query
+        - schema:
+            type: string
+            pattern: ^\d{4}-\d{2}-\d{2}$
+          required: false
+          name: requestedTo
+          in: query
+        - schema:
+            type: string
+            pattern: ^\d{4}-\d{2}-\d{2}$
+          required: false
+          name: neededByFrom
+          in: query
+        - schema:
+            type: string
+            pattern: ^\d{4}-\d{2}-\d{2}$
+          required: false
+          name: neededByTo
+          in: query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        number:
+                          type: string
+                        purpose:
+                          type: string
+                        eventDate:
+                          type:
+                            - string
+                            - 'null'
+                        neededBy:
+                          type: string
+                        recipient:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            company:
+                              type:
+                                - string
+                                - 'null'
+                            phone:
+                              type:
+                                - string
+                                - 'null'
+                            residential:
+                              type: boolean
+                            address:
+                              type: object
+                              properties:
+                                line1:
+                                  type: string
+                                line2:
+                                  type:
+                                    - string
+                                    - 'null'
+                                city:
+                                  type: string
+                                state:
+                                  type: string
+                                postalCode:
+                                  type: string
+                                country:
+                                  type: string
+                              required:
+                                - line1
+                                - line2
+                                - city
+                                - state
+                                - postalCode
+                                - country
+                          required:
+                            - name
+                            - company
+                            - phone
+                            - residential
+                            - address
+                        delivery:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            label:
+                              type: string
+                            rateName:
+                              type: string
+                          required:
+                            - label
+                            - rateName
+                        liftGate:
+                          type: boolean
+                        notes:
+                          type:
+                            - string
+                            - 'null'
+                        requestedBy:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - name
+                        status:
+                          type: string
+                          enum:
+                            - Waiting
+                            - Approved
+                            - Rejected
+                            - Sent
+                        decision:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            by:
+                              type:
+                                - object
+                                - 'null'
+                              properties:
+                                id:
+                                  type: string
+                                  pattern: >-
+                                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                                name:
+                                  type: string
+                              required:
+                                - id
+                                - name
+                            at:
+                              type: string
+                            reason:
+                              type:
+                                - string
+                                - 'null'
+                          required:
+                            - by
+                            - at
+                            - reason
+                        lines:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              label:
+                                type: string
+                              quantity:
+                                type: integer
+                            required:
+                              - label
+                              - quantity
+                        shopify:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            createdAs:
+                              type: string
+                              enum:
+                                - draft
+                                - order
+                            shopDomain:
+                              type:
+                                - string
+                                - 'null'
+                            draftOrderId:
+                              type:
+                                - string
+                                - 'null'
+                            orderId:
+                              type:
+                                - string
+                                - 'null'
+                            createdAt:
+                              type: string
+                            adminUrl:
+                              type:
+                                - string
+                                - 'null'
+                          required:
+                            - createdAs
+                            - shopDomain
+                            - draftOrderId
+                            - orderId
+                            - createdAt
+                            - adminUrl
+                        viewer:
+                          type: object
+                          properties:
+                            canEdit:
+                              type: boolean
+                            canDelete:
+                              type: boolean
+                            canDecide:
+                              type: boolean
+                          required:
+                            - canEdit
+                            - canDelete
+                            - canDecide
+                        createdAt:
+                          type: string
+                        updatedAt:
+                          type: string
+                      required:
+                        - id
+                        - number
+                        - purpose
+                        - eventDate
+                        - neededBy
+                        - recipient
+                        - delivery
+                        - liftGate
+                        - notes
+                        - requestedBy
+                        - status
+                        - decision
+                        - lines
+                        - shopify
+                        - viewer
+                        - createdAt
+                        - updatedAt
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      limit:
+                        type: integer
+                      offset:
+                        type: integer
+                    required:
+                      - total
+                      - limit
+                      - offset
+                required:
+                  - data
+                  - meta
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /sample-requests/{id}:
+    patch:
+      tags:
+        - Samples
+      summary: Update sample request
+      description: >-
+        Change a request while it waits for approval. Only its requester or an
+        approver may (403 otherwise); an approver may fix it before approving.
+        Any field of the create body can be sent; `recipient` replaces the whole
+        recipient and `items`, when sent, replaces every line. Returns 409 once
+        the request has been approved, rejected or sent.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                purpose:
+                  type: string
+                  minLength: 1
+                  maxLength: 300
+                eventDate:
+                  type:
+                    - string
+                    - 'null'
+                  pattern: ^\d{4}-\d{2}-\d{2}$
+                neededBy:
+                  type: string
+                  pattern: ^\d{4}-\d{2}-\d{2}$
+                recipient:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      minLength: 1
+                      maxLength: 200
+                    company:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 200
+                    phone:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 50
+                    residential:
+                      type: boolean
+                    address:
+                      type: object
+                      properties:
+                        line1:
+                          type: string
+                          minLength: 1
+                          maxLength: 300
+                        line2:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 300
+                        city:
+                          type: string
+                          minLength: 1
+                          maxLength: 120
+                        state:
+                          type: string
+                          minLength: 1
+                          maxLength: 60
+                        postalCode:
+                          type: string
+                          minLength: 1
+                          maxLength: 20
+                      required:
+                        - line1
+                        - city
+                        - state
+                        - postalCode
+                  required:
+                    - name
+                    - address
+                delivery:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 100
+                liftGate:
+                  type: boolean
+                notes:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 2000
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      variantId:
+                        type: string
+                        minLength: 1
+                        maxLength: 64
+                      quantity:
+                        type: integer
+                        minimum: 1
+                        maximum: 100000
+                    required:
+                      - variantId
+                      - quantity
+                  minItems: 1
+                  maxItems: 100
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  number:
+                    type: string
+                  purpose:
+                    type: string
+                  eventDate:
+                    type:
+                      - string
+                      - 'null'
+                  neededBy:
+                    type: string
+                  recipient:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      company:
+                        type:
+                          - string
+                          - 'null'
+                      phone:
+                        type:
+                          - string
+                          - 'null'
+                      residential:
+                        type: boolean
+                      address:
+                        type: object
+                        properties:
+                          line1:
+                            type: string
+                          line2:
+                            type:
+                              - string
+                              - 'null'
+                          city:
+                            type: string
+                          state:
+                            type: string
+                          postalCode:
+                            type: string
+                          country:
+                            type: string
+                        required:
+                          - line1
+                          - line2
+                          - city
+                          - state
+                          - postalCode
+                          - country
+                    required:
+                      - name
+                      - company
+                      - phone
+                      - residential
+                      - address
+                  delivery:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      label:
+                        type: string
+                      rateName:
+                        type: string
+                    required:
+                      - label
+                      - rateName
+                  liftGate:
+                    type: boolean
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  requestedBy:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  status:
+                    type: string
+                    enum:
+                      - Waiting
+                      - Approved
+                      - Rejected
+                      - Sent
+                  decision:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      by:
+                        type:
+                          - object
+                          - 'null'
+                        properties:
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          name:
+                            type: string
+                        required:
+                          - id
+                          - name
+                      at:
+                        type: string
+                      reason:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - by
+                      - at
+                      - reason
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                        quantity:
+                          type: integer
+                      required:
+                        - label
+                        - quantity
+                  shopify:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      createdAs:
+                        type: string
+                        enum:
+                          - draft
+                          - order
+                      shopDomain:
+                        type:
+                          - string
+                          - 'null'
+                      draftOrderId:
+                        type:
+                          - string
+                          - 'null'
+                      orderId:
+                        type:
+                          - string
+                          - 'null'
+                      createdAt:
+                        type: string
+                      adminUrl:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - createdAs
+                      - shopDomain
+                      - draftOrderId
+                      - orderId
+                      - createdAt
+                      - adminUrl
+                  viewer:
+                    type: object
+                    properties:
+                      canEdit:
+                        type: boolean
+                      canDelete:
+                        type: boolean
+                      canDecide:
+                        type: boolean
+                    required:
+                      - canEdit
+                      - canDelete
+                      - canDecide
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        variantId:
+                          type: string
+                        listingTitle:
+                          type:
+                            - string
+                            - 'null'
+                        listingSku:
+                          type:
+                            - string
+                            - 'null'
+                        product:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - code
+                            - name
+                        quantity:
+                          type: integer
+                      required:
+                        - id
+                        - variantId
+                        - listingTitle
+                        - listingSku
+                        - product
+                        - quantity
+                required:
+                  - id
+                  - number
+                  - purpose
+                  - eventDate
+                  - neededBy
+                  - recipient
+                  - delivery
+                  - liftGate
+                  - notes
+                  - requestedBy
+                  - status
+                  - decision
+                  - lines
+                  - shopify
+                  - viewer
+                  - createdAt
+                  - updatedAt
+                  - items
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '409':
+          description: The request is no longer waiting for approval
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    delete:
+      tags:
+        - Samples
+      summary: Delete sample request
+      description: >-
+        Permanently delete a request that was never created in Shopify (a
+        waiting or a rejected one). Only its requester or an approver may (403
+        otherwise). Returns 409 once it exists in Shopify: cancel it there
+        instead.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                required:
+                  - deletedId
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '409':
+          description: The request is already in Shopify
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    get:
+      tags:
+        - Samples
+      summary: Get sample request
+      description: >-
+        Get one sample request with its lines under `items`: each line's Shopify
+        listing, the product it is mapped to, and how many of that listing it
+        sends.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  number:
+                    type: string
+                  purpose:
+                    type: string
+                  eventDate:
+                    type:
+                      - string
+                      - 'null'
+                  neededBy:
+                    type: string
+                  recipient:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      company:
+                        type:
+                          - string
+                          - 'null'
+                      phone:
+                        type:
+                          - string
+                          - 'null'
+                      residential:
+                        type: boolean
+                      address:
+                        type: object
+                        properties:
+                          line1:
+                            type: string
+                          line2:
+                            type:
+                              - string
+                              - 'null'
+                          city:
+                            type: string
+                          state:
+                            type: string
+                          postalCode:
+                            type: string
+                          country:
+                            type: string
+                        required:
+                          - line1
+                          - line2
+                          - city
+                          - state
+                          - postalCode
+                          - country
+                    required:
+                      - name
+                      - company
+                      - phone
+                      - residential
+                      - address
+                  delivery:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      label:
+                        type: string
+                      rateName:
+                        type: string
+                    required:
+                      - label
+                      - rateName
+                  liftGate:
+                    type: boolean
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  requestedBy:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  status:
+                    type: string
+                    enum:
+                      - Waiting
+                      - Approved
+                      - Rejected
+                      - Sent
+                  decision:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      by:
+                        type:
+                          - object
+                          - 'null'
+                        properties:
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          name:
+                            type: string
+                        required:
+                          - id
+                          - name
+                      at:
+                        type: string
+                      reason:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - by
+                      - at
+                      - reason
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                        quantity:
+                          type: integer
+                      required:
+                        - label
+                        - quantity
+                  shopify:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      createdAs:
+                        type: string
+                        enum:
+                          - draft
+                          - order
+                      shopDomain:
+                        type:
+                          - string
+                          - 'null'
+                      draftOrderId:
+                        type:
+                          - string
+                          - 'null'
+                      orderId:
+                        type:
+                          - string
+                          - 'null'
+                      createdAt:
+                        type: string
+                      adminUrl:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - createdAs
+                      - shopDomain
+                      - draftOrderId
+                      - orderId
+                      - createdAt
+                      - adminUrl
+                  viewer:
+                    type: object
+                    properties:
+                      canEdit:
+                        type: boolean
+                      canDelete:
+                        type: boolean
+                      canDecide:
+                        type: boolean
+                    required:
+                      - canEdit
+                      - canDelete
+                      - canDecide
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        variantId:
+                          type: string
+                        listingTitle:
+                          type:
+                            - string
+                            - 'null'
+                        listingSku:
+                          type:
+                            - string
+                            - 'null'
+                        product:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - code
+                            - name
+                        quantity:
+                          type: integer
+                      required:
+                        - id
+                        - variantId
+                        - listingTitle
+                        - listingSku
+                        - product
+                        - quantity
+                required:
+                  - id
+                  - number
+                  - purpose
+                  - eventDate
+                  - neededBy
+                  - recipient
+                  - delivery
+                  - liftGate
+                  - notes
+                  - requestedBy
+                  - status
+                  - decision
+                  - lines
+                  - shopify
+                  - viewer
+                  - createdAt
+                  - updatedAt
+                  - items
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /sample-requests/{id}/approve:
+    post:
+      tags:
+        - Samples
+      summary: Approve sample request
+      description: >-
+        Approve a waiting request, which creates it in the org's Shopify store
+        at that moment as a draft or an order, per the settings. Only approvers
+        may (403 otherwise). Returns 409 if the request is not waiting or the
+        store's write access is not connected, and 502 if Shopify refuses; in
+        both cases the request keeps waiting.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  number:
+                    type: string
+                  purpose:
+                    type: string
+                  eventDate:
+                    type:
+                      - string
+                      - 'null'
+                  neededBy:
+                    type: string
+                  recipient:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      company:
+                        type:
+                          - string
+                          - 'null'
+                      phone:
+                        type:
+                          - string
+                          - 'null'
+                      residential:
+                        type: boolean
+                      address:
+                        type: object
+                        properties:
+                          line1:
+                            type: string
+                          line2:
+                            type:
+                              - string
+                              - 'null'
+                          city:
+                            type: string
+                          state:
+                            type: string
+                          postalCode:
+                            type: string
+                          country:
+                            type: string
+                        required:
+                          - line1
+                          - line2
+                          - city
+                          - state
+                          - postalCode
+                          - country
+                    required:
+                      - name
+                      - company
+                      - phone
+                      - residential
+                      - address
+                  delivery:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      label:
+                        type: string
+                      rateName:
+                        type: string
+                    required:
+                      - label
+                      - rateName
+                  liftGate:
+                    type: boolean
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  requestedBy:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  status:
+                    type: string
+                    enum:
+                      - Waiting
+                      - Approved
+                      - Rejected
+                      - Sent
+                  decision:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      by:
+                        type:
+                          - object
+                          - 'null'
+                        properties:
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          name:
+                            type: string
+                        required:
+                          - id
+                          - name
+                      at:
+                        type: string
+                      reason:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - by
+                      - at
+                      - reason
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                        quantity:
+                          type: integer
+                      required:
+                        - label
+                        - quantity
+                  shopify:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      createdAs:
+                        type: string
+                        enum:
+                          - draft
+                          - order
+                      shopDomain:
+                        type:
+                          - string
+                          - 'null'
+                      draftOrderId:
+                        type:
+                          - string
+                          - 'null'
+                      orderId:
+                        type:
+                          - string
+                          - 'null'
+                      createdAt:
+                        type: string
+                      adminUrl:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - createdAs
+                      - shopDomain
+                      - draftOrderId
+                      - orderId
+                      - createdAt
+                      - adminUrl
+                  viewer:
+                    type: object
+                    properties:
+                      canEdit:
+                        type: boolean
+                      canDelete:
+                        type: boolean
+                      canDecide:
+                        type: boolean
+                    required:
+                      - canEdit
+                      - canDelete
+                      - canDecide
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        variantId:
+                          type: string
+                        listingTitle:
+                          type:
+                            - string
+                            - 'null'
+                        listingSku:
+                          type:
+                            - string
+                            - 'null'
+                        product:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - code
+                            - name
+                        quantity:
+                          type: integer
+                      required:
+                        - id
+                        - variantId
+                        - listingTitle
+                        - listingSku
+                        - product
+                        - quantity
+                required:
+                  - id
+                  - number
+                  - purpose
+                  - eventDate
+                  - neededBy
+                  - recipient
+                  - delivery
+                  - liftGate
+                  - notes
+                  - requestedBy
+                  - status
+                  - decision
+                  - lines
+                  - shopify
+                  - viewer
+                  - createdAt
+                  - updatedAt
+                  - items
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '409':
+          description: >-
+            The request is not waiting for approval, or Shopify write access is
+            not connected
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '502':
+          description: Shopify refused the draft or order, or could not be reached
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /sample-requests/{id}/reject:
+    post:
+      tags:
+        - Samples
+      summary: Reject sample request
+      description: >-
+        Reject a waiting request with a reason the requester sees. Nothing is
+        created in Shopify and the request ends there. Only approvers may (403
+        otherwise). Returns 409 if the request is not waiting.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  minLength: 1
+                  maxLength: 1000
+              required:
+                - reason
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  number:
+                    type: string
+                  purpose:
+                    type: string
+                  eventDate:
+                    type:
+                      - string
+                      - 'null'
+                  neededBy:
+                    type: string
+                  recipient:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      company:
+                        type:
+                          - string
+                          - 'null'
+                      phone:
+                        type:
+                          - string
+                          - 'null'
+                      residential:
+                        type: boolean
+                      address:
+                        type: object
+                        properties:
+                          line1:
+                            type: string
+                          line2:
+                            type:
+                              - string
+                              - 'null'
+                          city:
+                            type: string
+                          state:
+                            type: string
+                          postalCode:
+                            type: string
+                          country:
+                            type: string
+                        required:
+                          - line1
+                          - line2
+                          - city
+                          - state
+                          - postalCode
+                          - country
+                    required:
+                      - name
+                      - company
+                      - phone
+                      - residential
+                      - address
+                  delivery:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      label:
+                        type: string
+                      rateName:
+                        type: string
+                    required:
+                      - label
+                      - rateName
+                  liftGate:
+                    type: boolean
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  requestedBy:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  status:
+                    type: string
+                    enum:
+                      - Waiting
+                      - Approved
+                      - Rejected
+                      - Sent
+                  decision:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      by:
+                        type:
+                          - object
+                          - 'null'
+                        properties:
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          name:
+                            type: string
+                        required:
+                          - id
+                          - name
+                      at:
+                        type: string
+                      reason:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - by
+                      - at
+                      - reason
+                  lines:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                        quantity:
+                          type: integer
+                      required:
+                        - label
+                        - quantity
+                  shopify:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      createdAs:
+                        type: string
+                        enum:
+                          - draft
+                          - order
+                      shopDomain:
+                        type:
+                          - string
+                          - 'null'
+                      draftOrderId:
+                        type:
+                          - string
+                          - 'null'
+                      orderId:
+                        type:
+                          - string
+                          - 'null'
+                      createdAt:
+                        type: string
+                      adminUrl:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - createdAs
+                      - shopDomain
+                      - draftOrderId
+                      - orderId
+                      - createdAt
+                      - adminUrl
+                  viewer:
+                    type: object
+                    properties:
+                      canEdit:
+                        type: boolean
+                      canDelete:
+                        type: boolean
+                      canDecide:
+                        type: boolean
+                    required:
+                      - canEdit
+                      - canDelete
+                      - canDecide
+                  createdAt:
+                    type: string
+                  updatedAt:
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          pattern: >-
+                            ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                        variantId:
+                          type: string
+                        listingTitle:
+                          type:
+                            - string
+                            - 'null'
+                        listingSku:
+                          type:
+                            - string
+                            - 'null'
+                        product:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - code
+                            - name
+                        quantity:
+                          type: integer
+                      required:
+                        - id
+                        - variantId
+                        - listingTitle
+                        - listingSku
+                        - product
+                        - quantity
+                required:
+                  - id
+                  - number
+                  - purpose
+                  - eventDate
+                  - neededBy
+                  - recipient
+                  - delivery
+                  - liftGate
+                  - notes
+                  - requestedBy
+                  - status
+                  - decision
+                  - lines
+                  - shopify
+                  - viewer
+                  - createdAt
+                  - updatedAt
+                  - items
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '409':
+          description: The request is not waiting for approval
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /sample-settings:
+    get:
+      tags:
+        - Samples
+      summary: Get sample settings
+      description: >-
+        The org's sample settings: whether requests need approval, who approves
+        (all admins, or chosen members), whether requests go to Shopify as
+        drafts or orders, where they are sent (Shopify for now), the request
+        number prefix, the order tag and the delivery options offered in the
+        form (each a label and the Shopify shipping rate name it becomes).
+        `viewerIsApprover` says whether the caller may approve.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requireApproval:
+                    type: boolean
+                  approverMode:
+                    type: string
+                    enum:
+                      - admins
+                      - chosen
+                  approverUserIds:
+                    type: array
+                    items:
+                      type: string
+                      pattern: >-
+                        ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  addAs:
+                    type: string
+                    enum:
+                      - draft
+                      - order
+                  sendTo:
+                    type: string
+                    enum:
+                      - shopify
+                  numberPrefix:
+                    type: string
+                  orderTag:
+                    type: string
+                  deliveryOptions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                          minLength: 1
+                          maxLength: 100
+                        rateName:
+                          type: string
+                          minLength: 1
+                          maxLength: 100
+                      required:
+                        - label
+                        - rateName
+                  viewerIsApprover:
+                    type: boolean
+                required:
+                  - requireApproval
+                  - approverMode
+                  - approverUserIds
+                  - addAs
+                  - sendTo
+                  - numberPrefix
+                  - orderTag
+                  - deliveryOptions
+                  - viewerIsApprover
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    patch:
+      tags:
+        - Samples
+      summary: Update sample settings
+      description: >-
+        Change any of the sample settings (admins only). Chosen approvers must
+        be members of the org, and choosing people needs at least one.
+        `deliveryOptions` replaces the whole list; labels must be unique. A new
+        number prefix applies to requests made from then on. Returns 422 when
+        these rules are broken.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requireApproval:
+                  type: boolean
+                approverMode:
+                  type: string
+                  enum:
+                    - admins
+                    - chosen
+                approverUserIds:
+                  type: array
+                  items:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  maxItems: 100
+                addAs:
+                  type: string
+                  enum:
+                    - draft
+                    - order
+                numberPrefix:
+                  type: string
+                  minLength: 1
+                  maxLength: 20
+                orderTag:
+                  type: string
+                  minLength: 1
+                  maxLength: 40
+                  pattern: ^[^,]+$
+                deliveryOptions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      label:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                      rateName:
+                        type: string
+                        minLength: 1
+                        maxLength: 100
+                    required:
+                      - label
+                      - rateName
+                  maxItems: 20
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requireApproval:
+                    type: boolean
+                  approverMode:
+                    type: string
+                    enum:
+                      - admins
+                      - chosen
+                  approverUserIds:
+                    type: array
+                    items:
+                      type: string
+                      pattern: >-
+                        ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  addAs:
+                    type: string
+                    enum:
+                      - draft
+                      - order
+                  sendTo:
+                    type: string
+                    enum:
+                      - shopify
+                  numberPrefix:
+                    type: string
+                  orderTag:
+                    type: string
+                  deliveryOptions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        label:
+                          type: string
+                          minLength: 1
+                          maxLength: 100
+                        rateName:
+                          type: string
+                          minLength: 1
+                          maxLength: 100
+                      required:
+                        - label
+                        - rateName
+                  viewerIsApprover:
+                    type: boolean
+                required:
+                  - requireApproval
+                  - approverMode
+                  - approverUserIds
+                  - addAs
+                  - sendTo
+                  - numberPrefix
+                  - orderTag
+                  - deliveryOptions
+                  - viewerIsApprover
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /sample-listings:
+    get:
+      tags:
+        - Samples
+      summary: List sample listings
+      description: >-
+        The Shopify listings a sample line can send: every listing mapped to a
+        Pharus product, with that product. A line sends a quantity of the
+        listing itself.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        variantId:
+                          type: string
+                        listingSku:
+                          type:
+                            - string
+                            - 'null'
+                        listingTitle:
+                          type:
+                            - string
+                            - 'null'
+                        product:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - code
+                            - name
+                      required:
+                        - variantId
+                        - listingSku
+                        - listingTitle
+                        - product
+                required:
+                  - data
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
   /order-channels:
     post:
       tags:
@@ -35209,6 +38647,110 @@ paths:
                   - error
         '502':
           description: Fivetran refused or failed the request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /connections/shopify/write-access:
+    get:
+      tags:
+        - Connections
+      summary: Get Shopify write access
+      description: >-
+        Admins and owners only. Whether Pharus can write to the org's Shopify
+        store (sample orders), which takes a Pharus app installed on the store,
+        separate from the Fivetran read connection. notAvailable until Pharus
+        has set the org's app up (this usually takes a few days after the read
+        connection), ready once it has, with installUrl to open so a store admin
+        approves the app, and connected once the store approved it. Uninstalling
+        the app in Shopify returns it to notAvailable.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                      - notAvailable
+                      - ready
+                      - connected
+                  installUrl:
+                    type:
+                      - string
+                      - 'null'
+                  shopDomain:
+                    type:
+                      - string
+                      - 'null'
+                  connectedAt:
+                    type:
+                      - string
+                      - 'null'
+                required:
+                  - status
+                  - installUrl
+                  - shopDomain
+                  - connectedAt
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
           content:
             application/json:
               schema:
@@ -54231,7 +57773,8 @@ paths:
         channels and segments are not listed. missingFreightCount flags
         completed orders in the current window with no freight or shipping cost
         recorded, meaning the margin reads high. Sales returns are not netted
-        out yet.
+        out yet. Sales receipts marked as samples (#1604) count in neither
+        orders nor revenue; their operational costs and COGS still count.
       parameters:
         - schema:
             type: string
@@ -56402,6 +59945,7 @@ paths:
                                   - customers
                                   - sales-receipts
                                   - sales-returns
+                                  - samples
                                   - work-orders
                                   - production-orders
                                   - bom
@@ -58246,6 +61790,7 @@ paths:
                             - customers
                             - sales-receipts
                             - sales-returns
+                            - samples
                             - work-orders
                             - production-orders
                             - bom
@@ -58585,6 +62130,7 @@ paths:
                             - customers
                             - sales-receipts
                             - sales-returns
+                            - samples
                             - work-orders
                             - production-orders
                             - bom
@@ -58837,6 +62383,7 @@ paths:
                       - customers
                       - sales-receipts
                       - sales-returns
+                      - samples
                       - work-orders
                       - production-orders
                       - bom
@@ -58849,7 +62396,7 @@ paths:
                       - materials
                       - facilities
                       - contacts
-                  maxItems: 17
+                  maxItems: 18
       responses:
         '200':
           description: OK
@@ -59016,6 +62563,7 @@ paths:
                             - customers
                             - sales-receipts
                             - sales-returns
+                            - samples
                             - work-orders
                             - production-orders
                             - bom
