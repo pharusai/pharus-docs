@@ -36520,8 +36520,9 @@ paths:
         `approvalThreshold` is set, only above what estimated cost, who approves
         (all admins, or chosen members), whether requests go to Shopify as
         drafts or orders, where they are sent (Shopify for now), the request
-        number prefix, the order tag and the delivery options offered in the
-        form (each a label and the Shopify shipping rate name it becomes).
+        number prefix, the order tag, the delivery options offered in the form
+        (each a label and the Shopify shipping rate name it becomes), and the
+        Shopify listings hidden from the form (`hiddenVariantIds`).
         `viewerIsApprover` says whether the caller may approve.
       responses:
         '200':
@@ -36577,6 +36578,10 @@ paths:
                       required:
                         - label
                         - rateName
+                  hiddenVariantIds:
+                    type: array
+                    items:
+                      type: string
                   viewerIsApprover:
                     type: boolean
                 required:
@@ -36589,6 +36594,7 @@ paths:
                   - numberPrefix
                   - orderTag
                   - deliveryOptions
+                  - hiddenVariantIds
                   - viewerIsApprover
         '401':
           description: Missing or invalid credentials
@@ -36660,8 +36666,9 @@ paths:
         `deliveryOptions` replaces the whole list; labels must be unique.
         `approvalThreshold` takes a positive amount, or null for approval on
         every request; it applies to requests submitted from then on. A new
-        number prefix applies to requests made from then on. Returns 422 when
-        these rules are broken.
+        number prefix applies to requests made from then on. `hiddenVariantIds`
+        replaces the list of Shopify listings the samples form does not offer.
+        Returns 422 when these rules are broken.
       requestBody:
         content:
           application/json:
@@ -36719,6 +36726,13 @@ paths:
                       - label
                       - rateName
                   maxItems: 20
+                hiddenVariantIds:
+                  type: array
+                  items:
+                    type: string
+                    minLength: 1
+                    maxLength: 64
+                  maxItems: 1000
       responses:
         '200':
           description: OK
@@ -36773,6 +36787,10 @@ paths:
                       required:
                         - label
                         - rateName
+                  hiddenVariantIds:
+                    type: array
+                    items:
+                      type: string
                   viewerIsApprover:
                     type: boolean
                 required:
@@ -36785,6 +36803,7 @@ paths:
                   - numberPrefix
                   - orderTag
                   - deliveryOptions
+                  - hiddenVariantIds
                   - viewerIsApprover
         '401':
           description: Missing or invalid credentials
@@ -36883,8 +36902,19 @@ paths:
       summary: List sample listings
       description: >-
         The Shopify listings a sample line can send: every listing mapped to a
-        Pharus product, with that product. A line sends a quantity of the
-        listing itself.
+        Pharus product, with that product, except those the org hides from
+        samples in its settings. A line sends a quantity of the listing itself.
+        `includeHidden=true` lists the hidden ones too, each with `hidden:
+        true`, which is what Settings shows.
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+          required: false
+          name: includeHidden
+          in: query
       responses:
         '200':
           description: OK
@@ -36923,11 +36953,14 @@ paths:
                             - id
                             - code
                             - name
+                        hidden:
+                          type: boolean
                       required:
                         - variantId
                         - listingSku
                         - listingTitle
                         - product
+                        - hidden
                 required:
                   - data
         '401':
@@ -36962,6 +36995,36 @@ paths:
                   - error
         '403':
           description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
           content:
             application/json:
               schema:
