@@ -33280,15 +33280,19 @@ paths:
         Submit a request for free product: purpose, dates, the recipient and
         their address, the lines (each a Shopify listing mapped to a product,
         with a quantity counted in that listing), an optional delivery option
-        and notes. It gets the org's next number (prefix plus counter). When the
-        org requires approval it waits for an approver, unless the requester is
-        one, in which case it is approved by them at once. When it does not
-        wait, Pharus creates it in the org's Shopify store right away as a draft
-        or an order (per the settings) with a 100% discount, tagged with the
-        org's sample tag and the request number. Returns 422 if a listing is not
-        mapped or the delivery option is unknown, 409 if the store's write
-        access is not connected, and 502 if Shopify refuses; in both of those
-        cases nothing is saved.
+        and notes. It gets the org's next number (prefix plus counter). Its
+        lines are priced on submit, each at its product's average receipt cost
+        over the org's estimate window, and `cost` is them added up, an
+        estimate. When the org requires approval it waits for an approver,
+        unless the org's `approvalThreshold` is set and the cost is at or under
+        it with every line priced (then it is sent without approval), or the
+        requester is an approver (then it is approved by them at once). When it
+        does not wait, Pharus creates it in the org's Shopify store right away
+        as a draft or an order (per the settings) with a 100% discount, tagged
+        with the org's sample tag and the request number. Returns 422 if a
+        listing is not mapped or the delivery option is unknown, 409 if the
+        store's write access is not connected, and 502 if Shopify refuses; in
+        both of those cases nothing is saved.
       requestBody:
         content:
           application/json:
@@ -33526,6 +33530,21 @@ paths:
                       - by
                       - at
                       - reason
+                  cost:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      amount:
+                        type: number
+                      estimated:
+                        type: boolean
+                      unpricedLines:
+                        type: integer
+                    required:
+                      - amount
+                      - estimated
+                      - unpricedLines
                   lines:
                     type: array
                     items:
@@ -33573,6 +33592,25 @@ paths:
                       - orderId
                       - createdAt
                       - adminUrl
+                  receipt:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      number:
+                        type: string
+                      externalOrderId:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - id
+                      - number
+                      - externalOrderId
                   viewer:
                     type: object
                     properties:
@@ -33628,6 +33666,16 @@ paths:
                             - name
                         quantity:
                           type: integer
+                        unitCost:
+                          type:
+                            - number
+                            - 'null'
+                        cost:
+                          type:
+                            - number
+                            - 'null'
+                        estimated:
+                          type: boolean
                       required:
                         - id
                         - variantId
@@ -33635,6 +33683,9 @@ paths:
                         - listingSku
                         - product
                         - quantity
+                        - unitCost
+                        - cost
+                        - estimated
                 required:
                   - id
                   - number
@@ -33648,8 +33699,10 @@ paths:
                   - requestedBy
                   - status
                   - decision
+                  - cost
                   - lines
                   - shopify
+                  - receipt
                   - viewer
                   - createdAt
                   - updatedAt
@@ -33812,18 +33865,21 @@ paths:
       summary: List sample requests
       description: >-
         List one page of the org's sample requests, every requester's. Each row
-        carries its status (Waiting, Approved, Rejected, or Sent when the org
-        does not require approval), the decision, its lines in short under
-        `lines` (each listing as the form names it and its quantity), the
-        Shopify link once created, and `viewer`, what the caller may do with it.
-        Filters AND together: `status` and `requestedById` (user ids) take
-        comma-separated values, and the inclusive From/To date pairs
+        carries its status (Waiting, Approved, Rejected, or Sent when it needed
+        no approval), the decision, its `cost` (its lines' costs added up,
+        marked `estimated` until the linked receipt has drawn every line; null
+        on requests made before requests were costed), the `receipt` its Shopify
+        order came back as once synced, its lines in short under `lines` (each
+        listing as the form names it and its quantity), the Shopify link once
+        created, and `viewer`, what the caller may do with it. Filters AND
+        together: `status` and `requestedById` (user ids) take comma-separated
+        values, and the inclusive From/To date pairs
         `requestedFrom`/`requestedTo` and `neededByFrom`/`neededByTo`. `search`
         matches the number, purpose, recipient name and company, city and notes.
         Sort with `sort` (number, requested, requestedBy, purpose, neededBy,
-        status; default requested, newest first) and `order`; page with `limit`
-        (default 50, max 200) and `offset`. The full lines are on the detail
-        endpoint.
+        cost, status; default requested, newest first) and `order`; page with
+        `limit` (default 50, max 200) and `offset`. The full lines are on the
+        detail endpoint.
       parameters:
         - schema:
             type: string
@@ -33833,6 +33889,7 @@ paths:
               - requestedBy
               - purpose
               - neededBy
+              - cost
               - status
           required: false
           name: sort
@@ -34035,6 +34092,21 @@ paths:
                             - by
                             - at
                             - reason
+                        cost:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            amount:
+                              type: number
+                            estimated:
+                              type: boolean
+                            unpricedLines:
+                              type: integer
+                          required:
+                            - amount
+                            - estimated
+                            - unpricedLines
                         lines:
                           type: array
                           items:
@@ -34082,6 +34154,25 @@ paths:
                             - orderId
                             - createdAt
                             - adminUrl
+                        receipt:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            number:
+                              type: string
+                            externalOrderId:
+                              type:
+                                - string
+                                - 'null'
+                          required:
+                            - id
+                            - number
+                            - externalOrderId
                         viewer:
                           type: object
                           properties:
@@ -34112,8 +34203,10 @@ paths:
                         - requestedBy
                         - status
                         - decision
+                        - cost
                         - lines
                         - shopify
+                        - receipt
                         - viewer
                         - createdAt
                         - updatedAt
@@ -34232,8 +34325,9 @@ paths:
         Change a request while it waits for approval. Only its requester or an
         approver may (403 otherwise); an approver may fix it before approving.
         Any field of the create body can be sent; `recipient` replaces the whole
-        recipient and `items`, when sent, replaces every line. Returns 409 once
-        the request has been approved, rejected or sent.
+        recipient and `items`, when sent, replaces every line and prices them
+        again; it keeps waiting whatever the new cost. Returns 409 once the
+        request has been approved, rejected or sent.
       parameters:
         - schema:
             type: string
@@ -34474,6 +34568,21 @@ paths:
                       - by
                       - at
                       - reason
+                  cost:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      amount:
+                        type: number
+                      estimated:
+                        type: boolean
+                      unpricedLines:
+                        type: integer
+                    required:
+                      - amount
+                      - estimated
+                      - unpricedLines
                   lines:
                     type: array
                     items:
@@ -34521,6 +34630,25 @@ paths:
                       - orderId
                       - createdAt
                       - adminUrl
+                  receipt:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      number:
+                        type: string
+                      externalOrderId:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - id
+                      - number
+                      - externalOrderId
                   viewer:
                     type: object
                     properties:
@@ -34576,6 +34704,16 @@ paths:
                             - name
                         quantity:
                           type: integer
+                        unitCost:
+                          type:
+                            - number
+                            - 'null'
+                        cost:
+                          type:
+                            - number
+                            - 'null'
+                        estimated:
+                          type: boolean
                       required:
                         - id
                         - variantId
@@ -34583,6 +34721,9 @@ paths:
                         - listingSku
                         - product
                         - quantity
+                        - unitCost
+                        - cost
+                        - estimated
                 required:
                   - id
                   - number
@@ -34596,8 +34737,10 @@ paths:
                   - requestedBy
                   - status
                   - decision
+                  - cost
                   - lines
                   - shopify
+                  - receipt
                   - viewer
                   - createdAt
                   - updatedAt
@@ -34939,8 +35082,10 @@ paths:
       summary: Get sample request
       description: >-
         Get one sample request with its lines under `items`: each line's Shopify
-        listing, the product it is mapped to, and how many of that listing it
-        sends.
+        listing, the product it is mapped to, how many of that listing it sends,
+        and what one listing and the whole line cost (`unitCost`, `cost`): an
+        estimate while `estimated`, and what the linked receipt drew once it
+        has.
       parameters:
         - schema:
             type: string
@@ -35082,6 +35227,21 @@ paths:
                       - by
                       - at
                       - reason
+                  cost:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      amount:
+                        type: number
+                      estimated:
+                        type: boolean
+                      unpricedLines:
+                        type: integer
+                    required:
+                      - amount
+                      - estimated
+                      - unpricedLines
                   lines:
                     type: array
                     items:
@@ -35129,6 +35289,25 @@ paths:
                       - orderId
                       - createdAt
                       - adminUrl
+                  receipt:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      number:
+                        type: string
+                      externalOrderId:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - id
+                      - number
+                      - externalOrderId
                   viewer:
                     type: object
                     properties:
@@ -35184,6 +35363,16 @@ paths:
                             - name
                         quantity:
                           type: integer
+                        unitCost:
+                          type:
+                            - number
+                            - 'null'
+                        cost:
+                          type:
+                            - number
+                            - 'null'
+                        estimated:
+                          type: boolean
                       required:
                         - id
                         - variantId
@@ -35191,6 +35380,9 @@ paths:
                         - listingSku
                         - product
                         - quantity
+                        - unitCost
+                        - cost
+                        - estimated
                 required:
                   - id
                   - number
@@ -35204,8 +35396,10 @@ paths:
                   - requestedBy
                   - status
                   - decision
+                  - cost
                   - lines
                   - shopify
+                  - receipt
                   - viewer
                   - createdAt
                   - updatedAt
@@ -35482,6 +35676,21 @@ paths:
                       - by
                       - at
                       - reason
+                  cost:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      amount:
+                        type: number
+                      estimated:
+                        type: boolean
+                      unpricedLines:
+                        type: integer
+                    required:
+                      - amount
+                      - estimated
+                      - unpricedLines
                   lines:
                     type: array
                     items:
@@ -35529,6 +35738,25 @@ paths:
                       - orderId
                       - createdAt
                       - adminUrl
+                  receipt:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      number:
+                        type: string
+                      externalOrderId:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - id
+                      - number
+                      - externalOrderId
                   viewer:
                     type: object
                     properties:
@@ -35584,6 +35812,16 @@ paths:
                             - name
                         quantity:
                           type: integer
+                        unitCost:
+                          type:
+                            - number
+                            - 'null'
+                        cost:
+                          type:
+                            - number
+                            - 'null'
+                        estimated:
+                          type: boolean
                       required:
                         - id
                         - variantId
@@ -35591,6 +35829,9 @@ paths:
                         - listingSku
                         - product
                         - quantity
+                        - unitCost
+                        - cost
+                        - estimated
                 required:
                   - id
                   - number
@@ -35604,8 +35845,10 @@ paths:
                   - requestedBy
                   - status
                   - decision
+                  - cost
                   - lines
                   - shopify
+                  - receipt
                   - viewer
                   - createdAt
                   - updatedAt
@@ -35954,6 +36197,21 @@ paths:
                       - by
                       - at
                       - reason
+                  cost:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      amount:
+                        type: number
+                      estimated:
+                        type: boolean
+                      unpricedLines:
+                        type: integer
+                    required:
+                      - amount
+                      - estimated
+                      - unpricedLines
                   lines:
                     type: array
                     items:
@@ -36001,6 +36259,25 @@ paths:
                       - orderId
                       - createdAt
                       - adminUrl
+                  receipt:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      number:
+                        type: string
+                      externalOrderId:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - id
+                      - number
+                      - externalOrderId
                   viewer:
                     type: object
                     properties:
@@ -36056,6 +36333,16 @@ paths:
                             - name
                         quantity:
                           type: integer
+                        unitCost:
+                          type:
+                            - number
+                            - 'null'
+                        cost:
+                          type:
+                            - number
+                            - 'null'
+                        estimated:
+                          type: boolean
                       required:
                         - id
                         - variantId
@@ -36063,6 +36350,9 @@ paths:
                         - listingSku
                         - product
                         - quantity
+                        - unitCost
+                        - cost
+                        - estimated
                 required:
                   - id
                   - number
@@ -36076,8 +36366,10 @@ paths:
                   - requestedBy
                   - status
                   - decision
+                  - cost
                   - lines
                   - shopify
+                  - receipt
                   - viewer
                   - createdAt
                   - updatedAt
@@ -36238,7 +36530,8 @@ paths:
         - Samples
       summary: Get sample settings
       description: >-
-        The org's sample settings: whether requests need approval, who approves
+        The org's sample settings: whether requests need approval and, when
+        `approvalThreshold` is set, only above what estimated cost, who approves
         (all admins, or chosen members), whether requests go to Shopify as
         drafts or orders, where they are sent (Shopify for now), the request
         number prefix, the order tag and the delivery options offered in the
@@ -36254,6 +36547,10 @@ paths:
                 properties:
                   requireApproval:
                     type: boolean
+                  approvalThreshold:
+                    type:
+                      - number
+                      - 'null'
                   approverMode:
                     type: string
                     enum:
@@ -36298,6 +36595,7 @@ paths:
                     type: boolean
                 required:
                   - requireApproval
+                  - approvalThreshold
                   - approverMode
                   - approverUserIds
                   - addAs
@@ -36373,7 +36671,9 @@ paths:
       description: >-
         Change any of the sample settings (admins only). Chosen approvers must
         be members of the org, and choosing people needs at least one.
-        `deliveryOptions` replaces the whole list; labels must be unique. A new
+        `deliveryOptions` replaces the whole list; labels must be unique.
+        `approvalThreshold` takes a positive amount, or null for approval on
+        every request; it applies to requests submitted from then on. A new
         number prefix applies to requests made from then on. Returns 422 when
         these rules are broken.
       requestBody:
@@ -36384,6 +36684,12 @@ paths:
               properties:
                 requireApproval:
                   type: boolean
+                approvalThreshold:
+                  type:
+                    - number
+                    - 'null'
+                  exclusiveMinimum: 0
+                  maximum: 1000000000
                 approverMode:
                   type: string
                   enum:
@@ -36437,6 +36743,10 @@ paths:
                 properties:
                   requireApproval:
                     type: boolean
+                  approvalThreshold:
+                    type:
+                      - number
+                      - 'null'
                   approverMode:
                     type: string
                     enum:
@@ -36481,6 +36791,7 @@ paths:
                     type: boolean
                 required:
                   - requireApproval
+                  - approvalThreshold
                   - approverMode
                   - approverUserIds
                   - addAs
