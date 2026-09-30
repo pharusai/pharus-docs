@@ -33280,19 +33280,19 @@ paths:
         Submit a request for free product: purpose, dates, the recipient and
         their address, the lines (each a Shopify listing mapped to a product,
         with a quantity counted in that listing), an optional delivery option
-        and notes. It gets the org's next number (prefix plus counter). Its
-        lines are priced on submit, each at its product's average receipt cost
-        over the org's estimate window, and `cost` is them added up, an
-        estimate. When the org requires approval it waits for an approver,
-        unless the org's `approvalThreshold` is set and the cost is at or under
-        it with every line priced (then it is sent without approval), or the
-        requester is an approver (then it is approved by them at once). When it
-        does not wait, Pharus creates it in the org's Shopify store right away
-        as a draft or an order (per the settings) with a 100% discount, tagged
-        with the org's sample tag and the request number. Returns 422 if a
-        listing is not mapped or the delivery option is unknown, 409 if the
-        store's write access is not connected, and 502 if Shopify refuses; in
-        both of those cases nothing is saved.
+        and notes. It gets the org's next number (prefix plus counter). `cost`
+        is its lines added up, each at its product's average receipt cost over
+        the org's estimate window ending when it was submitted, an estimate
+        derived on read. When the org requires approval it waits for an
+        approver, unless the org's `approvalThreshold` is set and the cost is at
+        or under it with every line priced (then it is sent without approval),
+        or the requester is an approver (then it is approved by them at once).
+        When it does not wait, Pharus creates it in the org's Shopify store
+        right away as a draft or an order (per the settings) with a 100%
+        discount, tagged with the org's sample tag and the request number.
+        Returns 422 if a listing is not mapped or the delivery option is
+        unknown, 409 if the store's write access is not connected, and 502 if
+        Shopify refuses; in both of those cases nothing is saved.
       requestBody:
         content:
           application/json:
@@ -33531,9 +33531,7 @@ paths:
                       - at
                       - reason
                   cost:
-                    type:
-                      - object
-                      - 'null'
+                    type: object
                     properties:
                       amount:
                         type: number
@@ -33867,19 +33865,18 @@ paths:
         List one page of the org's sample requests, every requester's. Each row
         carries its status (Waiting, Approved, Rejected, or Sent when it needed
         no approval), the decision, its `cost` (its lines' costs added up,
-        marked `estimated` until the linked receipt has drawn every line; null
-        on requests made before requests were costed), the `receipt` its Shopify
-        order came back as once synced, its lines in short under `lines` (each
-        listing as the form names it and its quantity), the Shopify link once
-        created, and `viewer`, what the caller may do with it. Filters AND
-        together: `status` and `requestedById` (user ids) take comma-separated
-        values, and the inclusive From/To date pairs
-        `requestedFrom`/`requestedTo` and `neededByFrom`/`neededByTo`. `search`
-        matches the number, purpose, recipient name and company, city and notes.
-        Sort with `sort` (number, requested, requestedBy, purpose, neededBy,
-        cost, status; default requested, newest first) and `order`; page with
-        `limit` (default 50, max 200) and `offset`. The full lines are on the
-        detail endpoint.
+        derived on read, marked `estimated` until the linked receipt has drawn
+        every line), the `receipt` its Shopify order came back as once synced,
+        its lines in short under `lines` (each listing as the form names it and
+        its quantity), the Shopify link once created, and `viewer`, what the
+        caller may do with it. Filters AND together: `status` and
+        `requestedById` (user ids) take comma-separated values, and the
+        inclusive From/To date pairs `requestedFrom`/`requestedTo` and
+        `neededByFrom`/`neededByTo`. `search` matches the number, purpose,
+        recipient name and company, city and notes. Sort with `sort` (number,
+        requested, requestedBy, purpose, neededBy, status; default requested,
+        newest first) and `order`; page with `limit` (default 50, max 200) and
+        `offset`. The full lines are on the detail endpoint.
       parameters:
         - schema:
             type: string
@@ -33889,7 +33886,6 @@ paths:
               - requestedBy
               - purpose
               - neededBy
-              - cost
               - status
           required: false
           name: sort
@@ -34093,9 +34089,7 @@ paths:
                             - at
                             - reason
                         cost:
-                          type:
-                            - object
-                            - 'null'
+                          type: object
                           properties:
                             amount:
                               type: number
@@ -34569,9 +34563,7 @@ paths:
                       - at
                       - reason
                   cost:
-                    type:
-                      - object
-                      - 'null'
+                    type: object
                     properties:
                       amount:
                         type: number
@@ -35228,9 +35220,7 @@ paths:
                       - at
                       - reason
                   cost:
-                    type:
-                      - object
-                      - 'null'
+                    type: object
                     properties:
                       amount:
                         type: number
@@ -35677,9 +35667,7 @@ paths:
                       - at
                       - reason
                   cost:
-                    type:
-                      - object
-                      - 'null'
+                    type: object
                     properties:
                       amount:
                         type: number
@@ -36198,9 +36186,7 @@ paths:
                       - at
                       - reason
                   cost:
-                    type:
-                      - object
-                      - 'null'
+                    type: object
                     properties:
                       amount:
                         type: number
