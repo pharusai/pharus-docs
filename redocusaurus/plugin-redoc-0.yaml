@@ -11628,6 +11628,347 @@ paths:
                       - message
                 required:
                   - error
+  /materials-inventory/adjustments/{id}:
+    patch:
+      tags:
+        - MaterialsInventory
+      summary: Update materials adjustment
+      description: >-
+        Correct a manual adjustment (an ADJUST ledger row with no source
+        document) in place: its quantity, business date (`eventDate`,
+        YYYY-MM-DD; the row keeps its time of day, so its place among same-day
+        events holds), notes, declared `unitCost` and lot identity. Only the
+        sent fields change; the material and location cannot be changed. The
+        edited row must still pass the create rules: a nonzero quantity, and
+        unitCost, lotNumber and expirationDate only on a positive adjustment
+        (send null to clear them before turning one negative), else 422. Cost
+        derives on read, so every later valuation reflects the edit. Disposals
+        and rows written by documents are not adjustments and return 404.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: number
+                notes:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 2000
+                eventDate:
+                  type: string
+                  format: date
+                unitCost:
+                  type:
+                    - number
+                    - 'null'
+                  exclusiveMinimum: 0
+                lotNumber:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 255
+                expirationDate:
+                  type:
+                    - string
+                    - 'null'
+                  format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  code:
+                    type: string
+                  material:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      code:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - code
+                      - name
+                  location:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  eventType:
+                    type: string
+                    enum:
+                      - ORDER
+                      - RECEIVE
+                      - DEMAND
+                      - ALLOCATE
+                      - CONSUME
+                      - ADJUST
+                      - DISPOSE
+                      - SETTLE_ORDER
+                      - SETTLE_ALLOCATE
+                      - REVERSE_ORDER
+                      - REVERSE_RECEIVE
+                      - REVERSE_DEMAND
+                      - REVERSE_ALLOCATE
+                      - REVERSE_CONSUME
+                  quantity:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  unitCost:
+                    anyOf:
+                      - type: string
+                      - type: number
+                      - type: 'null'
+                  paddedQuantity:
+                    type: number
+                  estimated:
+                    type: boolean
+                  ref:
+                    type:
+                      - string
+                      - 'null'
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  eventDate:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  sourceType:
+                    type:
+                      - string
+                      - 'null'
+                    enum:
+                      - po_receipt
+                      - po_item
+                      - wo_receipt
+                      - wo_item
+                      - wo_input
+                      - so_item
+                      - sr_item
+                      - manual
+                      - production_order_item
+                      - production_order_input
+                      - production_order_receipt
+                      - transfer
+                      - return_item
+                      - conversion_input
+                      - conversion_output
+                      - conversion_consumed
+                      - null
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  lotLineIndex:
+                    type: integer
+                  lotLineCount:
+                    type: integer
+                  balance:
+                    type:
+                      - number
+                      - 'null'
+                  document:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      kind:
+                        type: string
+                        enum:
+                          - purchase_order
+                          - sales_order
+                          - sales_receipt
+                          - sales_return
+                          - work_order
+                          - production_order
+                          - transfer
+                          - conversion
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                    required:
+                      - kind
+                      - id
+                required:
+                  - id
+                  - code
+                  - material
+                  - location
+                  - eventType
+                  - quantity
+                  - ref
+                  - notes
+                  - eventDate
+                  - sourceType
+                  - lotNumber
+                  - expirationDate
+                  - createdAt
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
   /materials-inventory/disposals:
     post:
       tags:
@@ -13352,6 +13693,347 @@ paths:
                   - error
         '404':
           description: The product or location does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /finished-goods-inventory/adjustments/{id}:
+    patch:
+      tags:
+        - FinishedGoodsInventory
+      summary: Update FG adjustment
+      description: >-
+        Correct a manual adjustment (an ADJUST ledger row with no source
+        document) in place: its quantity, business date (`eventDate`,
+        YYYY-MM-DD; the row keeps its time of day, so its place among same-day
+        events holds), notes, declared `unitCost` and lot identity. Only the
+        sent fields change; the product and location cannot be changed. The
+        edited row must still pass the create rules: a nonzero quantity, and
+        unitCost, lotNumber and expirationDate only on a positive adjustment
+        (send null to clear them before turning one negative), else 422. Cost
+        derives on read, so every later valuation reflects the edit. Disposals
+        and rows written by documents are not adjustments and return 404.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: number
+                notes:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 2000
+                eventDate:
+                  type: string
+                  format: date
+                unitCost:
+                  type:
+                    - number
+                    - 'null'
+                  exclusiveMinimum: 0
+                lotNumber:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 255
+                expirationDate:
+                  type:
+                    - string
+                    - 'null'
+                  format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  code:
+                    type: string
+                  product:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      code:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - code
+                      - name
+                  location:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  eventType:
+                    type: string
+                    enum:
+                      - ORDER
+                      - RECEIVE
+                      - DEMAND
+                      - ALLOCATE
+                      - CONSUME
+                      - ADJUST
+                      - DISPOSE
+                      - SETTLE_ORDER
+                      - SETTLE_ALLOCATE
+                      - REVERSE_ORDER
+                      - REVERSE_RECEIVE
+                      - REVERSE_DEMAND
+                      - REVERSE_ALLOCATE
+                      - REVERSE_CONSUME
+                  quantity:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  unitCost:
+                    anyOf:
+                      - type: string
+                      - type: number
+                      - type: 'null'
+                  paddedQuantity:
+                    type: number
+                  estimated:
+                    type: boolean
+                  ref:
+                    type:
+                      - string
+                      - 'null'
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  eventDate:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  sourceType:
+                    type:
+                      - string
+                      - 'null'
+                    enum:
+                      - po_receipt
+                      - po_item
+                      - wo_receipt
+                      - wo_item
+                      - wo_input
+                      - so_item
+                      - sr_item
+                      - manual
+                      - production_order_item
+                      - production_order_input
+                      - production_order_receipt
+                      - transfer
+                      - return_item
+                      - conversion_input
+                      - conversion_output
+                      - conversion_consumed
+                      - null
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  lotLineIndex:
+                    type: integer
+                  lotLineCount:
+                    type: integer
+                  balance:
+                    type:
+                      - number
+                      - 'null'
+                  document:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      kind:
+                        type: string
+                        enum:
+                          - purchase_order
+                          - sales_order
+                          - sales_receipt
+                          - sales_return
+                          - work_order
+                          - production_order
+                          - transfer
+                          - conversion
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                    required:
+                      - kind
+                      - id
+                required:
+                  - id
+                  - code
+                  - product
+                  - location
+                  - eventType
+                  - quantity
+                  - ref
+                  - notes
+                  - eventDate
+                  - sourceType
+                  - lotNumber
+                  - expirationDate
+                  - createdAt
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
           content:
             application/json:
               schema:
