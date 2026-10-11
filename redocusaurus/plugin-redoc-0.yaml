@@ -31083,6 +31083,8 @@ paths:
                             - id
                             - code
                             - name
+                        notAProduct:
+                          type: boolean
                         quantity:
                           type: number
                         unitPrice:
@@ -31171,6 +31173,7 @@ paths:
                         - variantTitle
                         - listingSku
                         - product
+                        - notAProduct
                         - quantity
                         - unitPrice
                         - lineDiscount
@@ -33035,6 +33038,8 @@ paths:
                             - id
                             - code
                             - name
+                        notAProduct:
+                          type: boolean
                         quantity:
                           type: number
                         unitPrice:
@@ -33123,6 +33128,7 @@ paths:
                         - variantTitle
                         - listingSku
                         - product
+                        - notAProduct
                         - quantity
                         - unitPrice
                         - lineDiscount
@@ -34438,6 +34444,8 @@ paths:
                             - id
                             - code
                             - name
+                        notAProduct:
+                          type: boolean
                         quantity:
                           type: number
                         unitPrice:
@@ -34526,6 +34534,7 @@ paths:
                         - variantTitle
                         - listingSku
                         - product
+                        - notAProduct
                         - quantity
                         - unitPrice
                         - lineDiscount
@@ -35265,6 +35274,8 @@ paths:
                       - id
                       - code
                       - name
+                  notAProduct:
+                    type: boolean
                   quantity:
                     type: number
                   unitPrice:
@@ -35357,6 +35368,7 @@ paths:
                   - variantTitle
                   - listingSku
                   - product
+                  - notAProduct
                   - quantity
                   - unitPrice
                   - lineDiscount
@@ -35621,6 +35633,8 @@ paths:
                             - id
                             - code
                             - name
+                        notAProduct:
+                          type: boolean
                         quantity:
                           type: number
                         unitPrice:
@@ -35713,6 +35727,7 @@ paths:
                         - variantTitle
                         - listingSku
                         - product
+                        - notAProduct
                         - quantity
                         - unitPrice
                         - lineDiscount
@@ -35926,6 +35941,8 @@ paths:
                       - id
                       - code
                       - name
+                  notAProduct:
+                    type: boolean
                   quantity:
                     type: number
                   unitPrice:
@@ -36018,6 +36035,7 @@ paths:
                   - variantTitle
                   - listingSku
                   - product
+                  - notAProduct
                   - quantity
                   - unitPrice
                   - lineDiscount
@@ -37604,16 +37622,23 @@ paths:
         work; a null date scans everything) for one feed (`source`, shopify by
         default or amazon), merged with the stored mappings. Listings are
         identified by their store's stable key, the variant id on Shopify or the
-        seller product on Amazon (both travel in variantId). Each row carries
+        seller product on Amazon (both travel in variantId). Shopify lines that
+        point at no store listing (a custom item an app like Faire wrote, or a
+        line whose variant was deleted) gather into one row per SKU, keyed
+        "sku:<SKU>" and flagged `unlinked`; lines with no SKU either gather into
+        one row per title, keyed "title:<title>". Such a row maps like any other
+        and applies to every such line with that SKU or title. Each row carries
         the listing's own product code and titles, how much it sold, the Pharus
-        product it maps to (null when unmapped), `unitsPerListing`, the
-        mapping's factor (1 when unmapped). Filter with `search`
-        (case-insensitive substring over the listing product, titles, and key)
-        and `mapped` (false = still to map, true = already mapped); sort with
-        `sort` (unitsSold, lineCount, listingSku, listingTitle; unitsSold
-        descending by default) and `order`; page with `limit` (default 50, max
-        200) and `offset`, with `meta.total` counting the filtered set.
-        `configured` is false when the org has no connected feed of that kind.
+        product it maps to (null when unmapped), `notAProduct` (true when the
+        listing is marked not a product, which settles it with no product),
+        `unitsPerListing`, the mapping's factor (1 when unmapped). Filter with
+        `search` (case-insensitive substring over the listing product, titles,
+        and key) and `mapped` (false = still to map, true = already mapped or
+        marked not a product); sort with `sort` (unitsSold, lineCount,
+        listingSku, listingTitle; unitsSold descending by default) and `order`;
+        page with `limit` (default 50, max 200) and `offset`, with `meta.total`
+        counting the filtered set. `configured` is false when the org has no
+        connected feed of that kind.
       parameters:
         - schema:
             type: string
@@ -37682,6 +37707,8 @@ paths:
                       properties:
                         variantId:
                           type: string
+                        unlinked:
+                          type: boolean
                         listingSku:
                           type:
                             - string
@@ -37694,6 +37721,8 @@ paths:
                           type:
                             - string
                             - 'null'
+                        notAProduct:
+                          type: boolean
                         lineCount:
                           type: number
                         unitsSold:
@@ -37719,9 +37748,11 @@ paths:
                           type: integer
                       required:
                         - variantId
+                        - unlinked
                         - listingSku
                         - listingTitle
                         - variantTitle
+                        - notAProduct
                         - lineCount
                         - unitsSold
                         - product
@@ -37840,20 +37871,25 @@ paths:
         - SalesReceipts
       summary: Set connected product mapping
       description: >-
-        Map one marketplace listing to a Pharus product, or clear the mapping by
-        passing productId null. The listing key travels in variantId: the
-        variant id for Shopify listings, the seller product for Amazon ones
-        (`source` says which feed, shopify by default). Pass `unitsPerListing`
-        (a whole number from 1 to 100000) when the listing is a multiple of the
-        product, for example 8 for an 8-pack listing of a single unit product;
-        it is ignored when productId is null. Omitting it keeps an existing
-        mapping's factor and defaults to 1 for a new mapping, so a save that
-        only changes the product never resets the listing's factor. The factor
-        is also what pick and pack charges for: a receipt's items are its lines'
-        product units (a kit line counts its components). Upserts: re-mapping a
-        listing replaces its previous mapping. The referenced product must exist
-        in the org (404 otherwise). Mapped products appear on connected receipt
-        detail lines.
+        Map one marketplace listing to a Pharus product, mark it not a product
+        with `notAProduct` true and productId null (for listings that sell no
+        goods, like return protection: they leave the pending list, their lines
+        move no stock and no longer hold back a receipt's cost of goods; 422
+        when a productId comes with it), or clear the mapping by passing
+        productId null. The listing key travels in variantId: the variant id for
+        Shopify listings, the seller product for Amazon ones (`source` says
+        which feed, shopify by default), or the "sku:<SKU>" or "title:<title>"
+        key of an unlinked Shopify row exactly as the worksheet lists it. Pass
+        `unitsPerListing` (a whole number from 1 to 100000) when the listing is
+        a multiple of the product, for example 8 for an 8-pack listing of a
+        single unit product; it is ignored when productId is null. Omitting it
+        keeps an existing mapping's factor and defaults to 1 for a new mapping,
+        so a save that only changes the product never resets the listing's
+        factor. The factor is also what pick and pack charges for: a receipt's
+        items are its lines' product units (a kit line counts its components).
+        Upserts: re-mapping a listing replaces its previous mapping. The
+        referenced product must exist in the org (404 otherwise). Mapped
+        products appear on connected receipt detail lines.
       requestBody:
         content:
           application/json:
@@ -37868,7 +37904,7 @@ paths:
                 variantId:
                   type: string
                   minLength: 1
-                  maxLength: 64
+                  maxLength: 510
                 listingSku:
                   type:
                     - string
@@ -37889,6 +37925,8 @@ paths:
                   type: integer
                   minimum: 1
                   maximum: 100000
+                notAProduct:
+                  type: boolean
               required:
                 - variantId
                 - productId
@@ -37921,10 +37959,13 @@ paths:
                       - name
                   unitsPerListing:
                     type: integer
+                  notAProduct:
+                    type: boolean
                 required:
                   - variantId
                   - product
                   - unitsPerListing
+                  - notAProduct
         '401':
           description: Missing or invalid credentials
           content:
