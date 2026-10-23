@@ -12317,6 +12317,10 @@ paths:
                     type:
                       - string
                       - 'null'
+                  declaredUnitCost:
+                    type:
+                      - string
+                      - 'null'
                   createdAt:
                     anyOf:
                       - type: string
@@ -12658,6 +12662,10 @@ paths:
                     type:
                       - string
                       - 'null'
+                  declaredUnitCost:
+                    type:
+                      - string
+                      - 'null'
                   createdAt:
                     anyOf:
                       - type: string
@@ -12708,6 +12716,159 @@ paths:
                   - lotNumber
                   - expirationDate
                   - createdAt
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    delete:
+      tags:
+        - MaterialsInventory
+      summary: Delete materials adjustment
+      description: >-
+        Permanently remove a manual adjustment (an ADJUST ledger row with no
+        source document), for an entry that should never have been posted. The
+        row is deleted outright, not reversed: on-hand, balances and costs
+        derive from the ledger, so every later read recomputes without it. Rows
+        written by documents (and disposals) are not manual adjustments and
+        return 404.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                required:
+                  - deletedId
         '401':
           description: Missing or invalid credentials
           content:
@@ -12983,6 +13144,10 @@ paths:
                     type:
                       - string
                       - 'null'
+                  declaredUnitCost:
+                    type:
+                      - string
+                      - 'null'
                   createdAt:
                     anyOf:
                       - type: string
@@ -13095,6 +13260,488 @@ paths:
                   - error
         '404':
           description: The material or location does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /materials-inventory/disposals/{id}:
+    delete:
+      tags:
+        - MaterialsInventory
+      summary: Delete materials disposal
+      description: >-
+        Permanently remove a manual disposal (a DISPOSE ledger row with no
+        source document), for an entry that should never have been posted. The
+        row is deleted outright, not reversed: on-hand, balances and costs
+        derive from the ledger, so every later read recomputes without it. Rows
+        written by documents (and adjustments) are not manual disposals and
+        return 404.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                required:
+                  - deletedId
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    patch:
+      tags:
+        - MaterialsInventory
+      summary: Update materials disposal
+      description: >-
+        Correct a manual disposal (a DISPOSE ledger row with no source document)
+        in place: its quantity, business date (`eventDate`, YYYY-MM-DD; the row
+        keeps its time of day, so its place among same-day events holds) and
+        notes. Only the sent fields change; the material and location cannot be
+        changed. The quantity stays a positive magnitude, as on create (zero or
+        negative is rejected, 422). Cost derives on read, so every later
+        valuation reflects the edit. Adjustments and rows written by documents
+        are not disposals and return 404.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: number
+                  exclusiveMinimum: 0
+                notes:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 2000
+                eventDate:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  code:
+                    type: string
+                  material:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      code:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - code
+                      - name
+                  location:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  eventType:
+                    type: string
+                    enum:
+                      - ORDER
+                      - RECEIVE
+                      - DEMAND
+                      - ALLOCATE
+                      - CONSUME
+                      - ADJUST
+                      - DISPOSE
+                      - SETTLE_ORDER
+                      - SETTLE_ALLOCATE
+                      - REVERSE_ORDER
+                      - REVERSE_RECEIVE
+                      - REVERSE_DEMAND
+                      - REVERSE_ALLOCATE
+                      - REVERSE_CONSUME
+                  quantity:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  unitCost:
+                    anyOf:
+                      - type: string
+                      - type: number
+                      - type: 'null'
+                  paddedQuantity:
+                    type: number
+                  estimated:
+                    type: boolean
+                  ref:
+                    type:
+                      - string
+                      - 'null'
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  eventDate:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  sourceType:
+                    type:
+                      - string
+                      - 'null'
+                    enum:
+                      - po_receipt
+                      - po_item
+                      - wo_receipt
+                      - wo_item
+                      - wo_input
+                      - so_item
+                      - sr_item
+                      - manual
+                      - production_order_item
+                      - production_order_input
+                      - production_order_receipt
+                      - transfer
+                      - return_item
+                      - conversion_input
+                      - conversion_output
+                      - conversion_consumed
+                      - null
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
+                  declaredUnitCost:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  lotLineIndex:
+                    type: integer
+                  lotLineCount:
+                    type: integer
+                  balance:
+                    type:
+                      - number
+                      - 'null'
+                  document:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      kind:
+                        type: string
+                        enum:
+                          - purchase_order
+                          - sales_order
+                          - sales_receipt
+                          - sales_return
+                          - work_order
+                          - production_order
+                          - transfer
+                          - conversion
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                    required:
+                      - kind
+                      - id
+                required:
+                  - id
+                  - code
+                  - material
+                  - location
+                  - eventType
+                  - quantity
+                  - ref
+                  - notes
+                  - eventDate
+                  - sourceType
+                  - lotNumber
+                  - expirationDate
+                  - createdAt
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
           content:
             application/json:
               schema:
@@ -13814,6 +14461,10 @@ paths:
                           type:
                             - string
                             - 'null'
+                        declaredUnitCost:
+                          type:
+                            - string
+                            - 'null'
                         createdAt:
                           anyOf:
                             - type: string
@@ -14099,6 +14750,10 @@ paths:
                       - string
                       - 'null'
                   expirationDate:
+                    type:
+                      - string
+                      - 'null'
+                  declaredUnitCost:
                     type:
                       - string
                       - 'null'
@@ -14437,6 +15092,10 @@ paths:
                       - string
                       - 'null'
                   expirationDate:
+                    type:
+                      - string
+                      - 'null'
+                  declaredUnitCost:
                     type:
                       - string
                       - 'null'
@@ -14781,6 +15440,10 @@ paths:
                     type:
                       - string
                       - 'null'
+                  declaredUnitCost:
+                    type:
+                      - string
+                      - 'null'
                   createdAt:
                     anyOf:
                       - type: string
@@ -14831,6 +15494,159 @@ paths:
                   - lotNumber
                   - expirationDate
                   - createdAt
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    delete:
+      tags:
+        - FinishedGoodsInventory
+      summary: Delete FG adjustment
+      description: >-
+        Permanently remove a manual adjustment (an ADJUST ledger row with no
+        source document), for an entry that should never have been posted. The
+        row is deleted outright, not reversed: on-hand, balances and costs
+        derive from the ledger, so every later read recomputes without it. Rows
+        written by documents (and disposals) are not manual adjustments and
+        return 404.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                required:
+                  - deletedId
         '401':
           description: Missing or invalid credentials
           content:
@@ -15106,6 +15922,10 @@ paths:
                     type:
                       - string
                       - 'null'
+                  declaredUnitCost:
+                    type:
+                      - string
+                      - 'null'
                   createdAt:
                     anyOf:
                       - type: string
@@ -15218,6 +16038,488 @@ paths:
                   - error
         '404':
           description: The product or location does not exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /finished-goods-inventory/disposals/{id}:
+    delete:
+      tags:
+        - FinishedGoodsInventory
+      summary: Delete FG disposal
+      description: >-
+        Permanently remove a manual disposal (a DISPOSE ledger row with no
+        source document), for an entry that should never have been posted. The
+        row is deleted outright, not reversed: on-hand, balances and costs
+        derive from the ledger, so every later read recomputes without it. Rows
+        written by documents (and adjustments) are not manual disposals and
+        return 404.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deletedId:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                required:
+                  - deletedId
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+    patch:
+      tags:
+        - FinishedGoodsInventory
+      summary: Update FG disposal
+      description: >-
+        Correct a manual disposal (a DISPOSE ledger row with no source document)
+        in place: its quantity, business date (`eventDate`, YYYY-MM-DD; the row
+        keeps its time of day, so its place among same-day events holds) and
+        notes. Only the sent fields change; the product and location cannot be
+        changed. The quantity stays a positive magnitude, as on create (zero or
+        negative is rejected, 422). Cost derives on read, so every later
+        valuation reflects the edit. Adjustments and rows written by documents
+        are not disposals and return 404.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: number
+                  exclusiveMinimum: 0
+                notes:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 2000
+                eventDate:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    pattern: >-
+                      ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                  code:
+                    type: string
+                  product:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      code:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - code
+                      - name
+                  location:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  eventType:
+                    type: string
+                    enum:
+                      - ORDER
+                      - RECEIVE
+                      - DEMAND
+                      - ALLOCATE
+                      - CONSUME
+                      - ADJUST
+                      - DISPOSE
+                      - SETTLE_ORDER
+                      - SETTLE_ALLOCATE
+                      - REVERSE_ORDER
+                      - REVERSE_RECEIVE
+                      - REVERSE_DEMAND
+                      - REVERSE_ALLOCATE
+                      - REVERSE_CONSUME
+                  quantity:
+                    anyOf:
+                      - type: string
+                      - type: number
+                  unitCost:
+                    anyOf:
+                      - type: string
+                      - type: number
+                      - type: 'null'
+                  paddedQuantity:
+                    type: number
+                  estimated:
+                    type: boolean
+                  ref:
+                    type:
+                      - string
+                      - 'null'
+                  notes:
+                    type:
+                      - string
+                      - 'null'
+                  eventDate:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  sourceType:
+                    type:
+                      - string
+                      - 'null'
+                    enum:
+                      - po_receipt
+                      - po_item
+                      - wo_receipt
+                      - wo_item
+                      - wo_input
+                      - so_item
+                      - sr_item
+                      - manual
+                      - production_order_item
+                      - production_order_input
+                      - production_order_receipt
+                      - transfer
+                      - return_item
+                      - conversion_input
+                      - conversion_output
+                      - conversion_consumed
+                      - null
+                  lotNumber:
+                    type:
+                      - string
+                      - 'null'
+                  expirationDate:
+                    type:
+                      - string
+                      - 'null'
+                  declaredUnitCost:
+                    type:
+                      - string
+                      - 'null'
+                  createdAt:
+                    anyOf:
+                      - type: string
+                      - type: string
+                        format: date-time
+                  lotLineIndex:
+                    type: integer
+                  lotLineCount:
+                    type: integer
+                  balance:
+                    type:
+                      - number
+                      - 'null'
+                  document:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      kind:
+                        type: string
+                        enum:
+                          - purchase_order
+                          - sales_order
+                          - sales_receipt
+                          - sales_return
+                          - work_order
+                          - production_order
+                          - transfer
+                          - conversion
+                      id:
+                        type: string
+                        pattern: >-
+                          ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                    required:
+                      - kind
+                      - id
+                required:
+                  - id
+                  - code
+                  - product
+                  - location
+                  - eventType
+                  - quantity
+                  - ref
+                  - notes
+                  - eventDate
+                  - sourceType
+                  - lotNumber
+                  - expirationDate
+                  - createdAt
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
           content:
             application/json:
               schema:
@@ -15782,6 +17084,10 @@ paths:
                           type:
                             - string
                             - 'null'
+                        declaredUnitCost:
+                          type:
+                            - string
+                            - 'null'
                         createdAt:
                           anyOf:
                             - type: string
@@ -16067,6 +17373,10 @@ paths:
                       - string
                       - 'null'
                   expirationDate:
+                    type:
+                      - string
+                      - 'null'
+                  declaredUnitCost:
                     type:
                       - string
                       - 'null'
@@ -17980,6 +19290,10 @@ paths:
                               type:
                                 - string
                                 - 'null'
+                            declaredUnitCost:
+                              type:
+                                - string
+                                - 'null'
                             createdAt:
                               anyOf:
                                 - type: string
@@ -18148,6 +19462,10 @@ paths:
                                 - string
                                 - 'null'
                             expirationDate:
+                              type:
+                                - string
+                                - 'null'
+                            declaredUnitCost:
                               type:
                                 - string
                                 - 'null'
@@ -18341,8 +19659,8 @@ paths:
         before the transfer ships) and the transfer code, the source and
         destination locations as from and to (each with its name, its primary
         contact and its address), each line's item code, name, description and
-        quantity (no prices), and the transfer's notes as the memo. The
-        organization's Pharus footer setting applies.
+        quantity (no prices), and the transfer's notes. The organization's
+        Pharus footer setting applies.
       parameters:
         - schema:
             type: string
@@ -18485,10 +19803,12 @@ paths:
       summary: Generate transfer packing slip with changes
       description: >-
         Render the transfer's packing slip with one-off changes from the body:
-        the from and to cards and the memo. The transfer code, date and lines
-        always print as the transfer says, and any other key is ignored. The
-        changes apply to this render only and are never written back to the
-        transfer or its locations. Streamed as an application/pdf attachment.
+        the from and to cards and the notes. The parts listed in the
+        organization's transferPdfHiddenFields are left out. The transfer code,
+        date and lines always print as the transfer says, and any other key is
+        ignored. The changes apply to this render only and are never written
+        back to the transfer or its locations. Streamed as an application/pdf
+        attachment.
       parameters:
         - schema:
             type: string
@@ -18871,11 +20191,14 @@ paths:
       description: >-
         Return what the transfer's packing slip prints by default, with both
         locations and each line's item (id and kind) identified so a form can
-        link to where each value is kept. From is the source location and to the
+        link to where each value is kept. `hiddenFields` lists the parts the
+        organization leaves out of every transfer packing slip (the
+        transferPdfHiddenFields setting; today the description column), so a
+        form need not offer them. From is the source location and to the
         destination, each with its name, its primary contact and its address;
         the date is In Transit's date, or Planning's before the transfer ships;
-        notes print as the memo. Use it to populate a form before rendering with
-        one-off changes through the POST endpoint.
+        the notes print under Notes. Use it to populate a form before rendering
+        with one-off changes through the POST endpoint.
       parameters:
         - schema:
             type: string
@@ -19024,6 +20347,12 @@ paths:
                             - itemCode
                             - description
                             - quantity
+                      hiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - description
                     required:
                       - code
                       - date
@@ -19031,6 +20360,7 @@ paths:
                       - to
                       - notes
                       - items
+                      - hiddenFields
                 required:
                   - data
         '401':
@@ -22696,6 +24026,10 @@ paths:
                               type:
                                 - string
                                 - 'null'
+                            declaredUnitCost:
+                              type:
+                                - string
+                                - 'null'
                             createdAt:
                               anyOf:
                                 - type: string
@@ -22864,6 +24198,10 @@ paths:
                                 - string
                                 - 'null'
                             expirationDate:
+                              type:
+                                - string
+                                - 'null'
+                            declaredUnitCost:
                               type:
                                 - string
                                 - 'null'
@@ -23202,8 +24540,9 @@ paths:
       summary: Generate conversion PDF with changes
       description: >-
         Render the conversion PDF with one-off changes from the body: the
-        location card (ATTN, name and address) and the notes. The code, date and
-        the Before, Materials used and After lines always print as the
+        location card (ATTN, name and address) and the notes. The parts listed
+        in the organization's conversionPdfHiddenFields are left out. The code,
+        date and the Before, Materials used and After lines always print as the
         conversion says, and any other key is ignored. The changes apply to this
         render only and are never written back to the conversion, the location
         or its contacts. Streamed as an application/pdf attachment.
@@ -23556,12 +24895,15 @@ paths:
       description: >-
         Return what the conversion PDF prints by default, with the location and
         each line's item identified so a form can link to where each value is
-        kept. The location card carries the location's primary contact as
-        `attention`. `lines` come in print order, each with its `role` (input
-        under Before, consumed under Materials used, output under After), its
-        `item` ({ id, kind } with kind product or material), code, name,
-        description and quantity. Use it to populate a form before rendering
-        with one-off changes through the POST endpoint.
+        kept. `hiddenFields` lists the parts the organization leaves out of
+        every conversion PDF (the conversionPdfHiddenFields setting; today the
+        description column), so a form need not offer them. The location card
+        carries the location's primary contact as `attention`. `lines` come in
+        print order, each with its `role` (input under Before, consumed under
+        Materials used, output under After), its `item` ({ id, kind } with kind
+        product or material), code, name, description and quantity. Use it to
+        populate a form before rendering with one-off changes through the POST
+        endpoint.
       parameters:
         - schema:
             type: string
@@ -23678,12 +25020,19 @@ paths:
                         type:
                           - string
                           - 'null'
+                      hiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - description
                     required:
                       - code
                       - conversionDate
                       - location
                       - lines
                       - notes
+                      - hiddenFields
                 required:
                   - data
         '401':
@@ -29231,9 +30580,10 @@ paths:
         Render the packing slip with one-off changes from the body: the bill-to
         and ship-to cards, shipped via and the tracking number. The order
         number, date and lines always print as the order says, and any other key
-        is ignored. The changes apply to this render only and are never written
-        back to the order or the customer. Streamed as an application/pdf
-        attachment.
+        is ignored. The columns listed in the organization's
+        salesOrderPdfHiddenFields are left out. The changes apply to this render
+        only and are never written back to the order or the customer. Streamed
+        as an application/pdf attachment.
       parameters:
         - schema:
             type: string
@@ -29611,16 +30961,19 @@ paths:
       description: >-
         Return what the packing slip prints by default, with the customers and
         each line's product identified so a form can link to where each value is
-        kept. Bill to is the purchaser (the order customer's parent, or the
-        customer itself when it has none); ship to is the order's customer, the
-        location the goods go to. Each line carries `customerItem`, what the
-        customer calls the product and the customer it is kept on (the order's
-        customer, or its parent when the customer has none of its own), null
-        when there is none or the organization does not keep customer item
-        numbers; the slip prints a Customer Item # column only when some line
-        has one. Shipped via and the tracking number are not kept on sales
-        orders yet, so they come back blank. Use it to populate a form before
-        rendering with one-off changes through the POST endpoint.
+        kept. `hiddenFields` lists the parts the organization leaves out of
+        every packing slip (the salesOrderPdfHiddenFields setting: the Item #
+        and description columns), so a form need not offer them. Bill to is the
+        purchaser (the order customer's parent, or the customer itself when it
+        has none); ship to is the order's customer, the location the goods go
+        to. Each line carries `customerItem`, what the customer calls the
+        product and the customer it is kept on (the order's customer, or its
+        parent when the customer has none of its own), null when there is none
+        or the organization does not keep customer item numbers; the slip prints
+        a Customer Item # column only when some line has one. Shipped via and
+        the tracking number are not kept on sales orders yet, so they come back
+        blank. Use it to populate a form before rendering with one-off changes
+        through the POST endpoint.
       parameters:
         - schema:
             type: string
@@ -29784,6 +31137,13 @@ paths:
                             - description
                             - customerItem
                             - quantity
+                      hiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - itemCode
+                            - description
                     required:
                       - soNumber
                       - orderDate
@@ -29793,8 +31153,658 @@ paths:
                       - shippedVia
                       - trackingNumber
                       - items
+                      - hiddenFields
                 required:
                   - data
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /sales-orders/{id}/invoice-pdf-form:
+    get:
+      tags:
+        - SalesOrders
+      summary: Get sales order invoice values
+      description: >-
+        Return what the sales order's invoice prints by default, with the
+        purchaser and each line's product identified so a form can link to where
+        each value is kept. The lines, their prices and amounts (quantity times
+        price, to the cent), the subtotal and total, and the issued date (the
+        order's invoiced date, null until it is invoiced) are the order's own.
+        The due date is the issued date plus the organization's payment terms
+        (`paymentTermsDays`), worked out on read and null when either is
+        missing. Bill from is the organization (legal name, else its name,
+        company address and contact email); bill to is the purchaser (the order
+        customer's parent, or the customer itself). The ACH details, the check
+        mailing address (the organization's own, else its company address, with
+        `checkAddressIsCompany` saying which) and the footer come from the
+        organization's Payments settings. The invoice number is typed for each
+        PDF, so it is not here. Use it to populate a form before rendering
+        through the POST endpoint.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      soNumber:
+                        type: string
+                      issuedDate:
+                        type:
+                          - string
+                          - 'null'
+                      paymentTermsDays:
+                        type:
+                          - integer
+                          - 'null'
+                      dueDate:
+                        type:
+                          - string
+                          - 'null'
+                      billFrom:
+                        type: object
+                        properties:
+                          address:
+                            type:
+                              - string
+                              - 'null'
+                          city:
+                            type:
+                              - string
+                              - 'null'
+                          state:
+                            type:
+                              - string
+                              - 'null'
+                          zipCode:
+                            type:
+                              - string
+                              - 'null'
+                          name:
+                            type:
+                              - string
+                              - 'null'
+                          email:
+                            type:
+                              - string
+                              - 'null'
+                        required:
+                          - address
+                          - city
+                          - state
+                          - zipCode
+                          - name
+                          - email
+                      billTo:
+                        type: object
+                        properties:
+                          address:
+                            type:
+                              - string
+                              - 'null'
+                          city:
+                            type:
+                              - string
+                              - 'null'
+                          state:
+                            type:
+                              - string
+                              - 'null'
+                          zipCode:
+                            type:
+                              - string
+                              - 'null'
+                          id:
+                            type: string
+                            pattern: >-
+                              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                          name:
+                            type:
+                              - string
+                              - 'null'
+                        required:
+                          - address
+                          - city
+                          - state
+                          - zipCode
+                          - id
+                          - name
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            product:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  pattern: >-
+                                    ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                              required:
+                                - id
+                            itemName:
+                              type: string
+                            itemCode:
+                              type: string
+                            quantity:
+                              type: number
+                            unitPrice:
+                              type: number
+                            amount:
+                              type: number
+                          required:
+                            - id
+                            - product
+                            - itemName
+                            - itemCode
+                            - quantity
+                            - unitPrice
+                            - amount
+                      subtotal:
+                        type: number
+                      total:
+                        type: number
+                      ach:
+                        type:
+                          - object
+                          - 'null'
+                        properties:
+                          bankName:
+                            type:
+                              - string
+                              - 'null'
+                          routingNumber:
+                            type:
+                              - string
+                              - 'null'
+                          accountNumber:
+                            type:
+                              - string
+                              - 'null'
+                          accountName:
+                            type:
+                              - string
+                              - 'null'
+                        required:
+                          - bankName
+                          - routingNumber
+                          - accountNumber
+                          - accountName
+                      checkAddress:
+                        type:
+                          - object
+                          - 'null'
+                        properties:
+                          address:
+                            type:
+                              - string
+                              - 'null'
+                          city:
+                            type:
+                              - string
+                              - 'null'
+                          state:
+                            type:
+                              - string
+                              - 'null'
+                          zipCode:
+                            type:
+                              - string
+                              - 'null'
+                        required:
+                          - address
+                          - city
+                          - state
+                          - zipCode
+                      checkAddressIsCompany:
+                        type: boolean
+                      footer:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - soNumber
+                      - issuedDate
+                      - paymentTermsDays
+                      - dueDate
+                      - billFrom
+                      - billTo
+                      - items
+                      - subtotal
+                      - total
+                      - ach
+                      - checkAddress
+                      - checkAddressIsCompany
+                      - footer
+                required:
+                  - data
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /sales-orders/{id}/invoice-pdf:
+    post:
+      tags:
+        - SalesOrders
+      summary: Generate sales order invoice
+      description: >-
+        Render the sales order's invoice as a PDF, with one-off changes from the
+        body: the invoice number (typed for each PDF; blank prints an empty
+        cell), the issued date (the due date follows it by the payment terms
+        unless it is sent too), the due date, the bill-from and bill-to cards,
+        the ACH details and check mailing address (an object replaces the whole
+        value, null leaves that box off) and the footer. The lines, prices and
+        totals always print as the order says, and any other key is ignored. The
+        changes apply to this render only and are never written back to the
+        order, the customer or the organization. The organization's letterhead
+        and Pharus footer setting apply. Streamed as an application/pdf
+        attachment.
+      parameters:
+        - schema:
+            type: string
+            pattern: >-
+              ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+          required: true
+          name: id
+          in: path
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                overrides:
+                  type: object
+                  properties:
+                    invoiceNumber:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 100
+                    issuedDate:
+                      type:
+                        - string
+                        - 'null'
+                      pattern: ^\d{4}-\d{2}-\d{2}$
+                    dueDate:
+                      type:
+                        - string
+                        - 'null'
+                      pattern: ^\d{4}-\d{2}-\d{2}$
+                    billFrom:
+                      type: object
+                      properties:
+                        address:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                        city:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                        state:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                        zipCode:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                        name:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                        email:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 320
+                    billTo:
+                      type: object
+                      properties:
+                        address:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                        city:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                        state:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                        zipCode:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                        name:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                    ach:
+                      type:
+                        - object
+                        - 'null'
+                      properties:
+                        bankName:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                        routingNumber:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 50
+                        accountNumber:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 50
+                        accountName:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                    checkAddress:
+                      type:
+                        - object
+                        - 'null'
+                      properties:
+                        address:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                        city:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                        state:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                        zipCode:
+                          type:
+                            - string
+                            - 'null'
+                          maxLength: 255
+                    footer:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 500
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
         '401':
           description: Missing or invalid credentials
           content:
@@ -30068,6 +32078,10 @@ paths:
                               type:
                                 - string
                                 - 'null'
+                            declaredUnitCost:
+                              type:
+                                - string
+                                - 'null'
                             createdAt:
                               anyOf:
                                 - type: string
@@ -30236,6 +32250,10 @@ paths:
                                 - string
                                 - 'null'
                             expirationDate:
+                              type:
+                                - string
+                                - 'null'
+                            declaredUnitCost:
                               type:
                                 - string
                                 - 'null'
@@ -36542,6 +38560,10 @@ paths:
                               type:
                                 - string
                                 - 'null'
+                            declaredUnitCost:
+                              type:
+                                - string
+                                - 'null'
                             createdAt:
                               anyOf:
                                 - type: string
@@ -36710,6 +38732,10 @@ paths:
                                 - string
                                 - 'null'
                             expirationDate:
+                              type:
+                                - string
+                                - 'null'
+                            declaredUnitCost:
                               type:
                                 - string
                                 - 'null'
@@ -44849,6 +46875,7 @@ paths:
                             - googleAds
                             - tiktokAds
                             - amazonAds
+                            - tiktokShop
                             - quickbooksOnline
                         status:
                           type: string
@@ -44947,15 +46974,15 @@ paths:
       summary: Create a Fivetran Connect Card
       description: >-
         For the Powered-by-Fivetran providers (Shopify, Meta Ads, Google Ads,
-        TikTok Ads, Amazon Ads, Amazon Seller Central, ShipHero, QuickBooks
-        Online): creates the Fivetran connection on first call (the row appears
-        as pending) and returns a hosted Connect Card URL to open for the user,
-        where they authorize the source with Fivetran directly; credentials
-        never touch Pharus. Amazon Seller Central additionally requires
-        merchantId (the account's Merchant Token) on the first call, since
-        Fivetran cannot create the connection without it (422 when missing).
-        Calling again returns a fresh card for the same connection, to resume or
-        re-authorize. Admins and owners only.
+        TikTok Ads, Amazon Ads, TikTok Shop, Amazon Seller Central, ShipHero,
+        QuickBooks Online): creates the Fivetran connection on first call (the
+        row appears as pending) and returns a hosted Connect Card URL to open
+        for the user, where they authorize the source with Fivetran directly;
+        credentials never touch Pharus. Amazon Seller Central additionally
+        requires merchantId (the account's Merchant Token) on the first call,
+        since Fivetran cannot create the connection without it (422 when
+        missing). Calling again returns a fresh card for the same connection, to
+        resume or re-authorize. Admins and owners only.
       parameters:
         - schema:
             type: string
@@ -44966,6 +46993,7 @@ paths:
               - googleAds
               - tiktokAds
               - amazonAds
+              - tiktokShop
               - shiphero
               - quickbooksOnline
           required: true
@@ -45010,6 +47038,7 @@ paths:
                           - googleAds
                           - tiktokAds
                           - amazonAds
+                          - tiktokShop
                           - quickbooksOnline
                       status:
                         type: string
@@ -45218,6 +47247,7 @@ paths:
               - googleAds
               - tiktokAds
               - amazonAds
+              - tiktokShop
               - quickbooksOnline
           required: true
           name: provider
@@ -45240,6 +47270,7 @@ paths:
                       - googleAds
                       - tiktokAds
                       - amazonAds
+                      - tiktokShop
                       - quickbooksOnline
                   phase:
                     type: string
@@ -45433,6 +47464,7 @@ paths:
                       - notAvailable
                       - ready
                       - connected
+                      - needsApproval
                   installUrl:
                     type:
                       - string
@@ -45921,6 +47953,7 @@ paths:
               - googleAds
               - tiktokAds
               - amazonAds
+              - tiktokShop
               - quickbooksOnline
           required: true
           name: provider
@@ -51264,6 +53297,10 @@ paths:
                               type:
                                 - string
                                 - 'null'
+                            declaredUnitCost:
+                              type:
+                                - string
+                                - 'null'
                             createdAt:
                               anyOf:
                                 - type: string
@@ -51432,6 +53469,10 @@ paths:
                                 - string
                                 - 'null'
                             expirationDate:
+                              type:
+                                - string
+                                - 'null'
+                            declaredUnitCost:
                               type:
                                 - string
                                 - 'null'
@@ -57778,6 +59819,10 @@ paths:
                               type:
                                 - string
                                 - 'null'
+                            declaredUnitCost:
+                              type:
+                                - string
+                                - 'null'
                             createdAt:
                               anyOf:
                                 - type: string
@@ -57946,6 +59991,10 @@ paths:
                                 - string
                                 - 'null'
                             expirationDate:
+                              type:
+                                - string
+                                - 'null'
+                            declaredUnitCost:
                               type:
                                 - string
                                 - 'null'
@@ -58224,8 +60273,8 @@ paths:
         expected delivery date; then the input products the recipe hands to the
         co-packer, one line per product with its quantities summed across the
         output lines and no due date. Materials are not listed and nothing is
-        priced. The order's notes print boxed as the comment. The organization's
-        Pharus footer setting applies.
+        priced. The order's notes print under Notes. The organization's Pharus
+        footer setting applies.
       parameters:
         - schema:
             type: string
@@ -58368,8 +60417,8 @@ paths:
       summary: Generate work order PDF with changes
       description: >-
         Render the work order PDF with one-off changes from the body: the due
-        date the output lines print and the comment. The WO number, the order
-        date and the lines always print as the order says, and any other key is
+        date the output lines print and the notes. The WO number, the order date
+        and the lines always print as the order says, and any other key is
         ignored. The changes apply to this render only and are never written
         back to the order. Streamed as an application/pdf attachment.
       parameters:
@@ -58694,11 +60743,10 @@ paths:
         Return what the work order PDF prints by default, with each line's
         product identified so a form can link to where each value is kept: the
         WO number, the order date, the due date (the expected delivery date),
-        the notes printed as the comment, and the lines. Each line is marked
-        `kind` output (a product to make) or input (an input product handed to
-        the co-packer, summed across the output lines); materials are left out.
-        Use it to populate a form before rendering with one-off changes through
-        the POST endpoint.
+        the notes, and the lines. Each line is marked `kind` output (a product
+        to make) or input (an input product handed to the co-packer, summed
+        across the output lines); materials are left out. Use it to populate a
+        form before rendering with one-off changes through the POST endpoint.
       parameters:
         - schema:
             type: string
@@ -64025,6 +66073,10 @@ paths:
                               type:
                                 - string
                                 - 'null'
+                            declaredUnitCost:
+                              type:
+                                - string
+                                - 'null'
                             createdAt:
                               anyOf:
                                 - type: string
@@ -64193,6 +66245,10 @@ paths:
                                 - string
                                 - 'null'
                             expirationDate:
+                              type:
+                                - string
+                                - 'null'
+                            declaredUnitCost:
                               type:
                                 - string
                                 - 'null'
@@ -64535,10 +66591,12 @@ paths:
         Render the production order PDF with one-off changes from the body (the
         production site card, the expected date and the notes; the order number,
         date and lines always print as the order says, and any other key is
-        ignored), and optionally a price-less layout (withPrices: false renders
-        every rate and amount as zero; omitted, prices print). The changes apply
-        to this render only and are never written back to the order or the
-        location. Streamed as an application/pdf attachment.
+        ignored), without the parts listed in the organization's
+        productionOrderPdfHiddenFields, and optionally a price-less layout
+        (withPrices: false renders every rate and amount as zero; omitted,
+        prices print). The changes apply to this render only and are never
+        written back to the order or the location. Streamed as an
+        application/pdf attachment.
       parameters:
         - schema:
             type: string
@@ -64895,10 +66953,13 @@ paths:
       description: >-
         Return what the production order PDF prints by default, with the
         production site and each line's product identified so a form can link to
-        where each value is kept. The production site is the order's location,
-        its primary contact as `attention`; each output line carries the
-        product's name, code and description, the quantity and `unitCost`, the
-        per-unit production cost (null while the line has none). Use it to
+        where each value is kept. `hiddenFields` lists the parts the
+        organization leaves out of every production order PDF (the
+        productionOrderPdfHiddenFields setting; today the description column),
+        so a form need not offer them. The production site is the order's
+        location, its primary contact as `attention`; each output line carries
+        the product's name, code and description, the quantity and `unitCost`,
+        the per-unit production cost (null while the line has none). Use it to
         populate a form before rendering with one-off changes through the POST
         endpoint.
       parameters:
@@ -65013,6 +67074,12 @@ paths:
                         type:
                           - string
                           - 'null'
+                      hiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - description
                     required:
                       - prodNumber
                       - orderDate
@@ -65020,6 +67087,7 @@ paths:
                       - productionSite
                       - items
                       - notes
+                      - hiddenFields
                 required:
                   - data
         '401':
@@ -70170,6 +72238,96 @@ paths:
                               type: boolean
                             pdfPharusFooter:
                               type: boolean
+                            paymentTermsDays:
+                              type:
+                                - integer
+                                - 'null'
+                            conversionPdfHiddenFields:
+                              type: array
+                              items:
+                                type: string
+                                enum:
+                                  - description
+                            transferPdfHiddenFields:
+                              type: array
+                              items:
+                                type: string
+                                enum:
+                                  - description
+                            productionOrderPdfHiddenFields:
+                              type: array
+                              items:
+                                type: string
+                                enum:
+                                  - description
+                            salesOrderPdfHiddenFields:
+                              type: array
+                              items:
+                                type: string
+                                enum:
+                                  - itemCode
+                                  - description
+                            invoiceAch:
+                              type:
+                                - object
+                                - 'null'
+                              properties:
+                                bankName:
+                                  type:
+                                    - string
+                                    - 'null'
+                                routingNumber:
+                                  type:
+                                    - string
+                                    - 'null'
+                                accountNumber:
+                                  type:
+                                    - string
+                                    - 'null'
+                                accountName:
+                                  type:
+                                    - string
+                                    - 'null'
+                              required:
+                                - bankName
+                                - routingNumber
+                                - accountNumber
+                                - accountName
+                            invoiceCheckAddress:
+                              type:
+                                - object
+                                - 'null'
+                              properties:
+                                line1:
+                                  type:
+                                    - string
+                                    - 'null'
+                                city:
+                                  type:
+                                    - string
+                                    - 'null'
+                                state:
+                                  type:
+                                    - string
+                                    - 'null'
+                                postalCode:
+                                  type:
+                                    - string
+                                    - 'null'
+                                country:
+                                  type:
+                                    - string
+                                    - 'null'
+                              required:
+                                - line1
+                                - city
+                                - state
+                                - postalCode
+                                - country
+                            invoiceFooter:
+                              type:
+                                - string
+                                - 'null'
                             createdAt:
                               anyOf:
                                 - type: string
@@ -70202,6 +72360,14 @@ paths:
                             - vendorPartNumbers
                             - customerItemNumbers
                             - pdfPharusFooter
+                            - paymentTermsDays
+                            - conversionPdfHiddenFields
+                            - transferPdfHiddenFields
+                            - productionOrderPdfHiddenFields
+                            - salesOrderPdfHiddenFields
+                            - invoiceAch
+                            - invoiceCheckAddress
+                            - invoiceFooter
                             - createdAt
                             - updatedAt
                       required:
@@ -72043,6 +74209,96 @@ paths:
                         type: boolean
                       pdfPharusFooter:
                         type: boolean
+                      paymentTermsDays:
+                        type:
+                          - integer
+                          - 'null'
+                      conversionPdfHiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - description
+                      transferPdfHiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - description
+                      productionOrderPdfHiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - description
+                      salesOrderPdfHiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - itemCode
+                            - description
+                      invoiceAch:
+                        type:
+                          - object
+                          - 'null'
+                        properties:
+                          bankName:
+                            type:
+                              - string
+                              - 'null'
+                          routingNumber:
+                            type:
+                              - string
+                              - 'null'
+                          accountNumber:
+                            type:
+                              - string
+                              - 'null'
+                          accountName:
+                            type:
+                              - string
+                              - 'null'
+                        required:
+                          - bankName
+                          - routingNumber
+                          - accountNumber
+                          - accountName
+                      invoiceCheckAddress:
+                        type:
+                          - object
+                          - 'null'
+                        properties:
+                          line1:
+                            type:
+                              - string
+                              - 'null'
+                          city:
+                            type:
+                              - string
+                              - 'null'
+                          state:
+                            type:
+                              - string
+                              - 'null'
+                          postalCode:
+                            type:
+                              - string
+                              - 'null'
+                          country:
+                            type:
+                              - string
+                              - 'null'
+                        required:
+                          - line1
+                          - city
+                          - state
+                          - postalCode
+                          - country
+                      invoiceFooter:
+                        type:
+                          - string
+                          - 'null'
                       createdAt:
                         anyOf:
                           - type: string
@@ -72075,6 +74331,14 @@ paths:
                       - vendorPartNumbers
                       - customerItemNumbers
                       - pdfPharusFooter
+                      - paymentTermsDays
+                      - conversionPdfHiddenFields
+                      - transferPdfHiddenFields
+                      - productionOrderPdfHiddenFields
+                      - salesOrderPdfHiddenFields
+                      - invoiceAch
+                      - invoiceCheckAddress
+                      - invoiceFooter
                       - createdAt
                       - updatedAt
                 required:
@@ -72411,6 +74675,96 @@ paths:
                         type: boolean
                       pdfPharusFooter:
                         type: boolean
+                      paymentTermsDays:
+                        type:
+                          - integer
+                          - 'null'
+                      conversionPdfHiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - description
+                      transferPdfHiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - description
+                      productionOrderPdfHiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - description
+                      salesOrderPdfHiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - itemCode
+                            - description
+                      invoiceAch:
+                        type:
+                          - object
+                          - 'null'
+                        properties:
+                          bankName:
+                            type:
+                              - string
+                              - 'null'
+                          routingNumber:
+                            type:
+                              - string
+                              - 'null'
+                          accountNumber:
+                            type:
+                              - string
+                              - 'null'
+                          accountName:
+                            type:
+                              - string
+                              - 'null'
+                        required:
+                          - bankName
+                          - routingNumber
+                          - accountNumber
+                          - accountName
+                      invoiceCheckAddress:
+                        type:
+                          - object
+                          - 'null'
+                        properties:
+                          line1:
+                            type:
+                              - string
+                              - 'null'
+                          city:
+                            type:
+                              - string
+                              - 'null'
+                          state:
+                            type:
+                              - string
+                              - 'null'
+                          postalCode:
+                            type:
+                              - string
+                              - 'null'
+                          country:
+                            type:
+                              - string
+                              - 'null'
+                        required:
+                          - line1
+                          - city
+                          - state
+                          - postalCode
+                          - country
+                      invoiceFooter:
+                        type:
+                          - string
+                          - 'null'
                       createdAt:
                         anyOf:
                           - type: string
@@ -72443,6 +74797,14 @@ paths:
                       - vendorPartNumbers
                       - customerItemNumbers
                       - pdfPharusFooter
+                      - paymentTermsDays
+                      - conversionPdfHiddenFields
+                      - transferPdfHiddenFields
+                      - productionOrderPdfHiddenFields
+                      - salesOrderPdfHiddenFields
+                      - invoiceAch
+                      - invoiceCheckAddress
+                      - invoiceFooter
                       - createdAt
                       - updatedAt
                 required:
@@ -72531,15 +74893,28 @@ paths:
         it leaves the stored list alone. `purchaseOrderPdfWithPrices` sets
         whether a PO PDF render starts with prices on (default true), and
         `purchaseOrderPdfCostBreakdown` whether it prints the lines' subtotal
-        and each charge above the total (default false). `vendorPartNumbers`
-        turns on keeping each vendor's own code for the items bought from it
-        (default false). `customerItemNumbers` turns on keeping each customer's
-        own code for the products sold to it, printed on packing slips (default
-        false). `pdfPharusFooter` sets whether every generated PDF carries the
-        small "Created with Pharus" line at the bottom of each page (default
-        true). The slug is immutable after creation: warehouse datasets are
-        named by it. Owner only. Control plane: requires a Firebase session,
-        PATs are rejected.
+        and each charge above the total (default false).
+        `conversionPdfHiddenFields`, `transferPdfHiddenFields` and
+        `productionOrderPdfHiddenFields` do the same for the conversion PDF, the
+        transfer packing slip and the production order PDF (description), and
+        `salesOrderPdfHiddenFields` for the sales order packing slip (itemCode,
+        description): an empty list prints everything, omitting it leaves the
+        stored list alone. `vendorPartNumbers` turns on keeping each vendor's
+        own code for the items bought from it (default false).
+        `customerItemNumbers` turns on keeping each customer's own code for the
+        products sold to it, printed on packing slips (default false).
+        `pdfPharusFooter` sets whether every generated PDF carries the small
+        "Created with Pharus" line at the bottom of each page (default true).
+        `paymentTermsDays` is the organization's payment terms in net days (0 to
+        365): an invoice is due this many days after it is issued; null clears
+        it (default not set). `invoiceAch` (bank name, routing number, account
+        number, account name), `invoiceCheckAddress` and `invoiceFooter` are
+        what every invoice prints as its payment instructions and footer: like
+        the address, a value object provided writes every one of its fields and
+        null clears them all; an empty check address means the company address.
+        The slug is immutable after creation: warehouse datasets are named by
+        it. Owner only. Control plane: requires a Firebase session, PATs are
+        rejected.
       requestBody:
         content:
           application/json:
@@ -72707,6 +75082,102 @@ paths:
                   type: boolean
                 pdfPharusFooter:
                   type: boolean
+                paymentTermsDays:
+                  type:
+                    - integer
+                    - 'null'
+                  minimum: 0
+                  maximum: 365
+                conversionPdfHiddenFields:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - description
+                  maxItems: 1
+                transferPdfHiddenFields:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - description
+                  maxItems: 1
+                productionOrderPdfHiddenFields:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - description
+                  maxItems: 1
+                salesOrderPdfHiddenFields:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - itemCode
+                      - description
+                  maxItems: 2
+                invoiceAch:
+                  type:
+                    - object
+                    - 'null'
+                  properties:
+                    bankName:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 255
+                    routingNumber:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 50
+                    accountNumber:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 50
+                    accountName:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 255
+                invoiceCheckAddress:
+                  type:
+                    - object
+                    - 'null'
+                  properties:
+                    line1:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 255
+                    city:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 255
+                    state:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 255
+                    postalCode:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 255
+                    country:
+                      type:
+                        - string
+                        - 'null'
+                      minLength: 2
+                      maxLength: 2
+                invoiceFooter:
+                  type:
+                    - string
+                    - 'null'
+                  maxLength: 500
       responses:
         '200':
           description: OK
@@ -72908,6 +75379,96 @@ paths:
                         type: boolean
                       pdfPharusFooter:
                         type: boolean
+                      paymentTermsDays:
+                        type:
+                          - integer
+                          - 'null'
+                      conversionPdfHiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - description
+                      transferPdfHiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - description
+                      productionOrderPdfHiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - description
+                      salesOrderPdfHiddenFields:
+                        type: array
+                        items:
+                          type: string
+                          enum:
+                            - itemCode
+                            - description
+                      invoiceAch:
+                        type:
+                          - object
+                          - 'null'
+                        properties:
+                          bankName:
+                            type:
+                              - string
+                              - 'null'
+                          routingNumber:
+                            type:
+                              - string
+                              - 'null'
+                          accountNumber:
+                            type:
+                              - string
+                              - 'null'
+                          accountName:
+                            type:
+                              - string
+                              - 'null'
+                        required:
+                          - bankName
+                          - routingNumber
+                          - accountNumber
+                          - accountName
+                      invoiceCheckAddress:
+                        type:
+                          - object
+                          - 'null'
+                        properties:
+                          line1:
+                            type:
+                              - string
+                              - 'null'
+                          city:
+                            type:
+                              - string
+                              - 'null'
+                          state:
+                            type:
+                              - string
+                              - 'null'
+                          postalCode:
+                            type:
+                              - string
+                              - 'null'
+                          country:
+                            type:
+                              - string
+                              - 'null'
+                        required:
+                          - line1
+                          - city
+                          - state
+                          - postalCode
+                          - country
+                      invoiceFooter:
+                        type:
+                          - string
+                          - 'null'
                       createdAt:
                         anyOf:
                           - type: string
@@ -72940,6 +75501,14 @@ paths:
                       - vendorPartNumbers
                       - customerItemNumbers
                       - pdfPharusFooter
+                      - paymentTermsDays
+                      - conversionPdfHiddenFields
+                      - transferPdfHiddenFields
+                      - productionOrderPdfHiddenFields
+                      - salesOrderPdfHiddenFields
+                      - invoiceAch
+                      - invoiceCheckAddress
+                      - invoiceFooter
                       - createdAt
                       - updatedAt
                 required:
