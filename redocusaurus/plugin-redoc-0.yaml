@@ -32902,10 +32902,15 @@ paths:
                         type:
                           - number
                           - 'null'
+                      email:
+                        type:
+                          - string
+                          - 'null'
                     required:
                       - name
                       - ref
                       - orderCount
+                      - email
                   isSubscription:
                     type: boolean
                   isRecurring:
@@ -34857,10 +34862,15 @@ paths:
                         type:
                           - number
                           - 'null'
+                      email:
+                        type:
+                          - string
+                          - 'null'
                     required:
                       - name
                       - ref
                       - orderCount
+                      - email
                   isSubscription:
                     type: boolean
                   isRecurring:
@@ -36263,10 +36273,15 @@ paths:
                         type:
                           - number
                           - 'null'
+                      email:
+                        type:
+                          - string
+                          - 'null'
                     required:
                       - name
                       - ref
                       - orderCount
+                      - email
                   isSubscription:
                     type: boolean
                   isRecurring:
@@ -42417,6 +42432,11 @@ paths:
                         - string
                         - 'null'
                       maxLength: 50
+                    email:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 320
                     residential:
                       type: boolean
                     address:
@@ -42521,6 +42541,10 @@ paths:
                         type:
                           - string
                           - 'null'
+                      email:
+                        type:
+                          - string
+                          - 'null'
                       residential:
                         type: boolean
                       address:
@@ -42551,6 +42575,7 @@ paths:
                       - name
                       - company
                       - phone
+                      - email
                       - residential
                       - address
                   delivery:
@@ -43079,6 +43104,10 @@ paths:
                               type:
                                 - string
                                 - 'null'
+                            email:
+                              type:
+                                - string
+                                - 'null'
                             residential:
                               type: boolean
                             address:
@@ -43109,6 +43138,7 @@ paths:
                             - name
                             - company
                             - phone
+                            - email
                             - residential
                             - address
                         delivery:
@@ -43454,6 +43484,11 @@ paths:
                         - string
                         - 'null'
                       maxLength: 50
+                    email:
+                      type:
+                        - string
+                        - 'null'
+                      maxLength: 320
                     residential:
                       type: boolean
                     address:
@@ -43553,6 +43588,10 @@ paths:
                         type:
                           - string
                           - 'null'
+                      email:
+                        type:
+                          - string
+                          - 'null'
                       residential:
                         type: boolean
                       address:
@@ -43583,6 +43622,7 @@ paths:
                       - name
                       - company
                       - phone
+                      - email
                       - residential
                       - address
                   delivery:
@@ -44210,6 +44250,10 @@ paths:
                         type:
                           - string
                           - 'null'
+                      email:
+                        type:
+                          - string
+                          - 'null'
                       residential:
                         type: boolean
                       address:
@@ -44240,6 +44284,7 @@ paths:
                       - name
                       - company
                       - phone
+                      - email
                       - residential
                       - address
                   delivery:
@@ -44657,6 +44702,10 @@ paths:
                         type:
                           - string
                           - 'null'
+                      email:
+                        type:
+                          - string
+                          - 'null'
                       residential:
                         type: boolean
                       address:
@@ -44687,6 +44736,7 @@ paths:
                       - name
                       - company
                       - phone
+                      - email
                       - residential
                       - address
                   delivery:
@@ -45176,6 +45226,10 @@ paths:
                         type:
                           - string
                           - 'null'
+                      email:
+                        type:
+                          - string
+                          - 'null'
                       residential:
                         type: boolean
                       address:
@@ -45206,6 +45260,7 @@ paths:
                       - name
                       - company
                       - phone
+                      - email
                       - residential
                       - address
                   delivery:
@@ -46875,7 +46930,6 @@ paths:
                             - googleAds
                             - tiktokAds
                             - amazonAds
-                            - tiktokShop
                             - quickbooksOnline
                         status:
                           type: string
@@ -46967,6 +47021,180 @@ paths:
                       - message
                 required:
                   - error
+  /connections/mcp:
+    get:
+      tags:
+        - Connections
+      summary: Get MCP setup
+      description: >-
+        What an AI assistant needs to connect to Pharus: the MCP server URL for
+        this environment and the name and version of the Pharus skill this
+        release ships (download it from GET /connections/mcp/skill). Any role,
+        viewers included: each member connects their own assistant, signing in
+        over OAuth or with their own API token, and nothing is stored for the
+        org.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mcpUrl:
+                    type: string
+                  skill:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      version:
+                        type: string
+                    required:
+                      - name
+                      - version
+                required:
+                  - mcpUrl
+                  - skill
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /connections/mcp/skill:
+    get:
+      tags:
+        - Connections
+      summary: Download the Pharus skill
+      description: >-
+        The Pharus skill as a zip (no JSON envelope), ready to upload to
+        claude.ai or unpack into a Claude Code skills folder: one folder named
+        after the skill, holding its SKILL.md and any reference files. SKILL.md
+        carries the release version in its metadata, the same version GET
+        /connections/mcp reports. Any role, viewers included.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
   /connections/{provider}/connect-card:
     post:
       tags:
@@ -46974,15 +47202,15 @@ paths:
       summary: Create a Fivetran Connect Card
       description: >-
         For the Powered-by-Fivetran providers (Shopify, Meta Ads, Google Ads,
-        TikTok Ads, Amazon Ads, TikTok Shop, Amazon Seller Central, ShipHero,
-        QuickBooks Online): creates the Fivetran connection on first call (the
-        row appears as pending) and returns a hosted Connect Card URL to open
-        for the user, where they authorize the source with Fivetran directly;
-        credentials never touch Pharus. Amazon Seller Central additionally
-        requires merchantId (the account's Merchant Token) on the first call,
-        since Fivetran cannot create the connection without it (422 when
-        missing). Calling again returns a fresh card for the same connection, to
-        resume or re-authorize. Admins and owners only.
+        TikTok Ads, Amazon Ads, Amazon Seller Central, ShipHero, QuickBooks
+        Online): creates the Fivetran connection on first call (the row appears
+        as pending) and returns a hosted Connect Card URL to open for the user,
+        where they authorize the source with Fivetran directly; credentials
+        never touch Pharus. Amazon Seller Central additionally requires
+        merchantId (the account's Merchant Token) on the first call, since
+        Fivetran cannot create the connection without it (422 when missing).
+        Calling again returns a fresh card for the same connection, to resume or
+        re-authorize. Admins and owners only.
       parameters:
         - schema:
             type: string
@@ -46993,7 +47221,6 @@ paths:
               - googleAds
               - tiktokAds
               - amazonAds
-              - tiktokShop
               - shiphero
               - quickbooksOnline
           required: true
@@ -47038,7 +47265,6 @@ paths:
                           - googleAds
                           - tiktokAds
                           - amazonAds
-                          - tiktokShop
                           - quickbooksOnline
                       status:
                         type: string
@@ -47247,7 +47473,6 @@ paths:
               - googleAds
               - tiktokAds
               - amazonAds
-              - tiktokShop
               - quickbooksOnline
           required: true
           name: provider
@@ -47270,7 +47495,6 @@ paths:
                       - googleAds
                       - tiktokAds
                       - amazonAds
-                      - tiktokShop
                       - quickbooksOnline
                   phase:
                     type: string
@@ -47953,7 +48177,6 @@ paths:
               - googleAds
               - tiktokAds
               - amazonAds
-              - tiktokShop
               - quickbooksOnline
           required: true
           name: provider
