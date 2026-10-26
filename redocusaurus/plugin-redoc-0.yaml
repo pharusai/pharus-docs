@@ -32872,6 +32872,7 @@ paths:
                       - 'null'
                     enum:
                       - shipBy
+                      - lastUpdate
                       - null
                   deliveredDateSource:
                     type:
@@ -34832,6 +34833,7 @@ paths:
                       - 'null'
                     enum:
                       - shipBy
+                      - lastUpdate
                       - null
                   deliveredDateSource:
                     type:
@@ -36040,47 +36042,48 @@ paths:
         day the last line left, and one that left in one go carries its shipped
         date as partial too (manual receipts never use the step); an Amazon
         order Amazon says shipped but its shipments report has no row is dated
-        by the order's ship-by date, and `shippedDateSource` says "shipBy" then
-        (null when a shipment dated it); Amazon charges at shipping, so an
-        Amazon order goes from Placed straight to Partial or Shipped, its paid
-        date Amazon's payment date), the order's tags (Shopify's, sorted; empty
-        on Amazon and manual receipts), the customer, channel, destination and
-        shipping (with `trackingUrl`, the carrier's tracking page: the URL
-        Shopify sent with the fulfillment, else one built from the carrier and
-        tracking number for UPS, USPS, FedEx, DHL and Amazon Logistics, null for
-        an unknown carrier), the Pharus location and the marketplace's own
-        fulfillment location, the buyer-side money (list subtotal, discounts
-        with codes, net subtotal, shipping charged, tax, tip (part of the total
-        paid; null on Amazon, which has no tips), total paid with a to-the-cent
-        reconciliation flag, the part paid with a gift card bought earlier
-        (Shopify only, shown for information: that money came in when the card
-        was sold), refunded with its goods, shipping and tax parts), notes, the
-        lines as sold with what each moved in inventory and what each cost
-        (unitCost per unit sold, cost, grossProfit, grossMargin; a product can
-        repeat across a synced receipt's lines when bundles explode; a kit line
-        also carries `components`, the products it consumes with quantityPerKit,
-        the quantity it draws, available, and each one's unitCost and marks,
-        exactly as on a sales order line, since a kit has no cost or stock of
-        its own and its figures are these rolled up; empty on every other line),
-        the refunds (each with its kind: a refund, a chargeback the buyer won,
-        or an Amazon A-to-z claim, and its amount in goods, shipping and tax
-        parts, null on one stored before refunds were split), the timeline's
-        `events` oldest first (things that happened without changing the status,
-        derived on read: `line_shipped` groups the lines that left on one day
-        and appears only when the order left in parts; `refunded` and
-        `chargeback` carry the refund's kind, money in parts and `fullyRefunded`
-        on the one that took the money given back to the total paid;
-        `reimbursed` is Amazon paying the seller back for the order, with its
-        reason code, amount, currency and SKU, `lost` when the reason is a loss
-        or damage, dated by Amazon's approval when the report carries it; the
-        sale stands, so a reimbursement never changes the receipt's money;
-        `cancelled` the day it was cancelled), and financials. A manual
-        receipt's money is its lines plus its typed shipping, tax and tip, and
-        its costs take its typed postage and channel fee. Every cost is derived
-        on read and never stored, priced like a sales order line: the location's
-        stock today while the receipt is Placed or Paid (`live`, always
-        `estimated`), the engine's price of the CONSUME legs once it shipped
-        (`estimated` only where a line drew more than the location held,
+        by the order's ship-by date, and `shippedDateSource` says "shipBy" then,
+        or with no ship-by date by Amazon's last update to the order, the change
+        to shipped, and it says "lastUpdate" (null when a shipment dated it);
+        Amazon charges at shipping, so an Amazon order goes from Placed straight
+        to Partial or Shipped, its paid date Amazon's payment date), the order's
+        tags (Shopify's, sorted; empty on Amazon and manual receipts), the
+        customer, channel, destination and shipping (with `trackingUrl`, the
+        carrier's tracking page: the URL Shopify sent with the fulfillment, else
+        one built from the carrier and tracking number for UPS, USPS, FedEx, DHL
+        and Amazon Logistics, null for an unknown carrier), the Pharus location
+        and the marketplace's own fulfillment location, the buyer-side money
+        (list subtotal, discounts with codes, net subtotal, shipping charged,
+        tax, tip (part of the total paid; null on Amazon, which has no tips),
+        total paid with a to-the-cent reconciliation flag, the part paid with a
+        gift card bought earlier (Shopify only, shown for information: that
+        money came in when the card was sold), refunded with its goods, shipping
+        and tax parts), notes, the lines as sold with what each moved in
+        inventory and what each cost (unitCost per unit sold, cost, grossProfit,
+        grossMargin; a product can repeat across a synced receipt's lines when
+        bundles explode; a kit line also carries `components`, the products it
+        consumes with quantityPerKit, the quantity it draws, available, and each
+        one's unitCost and marks, exactly as on a sales order line, since a kit
+        has no cost or stock of its own and its figures are these rolled up;
+        empty on every other line), the refunds (each with its kind: a refund, a
+        chargeback the buyer won, or an Amazon A-to-z claim, and its amount in
+        goods, shipping and tax parts, null on one stored before refunds were
+        split), the timeline's `events` oldest first (things that happened
+        without changing the status, derived on read: `line_shipped` groups the
+        lines that left on one day and appears only when the order left in
+        parts; `refunded` and `chargeback` carry the refund's kind, money in
+        parts and `fullyRefunded` on the one that took the money given back to
+        the total paid; `reimbursed` is Amazon paying the seller back for the
+        order, with its reason code, amount, currency and SKU, `lost` when the
+        reason is a loss or damage, dated by Amazon's approval when the report
+        carries it; the sale stands, so a reimbursement never changes the
+        receipt's money; `cancelled` the day it was cancelled), and financials.
+        A manual receipt's money is its lines plus its typed shipping, tax and
+        tip, and its costs take its typed postage and channel fee. Every cost is
+        derived on read and never stored, priced like a sales order line: the
+        location's stock today while the receipt is Placed or Paid (`live`,
+        always `estimated`), the engine's price of the CONSUME legs once it
+        shipped (`estimated` only where a line drew more than the location held,
         `paddedQuantity` units); while Partial, the lines that left price as
         shipped and the rest live. financials carries the receipt's economics:
         grossRevenue (total paid less refunded) less shippingKept (shipping
@@ -36243,6 +36246,7 @@ paths:
                       - 'null'
                     enum:
                       - shipBy
+                      - lastUpdate
                       - null
                   deliveredDateSource:
                     type:
@@ -39497,9 +39501,11 @@ paths:
         amazon): when it last synced successfully, when it last tried, the
         stored failure message when the latest run errored (cleared on success),
         and where the initial history copy stands (done plus the oldest stored
-        order day, or the day the walk has reached mid-copy). Reads the org's
-        own sync bookkeeping; nothing here queries the data plane. `configured`
-        is false when the org has no such feed.
+        order day, or the day the walk has reached mid-copy), and for Amazon the
+        orders the connector holds without their details (`incompleteOrders`,
+        oldest first), which are not receipts until the connector is re-synced.
+        Reads the org's own sync bookkeeping; nothing here queries the data
+        plane. `configured` is false when the org has no such feed.
       parameters:
         - schema:
             type: string
@@ -39555,12 +39561,27 @@ paths:
                       - from
                       - reached
                       - error
+                  incompleteOrders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        amazonOrderId:
+                          type: string
+                        syncedAt:
+                          type:
+                            - string
+                            - 'null'
+                      required:
+                        - amazonOrderId
+                        - syncedAt
                 required:
                   - configured
                   - lastSyncedAt
                   - lastAttemptAt
                   - lastError
                   - backfill
+                  - incompleteOrders
         '401':
           description: Missing or invalid credentials
           content:
@@ -39661,17 +39682,24 @@ paths:
         listings found on the org's stored connected order lines on or after the
         connected go-live date (retired pre-go-live products are not pending
         work; a null date scans everything) for one feed (`source`, shopify by
-        default or amazon), merged with the stored mappings. Listings are
-        identified by their store's stable key, the variant id on Shopify or the
-        seller product on Amazon (both travel in variantId). Shopify lines that
-        point at no store listing (a custom item an app like Faire wrote, or a
-        line whose variant was deleted) gather into one row per SKU, keyed
-        "sku:<SKU>" and flagged `unlinked`; lines with no SKU either gather into
-        one row per title, keyed "title:<title>". Such a row maps like any other
-        and applies to every such line with that SKU or title. Each row carries
-        the listing's own product code and titles, how much it sold, the Pharus
-        product it maps to (null when unmapped), `notAProduct` (true when the
-        listing is marked not a product, which settles it with no product),
+        default or amazon), merged with the stored mappings. On Shopify it also
+        lists every variant in the store's catalog, as the sync last copied it
+        (about hourly), sold or not, so a listing can be mapped before its first
+        sale; `shopifyStatus` gives each Shopify listing's product status
+        (active, draft, archived, unlisted), "deleted" when the catalog no
+        longer holds it, null before the first copy and on unlinked rows. Units
+        sold and line counts always come from the stored order lines, 0 for a
+        listing that has not sold. Listings are identified by their store's
+        stable key, the variant id on Shopify or the seller product on Amazon
+        (both travel in variantId). Shopify lines that point at no store listing
+        (a custom item an app like Faire wrote, or a line whose variant was
+        deleted) gather into one row per SKU, keyed "sku:<SKU>" and flagged
+        `unlinked`; lines with no SKU either gather into one row per title,
+        keyed "title:<title>". Such a row maps like any other and applies to
+        every such line with that SKU or title. Each row carries the listing's
+        own product code and titles, how much it sold, the Pharus product it
+        maps to (null when unmapped), `notAProduct` (true when the listing is
+        marked not a product, which settles it with no product),
         `unitsPerListing`, the mapping's factor (1 when unmapped). Filter with
         `search` (case-insensitive substring over the listing product, titles,
         and key) and `mapped` (false = still to map, true = already mapped or
@@ -39787,6 +39815,17 @@ paths:
                             - name
                         unitsPerListing:
                           type: integer
+                        shopifyStatus:
+                          type:
+                            - string
+                            - 'null'
+                          enum:
+                            - active
+                            - draft
+                            - archived
+                            - unlisted
+                            - deleted
+                            - null
                       required:
                         - variantId
                         - unlinked
@@ -39798,6 +39837,7 @@ paths:
                         - unitsSold
                         - product
                         - unitsPerListing
+                        - shopifyStatus
                   meta:
                     type: object
                     properties:
@@ -72414,8 +72454,6 @@ paths:
                                 - 'null'
                             connectedLedgerFrom:
                               type: string
-                            mergeShopifyAmazonCopies:
-                              type: boolean
                             hiddenPages:
                               type: array
                               items:
@@ -72575,7 +72613,6 @@ paths:
                             - conversionEstimateWindow
                             - timezone
                             - connectedLedgerFrom
-                            - mergeShopifyAmazonCopies
                             - hiddenPages
                             - purchaseOrderPdfHiddenFields
                             - purchaseOrderPdfWithPrices
@@ -74385,8 +74422,6 @@ paths:
                           - 'null'
                       connectedLedgerFrom:
                         type: string
-                      mergeShopifyAmazonCopies:
-                        type: boolean
                       hiddenPages:
                         type: array
                         items:
@@ -74546,7 +74581,6 @@ paths:
                       - conversionEstimateWindow
                       - timezone
                       - connectedLedgerFrom
-                      - mergeShopifyAmazonCopies
                       - hiddenPages
                       - purchaseOrderPdfHiddenFields
                       - purchaseOrderPdfWithPrices
@@ -74851,8 +74885,6 @@ paths:
                           - 'null'
                       connectedLedgerFrom:
                         type: string
-                      mergeShopifyAmazonCopies:
-                        type: boolean
                       hiddenPages:
                         type: array
                         items:
@@ -75012,7 +75044,6 @@ paths:
                       - conversionEstimateWindow
                       - timezone
                       - connectedLedgerFrom
-                      - mergeShopifyAmazonCopies
                       - hiddenPages
                       - purchaseOrderPdfHiddenFields
                       - purchaseOrderPdfWithPrices
@@ -75256,8 +75287,6 @@ paths:
                 connectedLedgerFrom:
                   type: string
                   pattern: ^\d{4}-\d{2}-\d{2}$
-                mergeShopifyAmazonCopies:
-                  type: boolean
                 hiddenPages:
                   type: array
                   items:
@@ -75555,8 +75584,6 @@ paths:
                           - 'null'
                       connectedLedgerFrom:
                         type: string
-                      mergeShopifyAmazonCopies:
-                        type: boolean
                       hiddenPages:
                         type: array
                         items:
@@ -75716,7 +75743,6 @@ paths:
                       - conversionEstimateWindow
                       - timezone
                       - connectedLedgerFrom
-                      - mergeShopifyAmazonCopies
                       - hiddenPages
                       - purchaseOrderPdfHiddenFields
                       - purchaseOrderPdfWithPrices
