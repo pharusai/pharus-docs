@@ -13832,8 +13832,14 @@ paths:
         value nothing ever draws; 0 on a healthy row), `unbackedValue`, those
         units at the layers' average cost (an estimate, the engine knows how
         many units are phantom, not which ones), and `firstShortfallDate`, the
-        business day the ledger first went short at that location. This is the
-        go-to read for how much of X is on hand and where.
+        business day the ledger first went short at that location. Pass `asOf`
+        (YYYY-MM-DD) to read the position on a past day, as it stood at the end
+        of it, for a month-end close: every figure keeps its meaning with that
+        day in place of today (the ledger up to the end of the day, transfers
+        and production orders shipped by then but not yet received for the
+        in-transit figures, the weeks just before it for the weekly rates), and
+        `includeOnHandValue` values the stock as it stood then. Omitted means
+        now. This is the go-to read for how much of X is on hand and where.
       parameters:
         - schema:
             type: string
@@ -13864,6 +13870,12 @@ paths:
             maximum: 52
           required: false
           name: demandWindowWeeks
+          in: query
+        - schema:
+            type: string
+            format: date
+          required: false
+          name: asOf
           in: query
       responses:
         '200':
@@ -16610,8 +16622,15 @@ paths:
         value nothing ever draws; 0 on a healthy row), `unbackedValue`, those
         units at the layers' average cost (an estimate, the engine knows how
         many units are phantom, not which ones), and `firstShortfallDate`, the
-        business day the ledger first went short at that location. This is the
-        go-to read for how much of a product is on hand and where.
+        business day the ledger first went short at that location. Pass `asOf`
+        (YYYY-MM-DD) to read the position on a past day, as it stood at the end
+        of it, for a month-end close: every figure keeps its meaning with that
+        day in place of today (the ledger up to the end of the day, transfers
+        and production orders shipped by then but not yet received for the
+        in-transit figures, the weeks just before it for the weekly rates), and
+        `includeOnHandValue` values the stock as it stood then. Omitted means
+        now. This is the go-to read for how much of a product is on hand and
+        where.
       parameters:
         - schema:
             type: string
@@ -16642,6 +16661,12 @@ paths:
             maximum: 52
           required: false
           name: demandWindowWeeks
+          in: query
+        - schema:
+            type: string
+            format: date
+          required: false
+          name: asOf
           in: query
       responses:
         '200':
