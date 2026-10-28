@@ -69494,25 +69494,26 @@ paths:
         not mapped to a product, which unmappedUnits counts); fees and refunds
         come from Seller Central by the day Amazon posted them; service fees by
         the settlement they fell in; merchant-fulfilled postage from the 3PL's
-        labels by order date; ads from Amazon Ads (Sponsored Products and
-        Sponsored Brands) by the day the ad ran, with attributed sales of the
-        last 14 days flagged provisional because Amazon keeps crediting them.
-        Ads, storage, account fees, adjustments and contribution exist only on
-        the total view: they cannot be split by fulfillment. historyFrom extends
-        the bucket series back for trend context (buckets before from have
-        inRange false); totals, products and campaigns always cover from..to.
-        placements breaks Sponsored Products down by where the ads showed (top
-        of search, rest of search, product pages, off Amazon); searchTerms gives
-        the range's search-term totals, how many terms spent $5 or more without
-        an attributed sale, and the ten terms spending most without a sale and
-        the ten selling best. products carries per-product revenue, cost, fees
-        and an estimated share of ad spend (a campaign's spend goes to the
-        products its advertised SKUs map to, by net revenue), and reconciliation
-        ties their sum to the channel contribution. sources says which feeds are
-        connected and available whether each group of figures (order fees,
-        account fees, ads, postage) is real this time: a group reads zero or
-        null when its feed is missing, its sync lacks the needed tables or
-        columns, or it failed, and errors says why in one line per feed.
+        labels by order date; ads from Amazon Ads (Sponsored Products, Sponsored
+        Brands and Sponsored Display) by the day the ad ran, with attributed
+        sales of the last 14 days flagged provisional because Amazon keeps
+        crediting them. Ads, storage, account fees, adjustments and contribution
+        exist only on the total view: they cannot be split by fulfillment.
+        historyFrom extends the bucket series back for trend context (buckets
+        before from have inRange false); totals, products and campaigns always
+        cover from..to. placements breaks Sponsored Products down by where the
+        ads showed (top of search, rest of search, product pages, off Amazon);
+        searchTerms gives the range's search-term totals, how many terms spent
+        $5 or more without an attributed sale, and the ten terms spending most
+        without a sale and the ten selling best. products carries per-product
+        revenue, cost, fees and an estimated share of ad spend (a campaign's
+        spend goes to the products its advertised SKUs map to, by net revenue),
+        and reconciliation ties their sum to the channel contribution. sources
+        says which feeds are connected and available whether each group of
+        figures (order fees, account fees, ads, postage) is real this time: a
+        group reads zero or null when its feed is missing, its sync lacks the
+        needed tables or columns, or it failed, and errors says why in one line
+        per feed.
       parameters:
         - schema:
             type: string
@@ -69688,7 +69689,11 @@ paths:
                                   type:
                                     - number
                                     - 'null'
-                                accountFees:
+                                inboundFreight:
+                                  type:
+                                    - number
+                                    - 'null'
+                                sellerSubscription:
                                   type:
                                     - number
                                     - 'null'
@@ -69719,7 +69724,8 @@ paths:
                                 - afterOrderCosts
                                 - adSpend
                                 - storageFees
-                                - accountFees
+                                - inboundFreight
+                                - sellerSubscription
                                 - adjustments
                                 - contribution
                             fba:
@@ -69767,7 +69773,11 @@ paths:
                                   type:
                                     - number
                                     - 'null'
-                                accountFees:
+                                inboundFreight:
+                                  type:
+                                    - number
+                                    - 'null'
+                                sellerSubscription:
                                   type:
                                     - number
                                     - 'null'
@@ -69798,7 +69808,8 @@ paths:
                                 - afterOrderCosts
                                 - adSpend
                                 - storageFees
-                                - accountFees
+                                - inboundFreight
+                                - sellerSubscription
                                 - adjustments
                                 - contribution
                             mfn:
@@ -69846,7 +69857,11 @@ paths:
                                   type:
                                     - number
                                     - 'null'
-                                accountFees:
+                                inboundFreight:
+                                  type:
+                                    - number
+                                    - 'null'
+                                sellerSubscription:
                                   type:
                                     - number
                                     - 'null'
@@ -69877,7 +69892,8 @@ paths:
                                 - afterOrderCosts
                                 - adSpend
                                 - storageFees
-                                - accountFees
+                                - inboundFreight
+                                - sellerSubscription
                                 - adjustments
                                 - contribution
                           required:
@@ -69965,7 +69981,11 @@ paths:
                                 type:
                                   - number
                                   - 'null'
-                              accountFees:
+                              inboundFreight:
+                                type:
+                                  - number
+                                  - 'null'
+                              sellerSubscription:
                                 type:
                                   - number
                                   - 'null'
@@ -69996,7 +70016,8 @@ paths:
                               - afterOrderCosts
                               - adSpend
                               - storageFees
-                              - accountFees
+                              - inboundFreight
+                              - sellerSubscription
                               - adjustments
                               - contribution
                           fba:
@@ -70044,7 +70065,11 @@ paths:
                                 type:
                                   - number
                                   - 'null'
-                              accountFees:
+                              inboundFreight:
+                                type:
+                                  - number
+                                  - 'null'
+                              sellerSubscription:
                                 type:
                                   - number
                                   - 'null'
@@ -70075,7 +70100,8 @@ paths:
                               - afterOrderCosts
                               - adSpend
                               - storageFees
-                              - accountFees
+                              - inboundFreight
+                              - sellerSubscription
                               - adjustments
                               - contribution
                           mfn:
@@ -70123,7 +70149,11 @@ paths:
                                 type:
                                   - number
                                   - 'null'
-                              accountFees:
+                              inboundFreight:
+                                type:
+                                  - number
+                                  - 'null'
+                              sellerSubscription:
                                 type:
                                   - number
                                   - 'null'
@@ -70154,7 +70184,8 @@ paths:
                               - afterOrderCosts
                               - adSpend
                               - storageFees
-                              - accountFees
+                              - inboundFreight
+                              - sellerSubscription
                               - adjustments
                               - contribution
                           ads:
@@ -70236,7 +70267,11 @@ paths:
                                 type:
                                   - number
                                   - 'null'
-                              accountFees:
+                              inboundFreight:
+                                type:
+                                  - number
+                                  - 'null'
+                              sellerSubscription:
                                 type:
                                   - number
                                   - 'null'
@@ -70267,7 +70302,8 @@ paths:
                               - afterOrderCosts
                               - adSpend
                               - storageFees
-                              - accountFees
+                              - inboundFreight
+                              - sellerSubscription
                               - adjustments
                               - contribution
                           fba:
@@ -70315,7 +70351,11 @@ paths:
                                 type:
                                   - number
                                   - 'null'
-                              accountFees:
+                              inboundFreight:
+                                type:
+                                  - number
+                                  - 'null'
+                              sellerSubscription:
                                 type:
                                   - number
                                   - 'null'
@@ -70346,7 +70386,8 @@ paths:
                               - afterOrderCosts
                               - adSpend
                               - storageFees
-                              - accountFees
+                              - inboundFreight
+                              - sellerSubscription
                               - adjustments
                               - contribution
                           mfn:
@@ -70394,7 +70435,11 @@ paths:
                                 type:
                                   - number
                                   - 'null'
-                              accountFees:
+                              inboundFreight:
+                                type:
+                                  - number
+                                  - 'null'
+                              sellerSubscription:
                                 type:
                                   - number
                                   - 'null'
@@ -70425,7 +70470,8 @@ paths:
                               - afterOrderCosts
                               - adSpend
                               - storageFees
-                              - accountFees
+                              - inboundFreight
+                              - sellerSubscription
                               - adjustments
                               - contribution
                           ads:
@@ -70797,14 +70843,15 @@ paths:
         starting on the 1st compares day for day with the same span of earlier
         calendar months; any other range with the equal number of days right
         before it; previous is null when the org's go-live date falls inside
-        that window). Every order is classified by the sales channel Shopify
-        recorded for it, and channels lists each channel with orders in the
-        range, its label, whether it is in the direct-to-consumer scope (the
-        store's checkout, subscriptions, Shop app, Facebook and Instagram, point
-        of sale, unnamed apps) or not (marketplaces and wholesale apps such as
-        TikTok Shop, Faire or Walmart, draft and manual orders, and orders worth
-        nothing or marked as samples), and why. Each bucket and total has three
-        kinds of view: dtc (the headline, the only view with ad spend and
+        that window). Every order is classified by the sales channel stored on
+        its receipt (set by the receipts sync from what Shopify recorded), and
+        channels lists each channel with orders in the range, its label, whether
+        it is in the direct-to-consumer scope (the store's checkout,
+        subscriptions, Shop app, Meta, point of sale, and Others: apps Shopify
+        knows only by a number) or not (marketplaces and wholesale apps such as
+        TikTok Shop, Faire or Walmart, draft orders, and Samples / $0: orders
+        worth nothing or marked as samples), and why. Each bucket and total has
+        three kinds of view: dtc (the headline, the only view with ad spend and
         contribution), all (every channel added up) and byChannel (keyed by
         channel). Revenue, units, inventory cost, payment fees and postage are
         dated by order date (cancelled orders excluded, nothing before the org's
@@ -72023,6 +72070,1702 @@ paths:
                   - unmappedListings
                   - reconciliation
                   - campaigns
+        '401':
+          description: Missing or invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '403':
+          description: Not a member of the organization, or the role does not allow this
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - not_found
+                          - in_use
+                          - invalid_transition
+                          - validation_failed
+                          - forbidden
+                          - unauthorized
+                          - conflict
+                          - upstream_failed
+                          - internal_error
+                      message:
+                        type: string
+                      details: {}
+                    required:
+                      - code
+                      - message
+                required:
+                  - error
+  /reports/dtc-performance:
+    get:
+      tags:
+        - Reporting
+      summary: Get DTC performance report
+      description: >-
+        The direct-to-consumer business on every platform (Shopify and Amazon)
+        for a date range: orders, revenue and every cost down the contribution
+        ladder (gross profit CM1, contribution margin CM2, contribution after
+        marketing CM3; margins are % of net revenue), by period (grain=day, week
+        or month, with historyFrom extending the series back), by platform and
+        by channel, plus contribution by product, discounts and revenue by
+        ship-to state. compare=previous (default), lastYear or none picks the
+        comparison window (rolling=true makes the previous period the same
+        number of days right before the range, as for the last 7, 30 or 90 days;
+        otherwise a range starting on the 1st compares month for month); it
+        comes back null when it would reach before the org's go-live date.
+        channels is a comma-separated list of channel keys from channels.options
+        (platform:channel); omitted means every channel except Shopify samples
+        and $0 orders. Ads and Amazon's account fees name no channel and are
+        shared over their channels by net revenue; figures resting on such a
+        share or on another estimate are named in estimates with the reason. The
+        product, discount and state tables add up to the chosen channels'
+        totals.
+      parameters:
+        - schema:
+            type: string
+            pattern: ^\d{4}-\d{2}-\d{2}$
+          required: true
+          name: from
+          in: query
+        - schema:
+            type: string
+            pattern: ^\d{4}-\d{2}-\d{2}$
+          required: true
+          name: to
+          in: query
+        - schema:
+            type: string
+            enum:
+              - day
+              - week
+              - month
+          required: false
+          name: grain
+          in: query
+        - schema:
+            type: string
+            enum:
+              - previous
+              - lastYear
+              - none
+          required: false
+          name: compare
+          in: query
+        - schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+          required: false
+          name: rolling
+          in: query
+        - schema:
+            type: string
+          required: false
+          name: channels
+          in: query
+        - schema:
+            type: string
+            pattern: ^\d{4}-\d{2}-\d{2}$
+          required: false
+          name: historyFrom
+          in: query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  range:
+                    type: object
+                    properties:
+                      from:
+                        type: string
+                      to:
+                        type: string
+                    required:
+                      - from
+                      - to
+                  compare:
+                    type: string
+                    enum:
+                      - previous
+                      - lastYear
+                      - none
+                  comparison:
+                    type:
+                      - object
+                      - 'null'
+                    properties:
+                      from:
+                        type: string
+                      to:
+                        type: string
+                    required:
+                      - from
+                      - to
+                  grain:
+                    type: string
+                    enum:
+                      - day
+                      - week
+                      - month
+                  dataFrom:
+                    type: string
+                  channels:
+                    type: object
+                    properties:
+                      options:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            key:
+                              type: string
+                            platform:
+                              type: string
+                              enum:
+                                - shopify
+                                - amazon
+                            platformLabel:
+                              type: string
+                            label:
+                              type: string
+                            orders:
+                              type: number
+                            defaultOff:
+                              type: boolean
+                            missingCommission:
+                              type: boolean
+                          required:
+                            - key
+                            - platform
+                            - platformLabel
+                            - label
+                            - orders
+                            - defaultOff
+                            - missingCommission
+                      selected:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                      - options
+                      - selected
+                  sources:
+                    type: object
+                    properties:
+                      shopify:
+                        type: boolean
+                      amazon:
+                        type: boolean
+                      amazonAds:
+                        type: boolean
+                      metaAds:
+                        type: boolean
+                      googleAds:
+                        type: boolean
+                      tiktokAds:
+                        type: boolean
+                      shipping:
+                        type: boolean
+                    required:
+                      - shopify
+                      - amazon
+                      - amazonAds
+                      - metaAds
+                      - googleAds
+                      - tiktokAds
+                      - shipping
+                  available:
+                    type: object
+                    properties:
+                      shopifyFees:
+                        type: boolean
+                      amazonFees:
+                        type: boolean
+                      ads:
+                        type: boolean
+                      postage:
+                        type: boolean
+                      discounts:
+                        type: boolean
+                    required:
+                      - shopifyFees
+                      - amazonFees
+                      - ads
+                      - postage
+                      - discounts
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                  leftOut:
+                    type: array
+                    items:
+                      type: string
+                  dataThrough:
+                    type: object
+                    properties:
+                      receipts:
+                        type:
+                          - string
+                          - 'null'
+                      shopifyFees:
+                        type:
+                          - string
+                          - 'null'
+                      amazonFees:
+                        type:
+                          - string
+                          - 'null'
+                      ads:
+                        type:
+                          - string
+                          - 'null'
+                    required:
+                      - receipts
+                      - shopifyFees
+                      - amazonFees
+                      - ads
+                  buckets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        from:
+                          type: string
+                        to:
+                          type: string
+                        inRange:
+                          type: boolean
+                        total:
+                          type: object
+                          properties:
+                            orders:
+                              type: number
+                            units:
+                              type: number
+                            grossRevenue:
+                              type: number
+                            discounts:
+                              type: number
+                            refunds:
+                              type: number
+                            shippingCharged:
+                              type: number
+                            netRevenue:
+                              type: number
+                            inventoryCost:
+                              type: number
+                            inboundFreight:
+                              type: number
+                            costOfGoods:
+                              type: number
+                            grossProfit:
+                              type: number
+                            referralFees:
+                              type: number
+                            otherMarketplaceFees:
+                              type: number
+                            paymentProcessing:
+                              type: number
+                            disputes:
+                              type: number
+                            fulfillmentFees:
+                              type: number
+                            postage:
+                              type: number
+                            storageFees:
+                              type: number
+                            sellerSubscription:
+                              type: number
+                            reimbursements:
+                              type: number
+                            costOfSales:
+                              type: number
+                            contributionMargin:
+                              type: number
+                            amazonAds:
+                              type: number
+                            metaAds:
+                              type: number
+                            googleAds:
+                              type: number
+                            tiktokAds:
+                              type: number
+                            adSpend:
+                              type: number
+                            contributionAfterMarketing:
+                              type: number
+                            estimates:
+                              type: object
+                              additionalProperties:
+                                type: string
+                          required:
+                            - orders
+                            - units
+                            - grossRevenue
+                            - discounts
+                            - refunds
+                            - shippingCharged
+                            - netRevenue
+                            - inventoryCost
+                            - inboundFreight
+                            - costOfGoods
+                            - grossProfit
+                            - referralFees
+                            - otherMarketplaceFees
+                            - paymentProcessing
+                            - disputes
+                            - fulfillmentFees
+                            - postage
+                            - storageFees
+                            - sellerSubscription
+                            - reimbursements
+                            - costOfSales
+                            - contributionMargin
+                            - amazonAds
+                            - metaAds
+                            - googleAds
+                            - tiktokAds
+                            - adSpend
+                            - contributionAfterMarketing
+                            - estimates
+                        byPlatform:
+                          type: object
+                          properties:
+                            shopify:
+                              type: object
+                              properties:
+                                orders:
+                                  type: number
+                                units:
+                                  type: number
+                                grossRevenue:
+                                  type: number
+                                discounts:
+                                  type: number
+                                refunds:
+                                  type: number
+                                shippingCharged:
+                                  type: number
+                                netRevenue:
+                                  type: number
+                                inventoryCost:
+                                  type: number
+                                inboundFreight:
+                                  type: number
+                                costOfGoods:
+                                  type: number
+                                grossProfit:
+                                  type: number
+                                referralFees:
+                                  type: number
+                                otherMarketplaceFees:
+                                  type: number
+                                paymentProcessing:
+                                  type: number
+                                disputes:
+                                  type: number
+                                fulfillmentFees:
+                                  type: number
+                                postage:
+                                  type: number
+                                storageFees:
+                                  type: number
+                                sellerSubscription:
+                                  type: number
+                                reimbursements:
+                                  type: number
+                                costOfSales:
+                                  type: number
+                                contributionMargin:
+                                  type: number
+                                amazonAds:
+                                  type: number
+                                metaAds:
+                                  type: number
+                                googleAds:
+                                  type: number
+                                tiktokAds:
+                                  type: number
+                                adSpend:
+                                  type: number
+                                contributionAfterMarketing:
+                                  type: number
+                                estimates:
+                                  type: object
+                                  additionalProperties:
+                                    type: string
+                              required:
+                                - orders
+                                - units
+                                - grossRevenue
+                                - discounts
+                                - refunds
+                                - shippingCharged
+                                - netRevenue
+                                - inventoryCost
+                                - inboundFreight
+                                - costOfGoods
+                                - grossProfit
+                                - referralFees
+                                - otherMarketplaceFees
+                                - paymentProcessing
+                                - disputes
+                                - fulfillmentFees
+                                - postage
+                                - storageFees
+                                - sellerSubscription
+                                - reimbursements
+                                - costOfSales
+                                - contributionMargin
+                                - amazonAds
+                                - metaAds
+                                - googleAds
+                                - tiktokAds
+                                - adSpend
+                                - contributionAfterMarketing
+                                - estimates
+                            amazon:
+                              type: object
+                              properties:
+                                orders:
+                                  type: number
+                                units:
+                                  type: number
+                                grossRevenue:
+                                  type: number
+                                discounts:
+                                  type: number
+                                refunds:
+                                  type: number
+                                shippingCharged:
+                                  type: number
+                                netRevenue:
+                                  type: number
+                                inventoryCost:
+                                  type: number
+                                inboundFreight:
+                                  type: number
+                                costOfGoods:
+                                  type: number
+                                grossProfit:
+                                  type: number
+                                referralFees:
+                                  type: number
+                                otherMarketplaceFees:
+                                  type: number
+                                paymentProcessing:
+                                  type: number
+                                disputes:
+                                  type: number
+                                fulfillmentFees:
+                                  type: number
+                                postage:
+                                  type: number
+                                storageFees:
+                                  type: number
+                                sellerSubscription:
+                                  type: number
+                                reimbursements:
+                                  type: number
+                                costOfSales:
+                                  type: number
+                                contributionMargin:
+                                  type: number
+                                amazonAds:
+                                  type: number
+                                metaAds:
+                                  type: number
+                                googleAds:
+                                  type: number
+                                tiktokAds:
+                                  type: number
+                                adSpend:
+                                  type: number
+                                contributionAfterMarketing:
+                                  type: number
+                                estimates:
+                                  type: object
+                                  additionalProperties:
+                                    type: string
+                              required:
+                                - orders
+                                - units
+                                - grossRevenue
+                                - discounts
+                                - refunds
+                                - shippingCharged
+                                - netRevenue
+                                - inventoryCost
+                                - inboundFreight
+                                - costOfGoods
+                                - grossProfit
+                                - referralFees
+                                - otherMarketplaceFees
+                                - paymentProcessing
+                                - disputes
+                                - fulfillmentFees
+                                - postage
+                                - storageFees
+                                - sellerSubscription
+                                - reimbursements
+                                - costOfSales
+                                - contributionMargin
+                                - amazonAds
+                                - metaAds
+                                - googleAds
+                                - tiktokAds
+                                - adSpend
+                                - contributionAfterMarketing
+                                - estimates
+                      required:
+                        - from
+                        - to
+                        - inRange
+                        - total
+                        - byPlatform
+                  totals:
+                    type: object
+                    properties:
+                      range:
+                        type: object
+                        properties:
+                          total:
+                            type: object
+                            properties:
+                              orders:
+                                type: number
+                              units:
+                                type: number
+                              grossRevenue:
+                                type: number
+                              discounts:
+                                type: number
+                              refunds:
+                                type: number
+                              shippingCharged:
+                                type: number
+                              netRevenue:
+                                type: number
+                              inventoryCost:
+                                type: number
+                              inboundFreight:
+                                type: number
+                              costOfGoods:
+                                type: number
+                              grossProfit:
+                                type: number
+                              referralFees:
+                                type: number
+                              otherMarketplaceFees:
+                                type: number
+                              paymentProcessing:
+                                type: number
+                              disputes:
+                                type: number
+                              fulfillmentFees:
+                                type: number
+                              postage:
+                                type: number
+                              storageFees:
+                                type: number
+                              sellerSubscription:
+                                type: number
+                              reimbursements:
+                                type: number
+                              costOfSales:
+                                type: number
+                              contributionMargin:
+                                type: number
+                              amazonAds:
+                                type: number
+                              metaAds:
+                                type: number
+                              googleAds:
+                                type: number
+                              tiktokAds:
+                                type: number
+                              adSpend:
+                                type: number
+                              contributionAfterMarketing:
+                                type: number
+                              estimates:
+                                type: object
+                                additionalProperties:
+                                  type: string
+                            required:
+                              - orders
+                              - units
+                              - grossRevenue
+                              - discounts
+                              - refunds
+                              - shippingCharged
+                              - netRevenue
+                              - inventoryCost
+                              - inboundFreight
+                              - costOfGoods
+                              - grossProfit
+                              - referralFees
+                              - otherMarketplaceFees
+                              - paymentProcessing
+                              - disputes
+                              - fulfillmentFees
+                              - postage
+                              - storageFees
+                              - sellerSubscription
+                              - reimbursements
+                              - costOfSales
+                              - contributionMargin
+                              - amazonAds
+                              - metaAds
+                              - googleAds
+                              - tiktokAds
+                              - adSpend
+                              - contributionAfterMarketing
+                              - estimates
+                          byPlatform:
+                            type: object
+                            properties:
+                              shopify:
+                                type: object
+                                properties:
+                                  orders:
+                                    type: number
+                                  units:
+                                    type: number
+                                  grossRevenue:
+                                    type: number
+                                  discounts:
+                                    type: number
+                                  refunds:
+                                    type: number
+                                  shippingCharged:
+                                    type: number
+                                  netRevenue:
+                                    type: number
+                                  inventoryCost:
+                                    type: number
+                                  inboundFreight:
+                                    type: number
+                                  costOfGoods:
+                                    type: number
+                                  grossProfit:
+                                    type: number
+                                  referralFees:
+                                    type: number
+                                  otherMarketplaceFees:
+                                    type: number
+                                  paymentProcessing:
+                                    type: number
+                                  disputes:
+                                    type: number
+                                  fulfillmentFees:
+                                    type: number
+                                  postage:
+                                    type: number
+                                  storageFees:
+                                    type: number
+                                  sellerSubscription:
+                                    type: number
+                                  reimbursements:
+                                    type: number
+                                  costOfSales:
+                                    type: number
+                                  contributionMargin:
+                                    type: number
+                                  amazonAds:
+                                    type: number
+                                  metaAds:
+                                    type: number
+                                  googleAds:
+                                    type: number
+                                  tiktokAds:
+                                    type: number
+                                  adSpend:
+                                    type: number
+                                  contributionAfterMarketing:
+                                    type: number
+                                  estimates:
+                                    type: object
+                                    additionalProperties:
+                                      type: string
+                                required:
+                                  - orders
+                                  - units
+                                  - grossRevenue
+                                  - discounts
+                                  - refunds
+                                  - shippingCharged
+                                  - netRevenue
+                                  - inventoryCost
+                                  - inboundFreight
+                                  - costOfGoods
+                                  - grossProfit
+                                  - referralFees
+                                  - otherMarketplaceFees
+                                  - paymentProcessing
+                                  - disputes
+                                  - fulfillmentFees
+                                  - postage
+                                  - storageFees
+                                  - sellerSubscription
+                                  - reimbursements
+                                  - costOfSales
+                                  - contributionMargin
+                                  - amazonAds
+                                  - metaAds
+                                  - googleAds
+                                  - tiktokAds
+                                  - adSpend
+                                  - contributionAfterMarketing
+                                  - estimates
+                              amazon:
+                                type: object
+                                properties:
+                                  orders:
+                                    type: number
+                                  units:
+                                    type: number
+                                  grossRevenue:
+                                    type: number
+                                  discounts:
+                                    type: number
+                                  refunds:
+                                    type: number
+                                  shippingCharged:
+                                    type: number
+                                  netRevenue:
+                                    type: number
+                                  inventoryCost:
+                                    type: number
+                                  inboundFreight:
+                                    type: number
+                                  costOfGoods:
+                                    type: number
+                                  grossProfit:
+                                    type: number
+                                  referralFees:
+                                    type: number
+                                  otherMarketplaceFees:
+                                    type: number
+                                  paymentProcessing:
+                                    type: number
+                                  disputes:
+                                    type: number
+                                  fulfillmentFees:
+                                    type: number
+                                  postage:
+                                    type: number
+                                  storageFees:
+                                    type: number
+                                  sellerSubscription:
+                                    type: number
+                                  reimbursements:
+                                    type: number
+                                  costOfSales:
+                                    type: number
+                                  contributionMargin:
+                                    type: number
+                                  amazonAds:
+                                    type: number
+                                  metaAds:
+                                    type: number
+                                  googleAds:
+                                    type: number
+                                  tiktokAds:
+                                    type: number
+                                  adSpend:
+                                    type: number
+                                  contributionAfterMarketing:
+                                    type: number
+                                  estimates:
+                                    type: object
+                                    additionalProperties:
+                                      type: string
+                                required:
+                                  - orders
+                                  - units
+                                  - grossRevenue
+                                  - discounts
+                                  - refunds
+                                  - shippingCharged
+                                  - netRevenue
+                                  - inventoryCost
+                                  - inboundFreight
+                                  - costOfGoods
+                                  - grossProfit
+                                  - referralFees
+                                  - otherMarketplaceFees
+                                  - paymentProcessing
+                                  - disputes
+                                  - fulfillmentFees
+                                  - postage
+                                  - storageFees
+                                  - sellerSubscription
+                                  - reimbursements
+                                  - costOfSales
+                                  - contributionMargin
+                                  - amazonAds
+                                  - metaAds
+                                  - googleAds
+                                  - tiktokAds
+                                  - adSpend
+                                  - contributionAfterMarketing
+                                  - estimates
+                          byChannel:
+                            type: object
+                            additionalProperties:
+                              type: object
+                              properties:
+                                orders:
+                                  type: number
+                                units:
+                                  type: number
+                                grossRevenue:
+                                  type: number
+                                discounts:
+                                  type: number
+                                refunds:
+                                  type: number
+                                shippingCharged:
+                                  type: number
+                                netRevenue:
+                                  type: number
+                                inventoryCost:
+                                  type: number
+                                inboundFreight:
+                                  type: number
+                                costOfGoods:
+                                  type: number
+                                grossProfit:
+                                  type: number
+                                referralFees:
+                                  type: number
+                                otherMarketplaceFees:
+                                  type: number
+                                paymentProcessing:
+                                  type: number
+                                disputes:
+                                  type: number
+                                fulfillmentFees:
+                                  type: number
+                                postage:
+                                  type: number
+                                storageFees:
+                                  type: number
+                                sellerSubscription:
+                                  type: number
+                                reimbursements:
+                                  type: number
+                                costOfSales:
+                                  type: number
+                                contributionMargin:
+                                  type: number
+                                amazonAds:
+                                  type: number
+                                metaAds:
+                                  type: number
+                                googleAds:
+                                  type: number
+                                tiktokAds:
+                                  type: number
+                                adSpend:
+                                  type: number
+                                contributionAfterMarketing:
+                                  type: number
+                                estimates:
+                                  type: object
+                                  additionalProperties:
+                                    type: string
+                              required:
+                                - orders
+                                - units
+                                - grossRevenue
+                                - discounts
+                                - refunds
+                                - shippingCharged
+                                - netRevenue
+                                - inventoryCost
+                                - inboundFreight
+                                - costOfGoods
+                                - grossProfit
+                                - referralFees
+                                - otherMarketplaceFees
+                                - paymentProcessing
+                                - disputes
+                                - fulfillmentFees
+                                - postage
+                                - storageFees
+                                - sellerSubscription
+                                - reimbursements
+                                - costOfSales
+                                - contributionMargin
+                                - amazonAds
+                                - metaAds
+                                - googleAds
+                                - tiktokAds
+                                - adSpend
+                                - contributionAfterMarketing
+                                - estimates
+                        required:
+                          - total
+                          - byPlatform
+                          - byChannel
+                      comparison:
+                        type:
+                          - object
+                          - 'null'
+                        properties:
+                          total:
+                            type: object
+                            properties:
+                              orders:
+                                type: number
+                              units:
+                                type: number
+                              grossRevenue:
+                                type: number
+                              discounts:
+                                type: number
+                              refunds:
+                                type: number
+                              shippingCharged:
+                                type: number
+                              netRevenue:
+                                type: number
+                              inventoryCost:
+                                type: number
+                              inboundFreight:
+                                type: number
+                              costOfGoods:
+                                type: number
+                              grossProfit:
+                                type: number
+                              referralFees:
+                                type: number
+                              otherMarketplaceFees:
+                                type: number
+                              paymentProcessing:
+                                type: number
+                              disputes:
+                                type: number
+                              fulfillmentFees:
+                                type: number
+                              postage:
+                                type: number
+                              storageFees:
+                                type: number
+                              sellerSubscription:
+                                type: number
+                              reimbursements:
+                                type: number
+                              costOfSales:
+                                type: number
+                              contributionMargin:
+                                type: number
+                              amazonAds:
+                                type: number
+                              metaAds:
+                                type: number
+                              googleAds:
+                                type: number
+                              tiktokAds:
+                                type: number
+                              adSpend:
+                                type: number
+                              contributionAfterMarketing:
+                                type: number
+                              estimates:
+                                type: object
+                                additionalProperties:
+                                  type: string
+                            required:
+                              - orders
+                              - units
+                              - grossRevenue
+                              - discounts
+                              - refunds
+                              - shippingCharged
+                              - netRevenue
+                              - inventoryCost
+                              - inboundFreight
+                              - costOfGoods
+                              - grossProfit
+                              - referralFees
+                              - otherMarketplaceFees
+                              - paymentProcessing
+                              - disputes
+                              - fulfillmentFees
+                              - postage
+                              - storageFees
+                              - sellerSubscription
+                              - reimbursements
+                              - costOfSales
+                              - contributionMargin
+                              - amazonAds
+                              - metaAds
+                              - googleAds
+                              - tiktokAds
+                              - adSpend
+                              - contributionAfterMarketing
+                              - estimates
+                          byPlatform:
+                            type: object
+                            properties:
+                              shopify:
+                                type: object
+                                properties:
+                                  orders:
+                                    type: number
+                                  units:
+                                    type: number
+                                  grossRevenue:
+                                    type: number
+                                  discounts:
+                                    type: number
+                                  refunds:
+                                    type: number
+                                  shippingCharged:
+                                    type: number
+                                  netRevenue:
+                                    type: number
+                                  inventoryCost:
+                                    type: number
+                                  inboundFreight:
+                                    type: number
+                                  costOfGoods:
+                                    type: number
+                                  grossProfit:
+                                    type: number
+                                  referralFees:
+                                    type: number
+                                  otherMarketplaceFees:
+                                    type: number
+                                  paymentProcessing:
+                                    type: number
+                                  disputes:
+                                    type: number
+                                  fulfillmentFees:
+                                    type: number
+                                  postage:
+                                    type: number
+                                  storageFees:
+                                    type: number
+                                  sellerSubscription:
+                                    type: number
+                                  reimbursements:
+                                    type: number
+                                  costOfSales:
+                                    type: number
+                                  contributionMargin:
+                                    type: number
+                                  amazonAds:
+                                    type: number
+                                  metaAds:
+                                    type: number
+                                  googleAds:
+                                    type: number
+                                  tiktokAds:
+                                    type: number
+                                  adSpend:
+                                    type: number
+                                  contributionAfterMarketing:
+                                    type: number
+                                  estimates:
+                                    type: object
+                                    additionalProperties:
+                                      type: string
+                                required:
+                                  - orders
+                                  - units
+                                  - grossRevenue
+                                  - discounts
+                                  - refunds
+                                  - shippingCharged
+                                  - netRevenue
+                                  - inventoryCost
+                                  - inboundFreight
+                                  - costOfGoods
+                                  - grossProfit
+                                  - referralFees
+                                  - otherMarketplaceFees
+                                  - paymentProcessing
+                                  - disputes
+                                  - fulfillmentFees
+                                  - postage
+                                  - storageFees
+                                  - sellerSubscription
+                                  - reimbursements
+                                  - costOfSales
+                                  - contributionMargin
+                                  - amazonAds
+                                  - metaAds
+                                  - googleAds
+                                  - tiktokAds
+                                  - adSpend
+                                  - contributionAfterMarketing
+                                  - estimates
+                              amazon:
+                                type: object
+                                properties:
+                                  orders:
+                                    type: number
+                                  units:
+                                    type: number
+                                  grossRevenue:
+                                    type: number
+                                  discounts:
+                                    type: number
+                                  refunds:
+                                    type: number
+                                  shippingCharged:
+                                    type: number
+                                  netRevenue:
+                                    type: number
+                                  inventoryCost:
+                                    type: number
+                                  inboundFreight:
+                                    type: number
+                                  costOfGoods:
+                                    type: number
+                                  grossProfit:
+                                    type: number
+                                  referralFees:
+                                    type: number
+                                  otherMarketplaceFees:
+                                    type: number
+                                  paymentProcessing:
+                                    type: number
+                                  disputes:
+                                    type: number
+                                  fulfillmentFees:
+                                    type: number
+                                  postage:
+                                    type: number
+                                  storageFees:
+                                    type: number
+                                  sellerSubscription:
+                                    type: number
+                                  reimbursements:
+                                    type: number
+                                  costOfSales:
+                                    type: number
+                                  contributionMargin:
+                                    type: number
+                                  amazonAds:
+                                    type: number
+                                  metaAds:
+                                    type: number
+                                  googleAds:
+                                    type: number
+                                  tiktokAds:
+                                    type: number
+                                  adSpend:
+                                    type: number
+                                  contributionAfterMarketing:
+                                    type: number
+                                  estimates:
+                                    type: object
+                                    additionalProperties:
+                                      type: string
+                                required:
+                                  - orders
+                                  - units
+                                  - grossRevenue
+                                  - discounts
+                                  - refunds
+                                  - shippingCharged
+                                  - netRevenue
+                                  - inventoryCost
+                                  - inboundFreight
+                                  - costOfGoods
+                                  - grossProfit
+                                  - referralFees
+                                  - otherMarketplaceFees
+                                  - paymentProcessing
+                                  - disputes
+                                  - fulfillmentFees
+                                  - postage
+                                  - storageFees
+                                  - sellerSubscription
+                                  - reimbursements
+                                  - costOfSales
+                                  - contributionMargin
+                                  - amazonAds
+                                  - metaAds
+                                  - googleAds
+                                  - tiktokAds
+                                  - adSpend
+                                  - contributionAfterMarketing
+                                  - estimates
+                          byChannel:
+                            type: object
+                            additionalProperties:
+                              type: object
+                              properties:
+                                orders:
+                                  type: number
+                                units:
+                                  type: number
+                                grossRevenue:
+                                  type: number
+                                discounts:
+                                  type: number
+                                refunds:
+                                  type: number
+                                shippingCharged:
+                                  type: number
+                                netRevenue:
+                                  type: number
+                                inventoryCost:
+                                  type: number
+                                inboundFreight:
+                                  type: number
+                                costOfGoods:
+                                  type: number
+                                grossProfit:
+                                  type: number
+                                referralFees:
+                                  type: number
+                                otherMarketplaceFees:
+                                  type: number
+                                paymentProcessing:
+                                  type: number
+                                disputes:
+                                  type: number
+                                fulfillmentFees:
+                                  type: number
+                                postage:
+                                  type: number
+                                storageFees:
+                                  type: number
+                                sellerSubscription:
+                                  type: number
+                                reimbursements:
+                                  type: number
+                                costOfSales:
+                                  type: number
+                                contributionMargin:
+                                  type: number
+                                amazonAds:
+                                  type: number
+                                metaAds:
+                                  type: number
+                                googleAds:
+                                  type: number
+                                tiktokAds:
+                                  type: number
+                                adSpend:
+                                  type: number
+                                contributionAfterMarketing:
+                                  type: number
+                                estimates:
+                                  type: object
+                                  additionalProperties:
+                                    type: string
+                              required:
+                                - orders
+                                - units
+                                - grossRevenue
+                                - discounts
+                                - refunds
+                                - shippingCharged
+                                - netRevenue
+                                - inventoryCost
+                                - inboundFreight
+                                - costOfGoods
+                                - grossProfit
+                                - referralFees
+                                - otherMarketplaceFees
+                                - paymentProcessing
+                                - disputes
+                                - fulfillmentFees
+                                - postage
+                                - storageFees
+                                - sellerSubscription
+                                - reimbursements
+                                - costOfSales
+                                - contributionMargin
+                                - amazonAds
+                                - metaAds
+                                - googleAds
+                                - tiktokAds
+                                - adSpend
+                                - contributionAfterMarketing
+                                - estimates
+                        required:
+                          - total
+                          - byPlatform
+                          - byChannel
+                    required:
+                      - range
+                      - comparison
+                  products:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        kind:
+                          type: string
+                          enum:
+                            - product
+                            - unmapped
+                            - unsold
+                        product:
+                          type:
+                            - object
+                            - 'null'
+                          properties:
+                            id:
+                              type: string
+                              pattern: >-
+                                ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+                            code:
+                              type: string
+                            name:
+                              type: string
+                          required:
+                            - id
+                            - code
+                            - name
+                        units:
+                          type: number
+                        unitsByPlatform:
+                          type: object
+                          properties:
+                            shopify:
+                              type: number
+                            amazon:
+                              type: number
+                          required:
+                            - shopify
+                            - amazon
+                        netRevenue:
+                          type: number
+                        inventoryCost:
+                          type: number
+                        inventoryCostEstimated:
+                          type: boolean
+                        estimates:
+                          type: object
+                          properties:
+                            netRevenue:
+                              type: string
+                            costOfGoods:
+                              type: string
+                            costOfSales:
+                              type: string
+                        inboundFreight:
+                          type: number
+                        costOfGoods:
+                          type: number
+                        grossProfit:
+                          type: number
+                        costOfSales:
+                          type: number
+                        contributionMargin:
+                          type: number
+                        adSpend:
+                          type: number
+                        contributionAfterMarketing:
+                          type: number
+                      required:
+                        - kind
+                        - product
+                        - units
+                        - unitsByPlatform
+                        - netRevenue
+                        - inventoryCost
+                        - inventoryCostEstimated
+                        - estimates
+                        - inboundFreight
+                        - costOfGoods
+                        - grossProfit
+                        - costOfSales
+                        - contributionMargin
+                        - adSpend
+                        - contributionAfterMarketing
+                  discounts:
+                    type: object
+                    properties:
+                      rows:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            orders:
+                              type: number
+                            netRevenue:
+                              type: number
+                            grossRevenue:
+                              type: number
+                            discountGiven:
+                              type: number
+                            ordersCompared:
+                              type:
+                                - number
+                                - 'null'
+                            estimates:
+                              type: object
+                              properties:
+                                netRevenue:
+                                  type: string
+                                grossRevenue:
+                                  type: string
+                                discountGiven:
+                                  type: string
+                            key:
+                              type: string
+                            kind:
+                              type: string
+                              enum:
+                                - code
+                                - automatic
+                                - manual
+                                - script
+                                - promotion
+                                - unnamed
+                            name:
+                              type: string
+                            value:
+                              type:
+                                - number
+                                - 'null'
+                            valueType:
+                              type:
+                                - string
+                                - 'null'
+                            channelLabel:
+                              type:
+                                - string
+                                - 'null'
+                          required:
+                            - orders
+                            - netRevenue
+                            - grossRevenue
+                            - discountGiven
+                            - ordersCompared
+                            - estimates
+                            - key
+                            - kind
+                            - name
+                            - value
+                            - valueType
+                            - channelLabel
+                      withDiscount:
+                        type: object
+                        properties:
+                          orders:
+                            type: number
+                          netRevenue:
+                            type: number
+                          grossRevenue:
+                            type: number
+                          discountGiven:
+                            type: number
+                          ordersCompared:
+                            type:
+                              - number
+                              - 'null'
+                          estimates:
+                            type: object
+                            properties:
+                              netRevenue:
+                                type: string
+                              grossRevenue:
+                                type: string
+                              discountGiven:
+                                type: string
+                        required:
+                          - orders
+                          - netRevenue
+                          - grossRevenue
+                          - discountGiven
+                          - ordersCompared
+                          - estimates
+                      fullPrice:
+                        type: object
+                        properties:
+                          orders:
+                            type: number
+                          netRevenue:
+                            type: number
+                          grossRevenue:
+                            type: number
+                          discountGiven:
+                            type: number
+                          ordersCompared:
+                            type:
+                              - number
+                              - 'null'
+                          estimates:
+                            type: object
+                            properties:
+                              netRevenue:
+                                type: string
+                              grossRevenue:
+                                type: string
+                              discountGiven:
+                                type: string
+                        required:
+                          - orders
+                          - netRevenue
+                          - grossRevenue
+                          - discountGiven
+                          - ordersCompared
+                          - estimates
+                      all:
+                        type: object
+                        properties:
+                          orders:
+                            type: number
+                          netRevenue:
+                            type: number
+                          grossRevenue:
+                            type: number
+                          discountGiven:
+                            type: number
+                          ordersCompared:
+                            type:
+                              - number
+                              - 'null'
+                          estimates:
+                            type: object
+                            properties:
+                              netRevenue:
+                                type: string
+                              grossRevenue:
+                                type: string
+                              discountGiven:
+                                type: string
+                        required:
+                          - orders
+                          - netRevenue
+                          - grossRevenue
+                          - discountGiven
+                          - ordersCompared
+                          - estimates
+                    required:
+                      - rows
+                      - withDiscount
+                      - fullPrice
+                      - all
+                  states:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key:
+                          type: string
+                        orders:
+                          type: number
+                        netRevenue:
+                          type: number
+                        ordersCompared:
+                          type:
+                            - number
+                            - 'null'
+                        netRevenueCompared:
+                          type:
+                            - number
+                            - 'null'
+                        estimate:
+                          type:
+                            - string
+                            - 'null'
+                      required:
+                        - key
+                        - orders
+                        - netRevenue
+                        - ordersCompared
+                        - netRevenueCompared
+                        - estimate
+                required:
+                  - range
+                  - compare
+                  - comparison
+                  - grain
+                  - dataFrom
+                  - channels
+                  - sources
+                  - available
+                  - errors
+                  - leftOut
+                  - dataThrough
+                  - buckets
+                  - totals
+                  - products
+                  - discounts
+                  - states
         '401':
           description: Missing or invalid credentials
           content:
